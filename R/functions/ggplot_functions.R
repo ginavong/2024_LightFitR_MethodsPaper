@@ -9,7 +9,7 @@ led_colours_dark = c('mediumslateblue', 'navy', 'royalblue', 'skyblue', 'forestg
 # Transparent dark theme for presentations
 
 theme_presentation = function() {
-  theme(
+  ggplot2::theme(
     #Set black things to white
     line = element_line(color='#ffffff'),
     text = element_text(color="#ffffff", size=25),
