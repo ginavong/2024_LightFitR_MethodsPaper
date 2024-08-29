@@ -34,7 +34,7 @@ Find the package here: https://github.com/ginavong/LightFitR
 | 735   | firebrick                        | #b22222           |
 | 5700k | black / white depending on theme |  #000000/ #FFFFFF |
 
-# Standard data formats
+# Standard dataframe formats
 
 ## Spectrophotometer readings
 
