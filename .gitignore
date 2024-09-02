@@ -2,3 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Ignore csv files in these folders because Rdas are more space efficient
+data/calibration/*.csv
+data/light_testing/*.csv
+
+# Raw spectrometry files
+data/calibration/Apollo_Calib_20240827/raw/
