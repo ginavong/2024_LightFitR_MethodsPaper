@@ -1,6 +1,7 @@
 # Setup
 library(lubridate)
 library(LightFitR)
+source("R/functions/regime_functions.R")
 
 # Get intensities
 intensities_head = c(0, 1, 5, 10, 20, 50)
@@ -27,9 +28,7 @@ light_recipe = do.call(cbind, light_recipe)
 dim(light_recipe)
 
 # Times
-time_vec = seq(from=lubridate::hm('00:00'), by=lubridate::minutes(5), length.out=ncol(light_recipe))
-time_vec = as.POSIXct(time_vec, origin=origin, tz='GMT')
-time_mat = LightFitR::internal.makeTimes(time_vec)
+time_mat = test_times(ncol(light_recipe))
 
 # Make regime
 
