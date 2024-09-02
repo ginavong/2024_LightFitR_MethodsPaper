@@ -37,38 +37,28 @@ calib_info = function(calib_regime, spectrophotometer_df, LED_wavelengths_vec){
 #---
 # Calculate the peaks from the calibration data
 
-find_peaks = function(calib_df){
+find_peaks = function(calib_df, by=c('event', 'time')){
   
-  # Define variables
-  leds = unique(calib_df$LED)
-  intensities = unique(calib-df$intensity)
-  
-  # Make boolean vector corresponding to peaks
-  bool_vec = c(sapply(leds, function(l){
-    data_subset = calib_df[calib_df$LED == l, ]
+  instances = unique(calib_df[, by])
+
+  # Go through each event and find the wavelength with max irradiance
+  bool_vec = c(sapply(instances, function(i){
+    criteria = calib_df[, by]==i
+    calib_subset = calib_df[criteria, ]
     
-    intensity_vec = c(sapply(unique(data_subset$intensity), function(i){
-      intensity_subset = data_subset[data_subset$intensity==i,]
-      
-      m = max(intensity_subset$irradiance)
-      vec = intensity_subset$irradiance == m
-      vec
-    }))
-    
-    intensity_vec
+    m = max(calib_subset$irradiance)
+    vec = calib_subset$irradiance == m
+    vec
   }))
   
-  # Checks
-  checkNPeaks = length(which(bool_vec)) == (length(leds) * length(intensities))
+  #checks
+  checkNPeaks = length(which(bool_vec)) == (nrow(helio.dyna.leds) * length(unique(calib_df$intensities)))
   checkRows = nrow(calib_df) == length(bool_vec)
   
   checks = c(checkNPeaks, checkRows)
   if(any(!checks)){
-    warning("Please check data. Something went wrong with calculating peaks.")
+    warning(paste("Checks failed: ", paste(which(!checks), collapse=', ')))
   }
   
   return(bool_vec)
 }
-
-#---
-

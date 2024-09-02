@@ -69,10 +69,12 @@ trim_wavelengths = function(df){
 
 trim_times = function(start, end, timepoints_vec, df){
   
+  # Formatting variables
+  timepoints = lubridate::as_datetime(hms(timepoints_vec))
   timeRange = lubridate::interval(start=lubridate::as_datetime(hms(start)), end = (lubridate::as_datetime(hms(end))))
   
   # Decide which timepoints to keep
-  timestamps = lubridate::as_datetime(hms(unique(timepoints_vec))) #Formatting and uniquing
+  timestamps = unique(timepoints) #Formatting and uniquing
   keepTimes = timestamps[timestamps %within% timeRange]
   
   # Checks
@@ -81,7 +83,7 @@ trim_times = function(start, end, timepoints_vec, df){
   }
   
   # Generate new df with only rows with times we need
-  keepVec = timepoints_vec %in% keepTimes # Boolean of whether the timepoint is on the keep list
+  keepVec = timepoints %in% keepTimes # Boolean of whether the timepoint is on the keep list
     
   dfOut = df[keepVec,]
   
@@ -179,6 +181,7 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_s
   rm(time_dictionary)
   
   if(all(checks)){
+    message(paste('Checks passed: ', paste(which(checks), collapse=', '), '\n'))
     return(events_vec)
   } else{
     warning(paste('Checks failed: ', paste(which(!checks), collapse=', ')))
@@ -198,7 +201,7 @@ is.middle = function(events_vec, time_vec){
   }
   
   # Define variables
-  eventsUnique = unique(events_vec)
+  eventsUnique = na.omit(unique(events_vec))
   
   eventDict = data.frame(event = events_vec, time = time_vec)
   
@@ -207,7 +210,8 @@ is.middle = function(events_vec, time_vec){
     
     # Get times corresponding to the event
     times = unique(eventDict[eventDict$event==i, 'time'])
-    times = lubridate::as_datetime(lubridate::hms(times[!is.na(times)])) #rm na times and format as datetime
+    times = na.omit(times)
+    times = sort(lubridate::as_datetime(lubridate::hms(times), origin=lubridate::origin)) #format as datetime
     
     # Find the middle timepoint
     if((length(times) %% 2) ==1){ # If it's an odd length of times, find the straightforward median
@@ -227,23 +231,30 @@ is.middle = function(events_vec, time_vec){
   
   boolOut = time_vec %in% middle_times
   
-  return(boolOut)
+  if(length(boolOut) == length(events_vec)){
+    return(boolOut)
+  } else{
+    warning("Something went wrong with calculating middle timepoints; length of output doesn't match input")
+    return(boolOut)
+  }
 }
 
 #---
 # Get the total irradiance per event
 
-get_total_irradiance = function(spectrophotometer_df){
+get_total_irradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   # Get columns we need to keep, for formatting later
   discard_cols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
-  keep_cols = colnames(spectrophotometer_df)[-discard_cols]
+  discard_nos = which(colnames(spectrophotometer_df) %in% discard_cols)
+  keep_cols = colnames(spectrophotometer_df)[-discard_nos]
   
   # Define variables
-  events = unique(spectrophotometer_df$event)
+  instances = unique(spectrophotometer_df[, by])
   
-  dfOut = t(sapply(events, function(i){
-    data_subset = spectrophotometer_df[spectrophotometer_df$event==i,]
+  dfOut = t(sapply(instances, function(i){
+    criteria = spectrophotometer_df[, by] ==i
+    data_subset = spectrophotometer_df[criteria,]
     
     # Values to keep from other columns
     other_cols = sapply(keep_cols, function(k){
@@ -257,6 +268,12 @@ get_total_irradiance = function(spectrophotometer_df){
     c(other_cols, total)
   }))
   
+  # Formatting
   dfOut = as.data.frame(dfOut)
   colnames(dfOut) = c(keep_cols, 'total_irradiance')
+  
+  dfOut$event = as.numeric(dfOut$event)
+  dfOut$total_irradiance = as.numeric(dfOut$total_irradiance)
+  
+  return(dfOut)
 }
