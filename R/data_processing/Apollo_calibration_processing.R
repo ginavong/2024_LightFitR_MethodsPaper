@@ -133,3 +133,17 @@ save_data(calib_total, fn)
 #---
 # Rolling average
 
+calib_rolling = rolling_average(calib)
+
+## Calculate peaks
+calib_rolling$peak = find_peaks(calib_rolling, by='time')
+
+## Unit conversions
+calib_rolling$watts = oceanViewUnits_to_watts(calib_rolling$irradiance)
+calib_rolling$mol = watts_to_moles(calib_rolling$wavelength, calib_rolling$watts)
+calib_rolling$umol = moles_to_umol(calib_rolling$mol)
+
+## Export
+fn = paste(out_dir, light_name, '_calibration_rollingAverage_', date_measured, sep='')
+save_data(calib_rolling, fn)
+
