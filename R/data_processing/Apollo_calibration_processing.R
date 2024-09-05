@@ -28,6 +28,8 @@ source(paste(fun_dir, "processing_functions.R", sep=''))
 #---
 # 1. Imports
 
+message('Imports')
+
 calib_regime = read.csv(calib_regime_dir, row.names=1)
 raw = read_many.OceanView(raw_dir)
 
@@ -40,6 +42,8 @@ rm(fn, calib_regime_dir)
 
 #---
 # 2. Remove unneeded bits
+
+message('Trimming')
 
 calib = na.omit(raw)
 
@@ -61,6 +65,8 @@ stopifnot(colnames(calib) == colnames(raw))
 
 #---
 # 3. Add useful columns
+
+message('Add useful columns')
 
 ## Assign event numbers
 
@@ -112,6 +118,8 @@ save_data(calib, fn)
 #---
 # Total irradiance
 
+message('Total irradiance')
+
 calib_total = get_total_irradiance(calib, by='time')
 
 ## Formatting
@@ -132,6 +140,8 @@ save_data(calib_total, fn)
 
 #---
 # Rolling average
+
+message('Rolling averages')
 
 calib_rolling = rolling_average(calib)
 

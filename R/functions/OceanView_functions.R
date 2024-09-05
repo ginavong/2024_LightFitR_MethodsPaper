@@ -298,7 +298,7 @@ rolling_average = function(spectrophotometer_df){
     event = unique(timeSubset[, 'event'])
     
     # Let the user know
-    message(paste('\n', 'event = ', event, ',', 'time = ', i, sep=' '))
+    print(paste('\n', 'event = ', event, ',', 'time = ', i, sep=' '))
     
     # Get values for columns we need to keep
     discardCols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
