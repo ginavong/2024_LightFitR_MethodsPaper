@@ -4,8 +4,9 @@
 .Ruserdata
 
 # Ignore csv files in these folders because Rdas are more space efficient
-data/calibration/*.csv
-data/light_testing/*.csv
+data/calibration/Apollo_Calib_20240827/*.csv
+data/light_testing/Apollo_Calib_20240827/*.csv
 
 # Raw spectrometry files
 data/calibration/Apollo_Calib_20240827/raw/
+data/light_testing/4a/raw/
