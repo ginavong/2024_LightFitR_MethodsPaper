@@ -52,7 +52,7 @@ find_peaks = function(calib_df, by=c('event', 'time')){
   }))
   
   #checks
-  checkNPeaks = length(which(bool_vec)) == (nrow(helio.dyna.leds) * length(unique(calib_df$intensities)))
+  checkNPeaks = length(which(bool_vec)) == (nrow(LightFitR::helio.dyna.leds) * length(unique(calib_df$intensities)))
   checkRows = nrow(calib_df) == length(bool_vec)
   
   checks = c(checkNPeaks, checkRows)

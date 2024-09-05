@@ -277,3 +277,71 @@ get_total_irradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   return(dfOut)
 }
+
+#---
+# Rolling average
+
+rolling_average = function(spectrophotometer_df){
+  
+  # Define variables
+  times = unique(spectrophotometer_df[, 'time'])
+  
+  # Rolling average per timepoint
+  rollingPerTime = lapply(times, function(i){
+    
+    # Subset data
+    criteria = spectrophotometer_df$time==i
+    timeSubset = spectrophotometer_df[criteria, ]
+    
+    # Define variables
+    wls = unique(timeSubset[, 'wavelength'])
+    event = unique(timeSubset[, 'event'])
+    
+    # Let the user know
+    message(paste('\n', 'event = ', event, ',', 'time = ', i, sep=' '))
+    
+    # Get values for columns we need to keep
+    discardCols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
+    discardNos = which(colnames(timeSubset) %in% discardCols)
+    keepCols = colnames(timeSubset)[-discardNos]
+    
+    keepRow = unique(timeSubset[, keepCols])
+    
+    rm(discardCols, discardNos)
+    
+    # Checks
+    test = (nrow(timeSubset) == length(wls)) #Each row should represent a wavelength
+    if(test==F){
+      warning('There is a problem with the raw data for this event at this time ^. Excluded from rolling average')
+      average = c(NA, NA)
+    } else{
+      
+      # Get the rolling average
+      
+      average = t(sapply(3:(length(wls)-2), function(a){
+        wl = wls[a]
+        
+        av = mean(timeSubset[((a-2):(a+2)), 'irradiance'])
+        
+        c(wl, av)
+      }))
+    }
+    
+    # Format into a df
+    
+    rowsNeeded = nrow(average)
+    
+    otherRows = keepRow[rep(row.names(keepRow), times=rowsNeeded), ]
+    
+    rolling = cbind(otherRows, average)
+    rolling = as.data.frame(rolling)
+    colnames(rolling) = c(keepCols, 'wavelength', 'irradiance')
+    
+    rolling
+  })
+  
+  # Put big list into one df
+  dfOut = do.call(rbind, rollingPerTime)
+  
+  return(dfOut)
+}
