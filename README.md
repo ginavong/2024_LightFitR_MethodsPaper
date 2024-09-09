@@ -48,10 +48,10 @@ The raw ascii / txt files should be processed into a dataframe with at least all
 | time | character | timepoint the reading was taken at |
 | event | numeric | event number corresponding to the column number in the regime |
 | wavelength | numeric | wavelength this row describes |
-| irradiance | numeric | irradiance measured by spectrometer |
-| watts | numeric | converted to watts |
-| mol | numeric | irradiance converted to mol |
-| umol | numeric | irradiance converted to umol (not same as PAR) |
+| irradiance | numeric | irradiance measured by spectrometer, in  μW cm^-2 nm^-1 |
+| watts | numeric | converted to W m^-2 nm^-1 |
+| mol | numeric | irradiance converted to mol m^-2 nm^-1 |
+| umol | numeric | irradiance converted to μmol m^-2 nm^-1 (not same as PAR) |
 | peak | boolean | does this wavelength represent the peak of the LED (at the given intensity)? |
 | Additonal | columns | specific to the dataset |
 
