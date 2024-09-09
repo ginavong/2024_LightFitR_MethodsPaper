@@ -1,5 +1,5 @@
 oceanViewUnits_to_watts = function(irradiance_vec){
-  return(irradiance_vec * 10^2)
+  return(irradiance_vec * 10^-2)
 }
 
 watts_to_moles = function(wavelength_vec, watts_vec){
