@@ -55,7 +55,7 @@ calib = trim_wavelengths(calib)
 start = calib_regime[1,1]
 end = "12:00:00"
 
-calib = trim_times(start, end, calib$time, calib)
+calib = trim_times(start, end, calib)
 
 rm(start, end)
 

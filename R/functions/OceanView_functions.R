@@ -67,10 +67,10 @@ trim_wavelengths = function(df){
 #---
 # Trim timepoints to keep only the ones we care about
 
-trim_times = function(start, end, timepoints_vec, df){
+trim_times = function(start, end, df){
   
   # Formatting variables
-  timepoints = lubridate::as_datetime(hms(timepoints_vec))
+  timepoints = lubridate::as_datetime(hms(df$time))
   timeRange = lubridate::interval(start=lubridate::as_datetime(hms(start)), end = (lubridate::as_datetime(hms(end))))
   
   # Decide which timepoints to keep
