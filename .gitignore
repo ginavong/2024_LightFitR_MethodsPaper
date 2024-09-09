@@ -3,6 +3,8 @@
 .RData
 .Ruserdata
 
+*.svg
+
 # Ignore csv files in these folders because Rdas are more space efficient
 data/calibration/Apollo_Calib_20240827/*.csv
 data/light_testing/Apollo_Calib_20240827/*.csv
