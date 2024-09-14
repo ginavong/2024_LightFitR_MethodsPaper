@@ -190,6 +190,14 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_s
 }
 
 #---
+# Input: wavelengths, vector of known peaks
+# Output: boolean of whether the wavelength is peak or not
+
+is.peak = function(wavelengths_vec, peaks_vec){
+  wavelengths_vec %in% peaks_vec
+}
+
+#---
 # Keep only middle timepoint in each event
 
 is.middle = function(events_vec, time_vec){
