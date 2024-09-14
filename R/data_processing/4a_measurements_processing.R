@@ -130,3 +130,4 @@ target = rbind(target, rep(0, ncol(target)))
 
 fn = paste(out_dir, "4a_targetIrradiances_", date_measured, sep='')
 save_data(target, fn)
+rm(fn)
