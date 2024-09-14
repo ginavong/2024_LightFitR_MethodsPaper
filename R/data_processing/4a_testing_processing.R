@@ -8,6 +8,7 @@ out_dir = "data/light_testing/4a_20240905/"
 
 raw_dir = "data/light_testing/4a_20240905/raw"
 regime_dir = "data/regimes/4a_ComplexityTest/4a_ComplexityTest_intensities.csv"
+peaks_dir = 'data/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda'
 
 ## Define variables
 date_measured = "20240905"
@@ -28,6 +29,10 @@ message("Import data")
 
 measurements = read_many.OceanView(raw_dir)
 regime = read.csv(regime_dir, row.names=1)
+
+load(peaks_dir)
+peaks = df
+rm(df)
 
 ## Export Raw data
 
@@ -71,7 +76,7 @@ measurements$mol = watts_to_moles(measurements$wavelength, measurements$watts)
 measurements$umol = moles_to_umol(measurements$mol)
 
 ## Peaks (problem for another day)
-measurements$peak = rep(NA, nrow(measurements))
+measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
 # 4. Format & export ----
 message("Format & export")
@@ -87,3 +92,7 @@ measurements = data.frame(filename = measurements$filename,
 ## Export
 fn = paste(out_dir, "4a_annotated_", date_measured, sep='')
 save_data(measurements, fn)
+
+rm(fn)
+
+
