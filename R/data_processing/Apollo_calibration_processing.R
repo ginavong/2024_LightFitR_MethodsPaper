@@ -171,8 +171,10 @@ peaks = t(sapply(1:8, function(i){
   
   c(name, medianPeak)
 }))
+
 peaks = as.data.frame(peaks)
 colnames(peaks) = c('LED_name', 'median_peak_wl')
+peaks$median_peak_wl = as.numeric(peaks$median_peak_wl)
 
 fn = paste(out_dir, light_name, '_calibration_medianPeaks_', date_measured, sep='')
 save_data(peaks, fn)
