@@ -93,6 +93,40 @@ measurements = data.frame(filename = measurements$filename,
 fn = paste(out_dir, "4a_annotated_", date_measured, sep='')
 save_data(measurements, fn)
 
-rm(fn)
+rm(fn, peaks)
 
+# 5. Process measurements into target irradiances ----
 
+## Filter data
+criteria = (measurements$middle_time==T) & (measurements$peak==T)
+measurements_filtered = measurements[criteria,]
+
+rm(criteria)
+
+## Check all events are represented
+events = sort(unique(measurements_filtered$event))
+
+length(events)
+which(!(1:150 %in% events)) # This is the event we need to exclude from the regime dataset
+
+## Format into matrix
+
+target = sapply(events, function(i){
+  print(i)
+  
+  dataSubset = measurements_filtered[measurements_filtered$event==i, ]
+  
+  ledOrder = order(dataSubset$wavelength)
+  
+  event_irradiances = dataSubset[ledOrder, 'watts']
+  event_irradiances
+})
+
+## Add row of 0s for whitéchannel
+
+target = rbind(target, rep(0, ncol(target)))
+
+## Export
+
+fn = paste(out_dir, "4a_targetIrradiances_", date_measured, sep='')
+save_data(target, fn)
