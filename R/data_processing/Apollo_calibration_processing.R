@@ -15,7 +15,6 @@ date_measured = '20240827'
 
 ## Libraries
 library(LightFitR)
-library(photobiology)
 library(stringr)
 library(lubridate)
 
@@ -157,3 +156,25 @@ calib_rolling$umol = moles_to_umol(calib_rolling$mol)
 fn = paste(out_dir, light_name, '_calibration_rollingAverage_', date_measured, sep='')
 save_data(calib_rolling, fn)
 
+#---
+# Find median peak wavelength
+criteria = calib$peak==T & calib$LED!=5700
+calib_subset = calib[criteria,]
+
+peaks = t(sapply(1:8, function(i){
+  
+  led = LightFitR::helio.dyna.leds[i, 'wavelength']
+  name = LightFitR::helio.dyna.leds[i, 'name']
+  
+  wls_per_led = calib_subset[calib_subset$LED==led, 'wavelength']
+  medianPeak = median(wls_per_led, na.rm=T)
+  
+  c(name, medianPeak)
+}))
+peaks = as.data.frame(peaks)
+colnames(peaks) = c('LED_name', 'median_peak_wl')
+
+fn = paste(out_dir, light_name, '_calibration_medianPeaks_', date_measured, sep='')
+save_data(peaks, fn)
+
+rm(fn)
