@@ -108,16 +108,16 @@ rm(calib, calib_rolling)
 
 # 4. Calculate differences ----
 
-diff_closest_mat_calib = regime - closest_mat_calib
-diff_closest_mat_rolling = regime - closest_mat_rolling
+diff_closest_mat_calib = closest_mat_calib - regime
+diff_closest_mat_rolling = closest_mat_rolling - regime
 
-diff_predicted_regime_calib = regime - predicted_regime_calib
-diff_predicted_regime_lm = regime - predicted_regime_lm
-diff_predicted_regime_rolling = regime - predicted_regime_rolling
+diff_predicted_regime_calib = predicted_regime_calib - regime
+diff_predicted_regime_lm = predicted_regime_lm - regime
+diff_predicted_regime_rolling = predicted_regime_rolling - regime
 
-diff_tidied_predicted_regime_calib = regime - tidied_predicted_regime_calib
-diff_tidied_predicted_regime_lm = regime - tidied_predicted_regime_lm
-diff_tidied_predicted_regime_rolling = regime - tidied_predicted_regime_rolling
+diff_tidied_predicted_regime_calib = tidied_predicted_regime_calib - regime
+diff_tidied_predicted_regime_lm = tidied_predicted_regime_lm - regime
+diff_tidied_predicted_regime_rolling = tidied_predicted_regime_rolling - regime
 
 # 5. Compile dataframes ----
 
@@ -265,14 +265,14 @@ mse$complexity = sapply(mse$event, function(i){
   complexity_dict[complexity_dict$event==i, 'complexity']
 })
 
-# 10. Find lowest MsE and export for refinement ----
-#TODO to figure out how to decide for later
-
-## Subset data
-criteria = (mse$complexity==8) & (mse$algorithm=='nnls')
-mse_subset = mse[criteria,]
-
-mse_subset[which.min(mse_subset$MSE), ]
+# # 10. Find lowest MsE and export for refinement ----
+# #TODO to figure out how to decide for later
+# 
+# ## Subset data
+# criteria = (mse$complexity==8) & (mse$algorithm=='nnls')
+# mse_subset = mse[criteria,]
+# 
+# mse_subset[which.min(mse_subset$MSE), ]
 
 # 11. Export data ----
 
