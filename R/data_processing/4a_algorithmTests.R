@@ -4,8 +4,6 @@
 
 wd = getwd()
 functions = 'R/functions/'
-fig4 = 'figures/fig4'
-S2 = 'figures/S2'
 
 ## Libraries & functions
 library(LightFitR)
@@ -164,6 +162,7 @@ format_df = function(calib_processing, algorithm, target, true_intensities, peak
     pivot_wider(names_from='type', values_from='value')
   
   out_df = as.data.frame(out_df)
+  colnames(out_df)[9] = 'predicted_intensity'
   
   return(out_df)
 }
@@ -235,13 +234,59 @@ mse = lapply(process, function(p){
   proc_vec = rep(p, nrow(process_mse))
   cbind(proc_vec, process_mse)
 })
+
+## Formatting
+
 mse = as.data.frame(do.call(rbind, mse))
 colnames(mse) = c('calibration_processing', 'algorithm', 'stage', 'event', 'MSE')
+mse$event = as.integer(mse$event)
+mse$MSE = as.numeric(mse$MSE)
 
 ## Tidy up
-rm(algos, events, stages, process)
+rm(algos, stages, process)
 
-# 9. Export data
+# 9. Assigning segments based on no. LEDS on----
+
+## Make dictionary
+complexity_dict = t(sapply(events, function(i){
+  segment = length(which(regime[,i]>0))
+  c(i, segment)
+}))
+complexity_dict = as.data.frame(complexity_dict)
+colnames(complexity_dict) = c('event', 'complexity')
+
+## Algo_test_results
+algo_test_results$complexity = sapply(algo_test_results$event, function(i){
+  complexity_dict[complexity_dict$event==i, 'complexity']
+})
+
+## MSE
+mse$complexity = sapply(mse$event, function(i){
+  complexity_dict[complexity_dict$event==i, 'complexity']
+})
+
+# 10. Find lowest MsE and export for refinement ----
+#TODO to figure out how to decide for later
+
+## Subset data
+criteria = (mse$complexity==8) & (mse$algorithm=='nnls')
+mse_subset = mse[criteria,]
+
+mse_subset[which.min(mse_subset$MSE), ]
+
+# 11. Export data ----
+
+## Rearrange columns
+algo_test_results = data.frame(algo_test_results$calibration_processing, algo_test_results$algorithm, algo_test_results$stage, 
+                               algo_test_results$event, algo_test_results$complexity, algo_test_results$LED, 
+                               algo_test_results$wavelength, algo_test_results$target_irradiance, algo_test_results$true_intensity, 
+                               algo_test_results$predicted_intensity, algo_test_results$diff, algo_test_results$diff_squared)
+colnames(algo_test_results) = c('calibration_processing', 'algorithm', 'stage', 'event', 'complexity', 'LED', 'wavelength', 'target_irradiance', 'true_intensity', 'predicted_intensity', 'diff', 'diff_squared')
+
+mse = data.frame(mse$calibration_processing, mse$algorithm, mse$stage, mse$event, mse$complexity, mse$MSE)
+colnames(mse) = c('calibration_processing', 'algorithm', 'stage', 'event', 'complexity', 'MSE')
+
+## Export
 save(algo_test_results, mse, file='data/light_testing/4a_20240905/4a_algorithmsTest.Rda')
 
 write.csv(algo_test_results, file='data/light_testing/4a_20240905/4a_algo_test_results.csv')
