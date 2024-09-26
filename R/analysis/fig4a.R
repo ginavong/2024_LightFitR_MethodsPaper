@@ -22,14 +22,15 @@ load('data/light_testing/4a_20240905/4a_algorithmsTest.Rda')
 
 # 4a MSE after all the steps of the algorithm ----
 
-criteria = (mse$stage=='tidied') & complete.cases(mse)
+criteria = (mse$calibration_processing=='none') & (mse$stage=='tidied') & complete.cases(mse)
 mse_subset = mse[criteria,]
 
-fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(calibration_processing, algorithm))) +
+fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
+fig4a
 
 rm(mse_subset, criteria)
 
