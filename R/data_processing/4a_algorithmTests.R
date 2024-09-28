@@ -316,7 +316,8 @@ calculate_mse = function(by, process, types, stages){
           
           stages_mse = t(sapply(bys, function(i){
             
-            criteria = (algo_test_results$calibration_processing==p) & (algo_test_results$algorithm==a) & 
+            criteria = (algo_test_results$calibration_processing==p) & 
+              (algo_test_results$algorithm_type==ty) & (algo_test_results$algorithm==a) & 
               (algo_test_results$stage==s) & (algo_test_results[, by]==i)
             data_subset = algo_test_results[criteria,]
             
