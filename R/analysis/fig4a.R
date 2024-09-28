@@ -36,6 +36,18 @@ fig4a
 
 rm(criteria, mse_subset)
 
+## Tidied without closest
+
+criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event) & (mse_event$algorithm!='closest')
+mse_subset = mse_event[criteria,]
+
+ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
+  labs(x='number of LED channels active', y='mean squared error') +
+  guides(colour=guide_legend(title='algorithm')) +
+  theme_classic()
+
+rm(criteria, mse_subset)
 
 ## Predicted
 
@@ -47,7 +59,6 @@ predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=in
   theme_classic()
 predicted
 
-rm(criteria, mse_subset)
 
 ## Processing
 
@@ -75,7 +86,7 @@ rm(criteria, algo_subset)
 
 # 4b Error by LED ----
 
-criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='sle') | (algo_test_results$algorithm_type=='individual' & algo_test_results$algorithm=='nnls'))
+criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='lm') | (algo_test_results$algorithm_type=='multidimensional' & algo_test_results$algorithm=='nnls'))
 algo_subset = algo_test_results[criteria,]
 
 fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
@@ -107,7 +118,7 @@ criteria = (mse_led$calibration_processing=='none') & (mse_led$stage=='tidied') 
 mse_subset = mse_led[criteria,]
 
 ggplot(data=mse_subset, aes(x=LED, y=MSE, colour=LED, shape=interaction(algorithm_type, algorithm))) +
-  geom_point() +
+  geom_quasirandom() +
   labs(y='mean squared error') + scale_colour_manual(values=led_colours) +
   theme_classic()
 
