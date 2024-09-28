@@ -22,76 +22,95 @@ load('data/light_testing/4a_20240905/4a_algorithmsTest.Rda')
 
 # 4a MSE after all the steps of the algorithm ----
 
-criteria = (mse$calibration_processing=='none') & (mse$stage=='tidied') & complete.cases(mse)
-mse_subset = mse[criteria,]
+## Tidied
+
+criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event)
+mse_subset = mse_event[criteria,]
 
 fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
 fig4a
 
-rm(mse_subset, criteria)
+rm(criteria, mse_subset)
 
-# Test design
-criteria = (algo_test_results$algorithm=='lm')
-lm_subset = algo_test_results[criteria,]
-rm(criteria)
 
-ggplot(data=lm_subset, aes(x=as.factor(event), y=LED, fill=true_intensity)) +
-  geom_tile() + scale_fill_gradient(low='black', high='white') +
-  theme_classic()
+## Predicted
 
-# Pridected
-ggplot(data=lm_subset, aes(x=as.factor(event), y=LED, fill=predicted_intensity)) +
-  geom_tile() + scale_fill_gradient(low='black', high='white') +
-  theme_classic() + labs(title='lm')
-
-criteria = (algo_test_results$algorithm=='nnls') & (algo_test_results$calibration_processing=='none')
-nnls_subset = algo_test_results[criteria,]
-ggplot(nnls_subset, aes(x=as.factor(event), y=LED, fill=predicted_intensity)) +
-  geom_tile() + scale_fill_gradient(low='black', high='white') +
-  theme_classic() + labs(title='nnls')
-
-criteria = (algo_test_results$algorithm=='nnls') & (algo_test_results$calibration_processing=='rolling')
-nnls_subset = algo_test_results[criteria,]
-ggplot(nnls_subset, aes(x=as.factor(event), y=LED, fill=predicted_intensity)) +
-  geom_tile() + scale_fill_gradient(low='black', high='white') +
-  theme_classic() + labs(title='nnls rolling')
-
-rm(criteria, lm_subset, nnls_subset)
-# MSE at individual steps of the algorithm
-
-ggplot(data=mse, aes(x=as.factor(complexity), y=MSE, colour=stage)) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1) +
-  facet_wrap(facets=interaction(mse$calibration_processing, mse$algorithm)) +
+predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
+  facet_wrap(~stage) +
   labs(x='number of LED channels active', y='mean squared error') +
-  guides(colour=guide_legend(title='stage')) +
+  guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
+predicted
 
-# Error at different intensities
-criteria = algo_test_results$calibration_processing != 'rolling'
+rm(criteria, mse_subset)
+
+## Processing
+
+processing = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=calibration_processing)) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1) +
+  facet_wrap(~interaction(algorithm_type, algorithm)) +
+  labs(x='number of LED channels active', y='mean squared error') +
+  guides(colour=guide_legend(title='calibration processing')) +
+  theme_classic()
+processing
+
+## Residuals at different irradiances
+
+criteria = (algo_test_results$stage=='tidied')
 algo_subset = algo_test_results[criteria,]
-rm(criteria)
 
-ggplot(data=algo_subset, aes(x=target_irradiance, y=diff, colour=LED, shape=algorithm)) +
-  geom_point() + facet_wrap(~algorithm) +
+irradiances = ggplot(data=algo_subset, aes(x=target_irradiance, y=diff, colour=LED)) +
+  geom_point() + facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
   geom_hline(yintercept=0) +
   theme_classic()
+irradiances
 
-# Error by complexity at specific LEDS
+rm(criteria, algo_subset)
 
-ggplot(data=algo_subset, aes(x=complexity, y=LED, fill=diff)) +
-  geom_tile() + facet_wrap(~algorithm) +
-  scale_fill_gradient2(low='blue', mid='white', high='red') +
-  theme_classic()
+# 4b Error by LED ----
 
-# Error by LED
-ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
+criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='sle') | (algo_test_results$algorithm_type=='individual' & algo_test_results$algorithm=='nnls'))
+algo_subset = algo_test_results[criteria,]
+
+fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
   geom_violin(colour='black') + geom_quasirandom(size=0.8, dodge.width=1) +
-  facet_wrap(~algorithm) +
+  facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
   theme_classic()
+fig4b
+
+rm(criteria, algo_subset)
+
+## Distribution of all LEDS
+
+criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted')
+algo_subset = algo_test_results[criteria,]
+
+led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
+  geom_violin(colour='black') + geom_quasirandom(size=0.8, dodge.width=1) +
+  facet_wrap(~interaction(algorithm_type, algorithm)) +
+  scale_colour_manual(values=led_colours) +
+  theme_classic()
+led
+
+rm(criteria, algo_subset)
+
+## MSE by LED
+
+criteria = (mse_led$calibration_processing=='none') & (mse_led$stage=='tidied') & complete.cases(mse_led)
+mse_subset = mse_led[criteria,]
+
+ggplot(data=mse_subset, aes(x=LED, y=MSE, colour=LED, shape=interaction(algorithm_type, algorithm))) +
+  geom_point() +
+  labs(y='mean squared error') + scale_colour_manual(values=led_colours) +
+  theme_classic()
+
+rm(criteria, mse_subset)
+
 
