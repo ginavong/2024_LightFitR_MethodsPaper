@@ -56,6 +56,8 @@ rm(calib_measurements, criteria)
 
 # 2. Predict regime that was used ----
 
+message('Running algorithms')
+
 ## Setup
 nEvents = ncol(target_watts)
 
@@ -188,6 +190,8 @@ rm(calib, calib_rolling)
 
 # 4. Compile dataframes ----
 
+message('Formatting dataframe')
+
 ## Setup
 
 target_mat = target_watts[-9,]
@@ -238,7 +242,7 @@ df_lm_calib = format_df('none', 'individual', 'lm', peaks, target_mat, regime, l
 df_lm_rolling = format_df('rolling', 'individual', 'lm', peaks, target_mat, regime, lm_rolling, tidied_lm_rolling)
 
 df_nnls_calib = format_df('none', 'individual', 'nnls', peaks, target_mat, regime, nnls_calib, tidied_nnls_calib)
-df_nnls_rolling = format_df('roling', 'individual', 'nnls', peaks, target_mat, regime, nnls_rolling, tidied_nnls_rolling)
+df_nnls_rolling = format_df('rolling', 'individual', 'nnls', peaks, target_mat, regime, nnls_rolling, tidied_nnls_rolling)
 
 df_nnls_multidim_calib = format_df('none', 'multidimensional', 'nnls', peaks, target_mat, regime, nnls_multidim_calib, tidied_nnls_multidim_calib)
 df_nnls_multidim_rolling = format_df('rolling', 'multidimensional', 'nnls', peaks, target_mat, regime, nnls_multidim_rolling, tidied_nnls_multidim_rolling)
@@ -279,70 +283,105 @@ algo_test_results$diff = algo_test_results$predicted_intensity - algo_test_resul
 
 algo_test_results$diff_squared = algo_test_results$diff ^2
 
-# 8. Mean squared error per event ----
+# 8. Mean squared error ----
 
-## Define variables
-events = unique(algo_test_results$event)
-types = unique(algo_test_results$algorithm_type)
+message('Calculating mean squared error')
+
+## MSE function
+
+### Define variables
+
 process = unique(algo_test_results$calibration_processing)
+types = unique(algo_test_results$algorithm_type)
 stages = unique(algo_test_results$stage)
 
-## Calculate mse
 
-mse = lapply(process, function(p){
+### Define function
+
+calculate_mse = function(by, process, types, stages){
   
-  process_mse = lapply(types, function(ty){
+  # Calculate
+  
+  mse = lapply(process, function(p){
     
-    algos = unique(algo_test_results[algo_test_results$algorithm_type==ty, 'algorithm'])
-    
-    type_mse = lapply(algos, function(a){
-    
-      algo_mse = lapply(stages, function(s){
+    process_mse = lapply(types, function(ty){
+      
+      algos = unique(algo_test_results[algo_test_results$algorithm_type==ty, 'algorithm'])
+      
+      type_mse = lapply(algos, function(a){
         
-        stages_mse = t(sapply(events, function(i){
+        algo_mse = lapply(stages, function(s){
           
-          criteria = (algo_test_results$calibration_processing==p) & (algo_test_results$algorithm==a) & 
-            (algo_test_results$stage==s) & (algo_test_results$event==i)
-          data_subset = algo_test_results[criteria,]
+          bys = unique(algo_test_results[,by])
           
-          event_mse = mean(data_subset$diff_squared)
+          stages_mse = t(sapply(bys, function(i){
+            
+            criteria = (algo_test_results$calibration_processing==p) & (algo_test_results$algorithm==a) & 
+              (algo_test_results$stage==s) & (algo_test_results[, by]==i)
+            data_subset = algo_test_results[criteria,]
+            
+            by_mse = mean(data_subset$diff_squared)
+            
+            c(i, by_mse)
+          }))
           
-          c(i, event_mse)
-        }))
+          stage_vec = rep(s, nrow(stages_mse))
+          stages_mse = cbind(stage_vec, stages_mse)
+          
+          stages_mse
+        })
         
-        stage_vec = rep(s, nrow(stages_mse))
-        cbind(stage_vec, stages_mse)
+        
+        algo_mse = do.call(rbind, algo_mse)
+        algo_vec = rep(a, nrow(algo_mse))
+        algo_mse = cbind(algo_vec, algo_mse)
+        
+        algo_mse
       })
-    
-    algo_mse = do.call(rbind, algo_mse)
-    algo_vec = rep(a, nrow(algo_mse))
-    cbind(algo_vec, algo_mse)
+      
+      type_mse = do.call(rbind, type_mse)
+      type_vec = rep(ty, nrow(type_mse))
+      type_mse = cbind(type_vec, type_mse)
+      
+      type_mse
     })
     
-    type_mse = do.call(rbind, type_mse)
-    type_vec = rep(ty, nrow(type_mse))
-    cbind(type_vec, type_mse)
-  
+    process_mse = do.call(rbind, process_mse)
+    proc_vec = rep(p, nrow(process_mse))
+    process_mse = cbind(proc_vec, process_mse)
+    
+    process_mse
   })
   
-  process_mse = do.call(rbind, process_mse)
-  proc_vec = rep(p, nrow(process_mse))
-  cbind(proc_vec, process_mse)
-})
+  # Formatting
+  
+  mse = data.frame(do.call(rbind, mse))
+  colnames(mse) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', by, 'MSE')
+  mse$MSE = as.numeric(mse$MSE)
+  
+  return(mse)
+}
 
-## Formatting
+## MSE per event
 
-mse = as.data.frame(do.call(rbind, mse))
-colnames(mse) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'event', 'MSE')
-mse$event = as.integer(mse$event)
-mse$MSE = as.numeric(mse$MSE)
+mse_event = calculate_mse('event', process, types, stages)
+mse_event$event = as.integer(mse_event$event)
 
+
+## MSE per LED
+
+mse_led = calculate_mse('LED', process, types, stages)
+  
 ## Tidy up
 rm(types, stages, process)
+
 
 # 9. Assigning segments based on no. LEDS active ----
 
 ## Make dictionary
+
+events = unique(algo_test_results$event)
+
 complexity_dict = t(sapply(events, function(i){
   segment = length(which(regime[,i]>0))
   c(i, segment)
@@ -356,7 +395,7 @@ algo_test_results$complexity = sapply(algo_test_results$event, function(i){
 })
 
 ## MSE
-mse$complexity = sapply(mse$event, function(i){
+mse_event$complexity = sapply(mse_event$event, function(i){
   complexity_dict[complexity_dict$event==i, 'complexity']
 })
 
@@ -376,18 +415,25 @@ rm(complexity_dict)
 
 # 12. Export data ----
 
+message('Exporting data')
+
 ## Rearrange columns
+
 algo_test_results = data.frame(algo_test_results$calibration_processing, algo_test_results$algorithm_type, algo_test_results$algorithm, algo_test_results$stage, 
                                algo_test_results$event, algo_test_results$complexity, algo_test_results$LED, 
                                algo_test_results$wavelength, algo_test_results$target_irradiance, algo_test_results$true_intensity, 
                                algo_test_results$predicted_intensity, algo_test_results$diff, algo_test_results$diff_squared)
 colnames(algo_test_results) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'event', 'complexity', 'LED', 'wavelength', 'target_irradiance', 'true_intensity', 'predicted_intensity', 'diff', 'diff_squared')
 
-mse = data.frame(mse$calibration_processing, mse$algorithm_type, mse$algorithm, mse$stage, mse$event, mse$complexity, mse$MSE)
-colnames(mse) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'event', 'complexity', 'MSE')
+mse_event = data.frame(mse_event$calibration_processing, mse_event$algorithm_type, mse_event$algorithm, mse_event$stage, mse_event$event, mse_event$complexity, mse_event$MSE)
+colnames(mse_event) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'event', 'complexity', 'MSE')
+
+mse_led = data.frame(mse_led$calibration_processing, mse_led$algorithm_type, mse_led$algorithm, mse_led$stage, mse_led$LED, mse_led$MSE)
+colnames(mse_led) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED', 'MSE')
 
 ## Export
-save(algo_test_results, mse, file='data/light_testing/4a_20240905/4a_algorithmsTest.Rda')
+save(algo_test_results, mse_event, mse_led, file='data/light_testing/4a_20240905/4a_algorithmsTest.Rda')
 
 write.csv(algo_test_results, file='data/light_testing/4a_20240905/4a_algo_test_results.csv')
-write.csv(mse, file='data/light_testing/4a_20240905/4a_mse.csv')
+write.csv(mse_event, file='data/light_testing/4a_20240905/4a_mse_event.csv')
+write.csv(mse_led, file='data/light_testing/4a_20240905/4b_mse_led.csv')
