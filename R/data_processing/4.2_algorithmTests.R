@@ -11,6 +11,7 @@ functions = 'R/functions/'
 library(LightFitR)
 library(nnls)
 library(tidyr)
+library(dplyr)
 
 setwd(functions)
 source('processing_functions.R')
@@ -34,6 +35,10 @@ rm(df)
 
 load('data/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
+rm(df)
+
+load('data/calibration/Apollo_Calib_20240827/Apollo_calibration_bleedthrough_20240827.Rda')
+bleedthrough = df
 rm(df)
 
 # 1. Filter & format data ----
@@ -476,6 +481,11 @@ mse_combinations$MSE = as.numeric(mse_combinations$MSE)
 same = mse_combinations$LED1 == mse_combinations$LED2
 mse_combinations$same = same
 
+## Add bleedthrough stats
+
+mse_combinations = left_join(mse_combinations, bleedthrough[, -c(3,4)], by=c('LED1'='LED1', 'LED2'='LED2', 'same'='same'))
+
+rm(bleedthrough)
 
 # # 11. Find lowest MsE and export for refinement ----
 # #TODO to figure out how to decide for later
@@ -504,8 +514,8 @@ colnames(mse_event) = c('calibration_processing', 'algorithm_type', 'algorithm',
 mse_led = data.frame(mse_led$calibration_processing, mse_led$algorithm_type, mse_led$algorithm, mse_led$stage, mse_led$LED, mse_led$MSE)
 colnames(mse_led) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED', 'MSE')
 
-mse_combinations = data.frame(mse_combinations$calibration_processing, mse_combinations$algorithm_type, mse_combinations$algorithm, mse_combinations$stage, mse_combinations$LED1, mse_combinations$LED2, mse_combinations$same, mse_combinations$MSE)
-colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED1', 'LED2', 'same', 'MSE')
+mse_combinations = data.frame(mse_combinations$calibration_processing, mse_combinations$algorithm_type, mse_combinations$algorithm, mse_combinations$stage, mse_combinations$LED1, mse_combinations$LED2, mse_combinations$same, mse_combinations$MSE, mse_combinations$irradiance, mse_combinations$irradiance, mse_combinations$watts, mse_combinations$mol, mse_combinations$umol)
+colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED1', 'LED2', 'same', 'MSE', 'bleedthrough_irradiance', 'bleedthrough_watts', 'bleedthrough_mol', 'bleedthrough_umol')
 
 ## Export
 save(algo_test_results, mse_event, mse_led, mse_combinations, file='data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
