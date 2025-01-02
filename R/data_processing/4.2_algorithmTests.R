@@ -375,9 +375,6 @@ mse_event$event = as.integer(mse_event$event)
 
 mse_led = calculate_mse('LED', process, types, stages)
   
-## Tidy up
-rm(types, stages, process)
-
 
 # 9. Assigning segments based on no. LEDS active ----
 
@@ -405,6 +402,79 @@ mse_event$complexity = sapply(mse_event$event, function(i){
 rm(complexity_dict)
 
 # 10. MSE per combination of LEDs ----
+
+## Make the combinations
+
+combinations = expand.grid(peaks$LED_name, peaks$LED_name, stringsAsFactors = FALSE)
+colnames(combinations) = c('LED1', 'LED2')
+
+## Calculate MSE
+
+mse_combinations = lapply(1:nrow(combinations), function(i){
+  
+  # Set LEDs
+  led1 = combinations[i, 1]
+  led2 = combinations[i, 2]
+  
+  mse = lapply(process, function(p){
+    
+    process_mse = lapply(types, function(ty){
+      
+      algos = unique(algo_test_results[algo_test_results$algorithm_type==ty, 'algorithm'])
+      
+      type_mse = lapply(algos, function(a){
+        
+        algo_mse = lapply(stages, function(s){
+            
+          criteria = (algo_test_results$calibration_processing==p) & 
+            (algo_test_results$algorithm_type==ty) & (algo_test_results$algorithm==a) & 
+            (algo_test_results$stage==s) & (algo_test_results$LED == led1 | algo_test_results$LED == led2)
+          data_subset = algo_test_results[criteria,]
+          
+          stage_mse = mean(data_subset$diff_squared)
+          
+          vec = c(s, led1, led2, stage_mse)
+          vec
+        })
+
+        algo_mse = do.call(rbind, algo_mse)
+        algo_vec = rep(a, nrow(algo_mse))
+        algo_mse = cbind(algo_vec, algo_mse)
+        
+        algo_mse
+      })
+      
+      type_mse = do.call(rbind, type_mse)
+      type_vec = rep(ty, nrow(type_mse))
+      type_mse = cbind(type_vec, type_mse)
+      
+      type_mse
+    })
+    
+    process_mse = do.call(rbind, process_mse)
+    proc_vec = rep(p, nrow(process_mse))
+    process_mse = cbind(proc_vec, process_mse)
+    
+    process_mse
+  })
+  
+  # Formatting
+  
+  mse = data.frame(do.call(rbind, mse))
+  return(mse)
+})
+
+### Tidy the dataframe
+
+mse_combinations = data.frame(do.call(rbind, mse_combinations))
+colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED1', 'LED2', 'MSE')
+
+str(mse_combinations)
+mse_combinations$MSE = as.numeric(mse_combinations$MSE)
+
+## Column to indicate if LED1 == LED2
+same = mse_combinations$LED1 == mse_combinations$LED2
+mse_combinations$same = same
 
 
 # # 11. Find lowest MsE and export for refinement ----
@@ -434,9 +504,13 @@ colnames(mse_event) = c('calibration_processing', 'algorithm_type', 'algorithm',
 mse_led = data.frame(mse_led$calibration_processing, mse_led$algorithm_type, mse_led$algorithm, mse_led$stage, mse_led$LED, mse_led$MSE)
 colnames(mse_led) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED', 'MSE')
 
+mse_combinations = data.frame(mse_combinations$calibration_processing, mse_combinations$algorithm_type, mse_combinations$algorithm, mse_combinations$stage, mse_combinations$LED1, mse_combinations$LED2, mse_combinations$same, mse_combinations$MSE)
+colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED1', 'LED2', 'same', 'MSE')
+
 ## Export
-save(algo_test_results, mse_event, mse_led, file='data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
+save(algo_test_results, mse_event, mse_led, mse_combinations, file='data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
 
 write.csv(algo_test_results, file='data/light_testing/fig4_20240905/4_algo_test_results.csv')
 write.csv(mse_event, file='data/light_testing/fig4_20240905/4_mse_event.csv')
 write.csv(mse_led, file='data/light_testing/fig4_20240905/4b_mse_led.csv')
+write.csv(mse_combinations, file='data/light_testing/fig4_20240905/4b_mse_combinations.csv')
