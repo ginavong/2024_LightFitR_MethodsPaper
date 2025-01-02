@@ -35,7 +35,7 @@ raw = read_many.OceanView(raw_dir)
 ## Export raw data
 fn = paste(out_dir, light_name, '_calibration_raw_', date_measured, sep='')
 
-save_data(raw, fn)
+save_data(raw, 'raw', fn)
 
 rm(fn, calib_regime_dir)
 
@@ -112,7 +112,7 @@ calib = data.frame(filename = calib$filename, integration_time = calib$integrati
 #---
 # Exports
 fn = paste(out_dir, light_name, '_calibration_annotated_', date_measured, sep='')
-save_data(calib, fn)
+save_data(calib, 'calib', fn)
 
 #---
 # Total irradiance
@@ -135,7 +135,7 @@ calib_total$watts = oceanViewUnits_to_watts(calib_total$total_irradiance)
 
 ## Export
 fn = paste(out_dir, light_name, '_calibration_total_', date_measured, sep='')
-save_data(calib_total, fn)
+save_data(calib_total, 'calib_total', fn)
 
 #---
 # Rolling average
@@ -154,7 +154,7 @@ calib_rolling$umol = moles_to_umol(calib_rolling$mol)
 
 ## Export
 fn = paste(out_dir, light_name, '_calibration_rollingAverage_', date_measured, sep='')
-save_data(calib_rolling, fn)
+save_data(calib_rolling, 'calib_rolling', fn)
 
 #---
 # Find median peak wavelength
@@ -177,6 +177,6 @@ colnames(peaks) = c('LED_name', 'median_peak_wl')
 peaks$median_peak_wl = as.numeric(peaks$median_peak_wl)
 
 fn = paste(out_dir, light_name, '_calibration_medianPeaks_', date_measured, sep='')
-save_data(peaks, fn)
+save_data(peaks, 'peaks', fn)
 
 rm(fn)
