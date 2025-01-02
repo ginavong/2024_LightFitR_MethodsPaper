@@ -135,7 +135,7 @@ criteria = mse_combinations$stage=='tidied' & mse_combinations$calibration_proce
 combs_subset = mse_combinations[criteria,]
 #combs_subset[combs_subset$same==T, 'MSE'] = NA
 
-ggplot(data=combs_subset, aes(x=LED1, y=LED2, fill=MSE)) +
+# ggplot(data=combs_subset, aes(x=LED1, y=LED2, fill=MSE)) +
   geom_tile() +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') +
