@@ -6,10 +6,11 @@
 *.svg
 
 # Ignore csv files in these folders because Rdas are more space efficient
+
 data/calibration/Apollo_Calib_20240827/*.csv
-data/light_testing/4a_20240905/*.csv
-data/li
+data/light_testing/fig4_20240905/*.csv
+data/light_testing/fig4_20240905/measurements/*.csv
 
 # Raw spectrometry files
 data/calibration/Apollo_Calib_20240827/raw/
-data/light_testing/4a_20240905/raw/
+data/light_testing/fig4_20240905/measurements/raw/
