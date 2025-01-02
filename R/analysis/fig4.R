@@ -16,7 +16,7 @@ source('ggplot_functions.R')
 setwd(wd)
 
 ## Import data
-load('data/light_testing/4a_20240905/4a_algorithmsTest.Rda')
+load('data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
 
 ## Format data
 
@@ -43,6 +43,7 @@ mse_subset = mse_event[criteria,]
 
 ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
+  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
@@ -91,6 +92,7 @@ algo_subset = algo_test_results[criteria,]
 
 fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
   geom_violin(colour='black') + geom_quasirandom(size=0.8, dodge.width=1) +
+  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
   theme_classic()
@@ -105,6 +107,7 @@ algo_subset = algo_test_results[criteria,]
 
 led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
   geom_violin(colour='black') + geom_quasirandom(size=0.8, dodge.width=1) +
+  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
   theme_classic()
@@ -124,4 +127,25 @@ ggplot(data=mse_subset, aes(x=LED, y=MSE, colour=LED, shape=interaction(algorith
 
 rm(criteria, mse_subset)
 
+# CombinatioNs of LEDs ----
 
+## Heatmaps
+
+criteria = mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
+combs_subset = mse_combinations[criteria,]
+#combs_subset[combs_subset$same==T, 'MSE'] = NA
+
+ggplot(data=combs_subset, aes(x=LED1, y=LED2, fill=MSE)) +
+  geom_tile() +
+  facet_wrap(~interaction(algorithm_type, algorithm)) +
+  scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') +
+  theme_classic()
+
+## Correlation with bleedthrough
+
+criteria = complete.cases(mse_combinations) & mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
+combs_subset = mse_combinations[criteria,]
+
+ggplot(data=combs_subset, aes(x=bleedthrough_irradiance, y=MSE, colour=interaction(algorithm_type, algorithm), shape=algorithm_type)) + 
+  geom_point() +
+  geom_smooth(se=F)
