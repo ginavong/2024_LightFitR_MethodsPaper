@@ -23,6 +23,8 @@ load("Apollo_calibration_rollingAverage_20240827.Rda")
 rolling = df
 load("Apollo_calibration_total_20240827.Rda")
 total = df
+load("Apollo_calibration_bleedthrough_20240827.Rda")
+bleedthrough = df
 setwd(wd)
 rm(df)
 
@@ -91,26 +93,8 @@ rm(criteria, peak_line_light, fn)
 
 # Bleedthrough heatmap ----
 
-## df setup
-
-### Get wls of peaks
-criteria = (calib$intensity==1000) & (calib$peak==TRUE) & (calib$LED != 5700) & (calib$middle_time==TRUE)
-wls = calib[criteria, 'wavelength']
-
-### Filter data using wls
-criteria = (calib$intensity==1000) & (calib$wavelength %in% wls) & (calib$LED != 5700) & (calib$middle_time==TRUE)
-bleedthrough = calib[criteria,]
-
-bleedthrough[bleedthrough$peak==TRUE, 'irradiance'] = NA #Set the peaks to NA since those are difinitionally not bleedthrough
-
-### structure data
-bleedthrough$LED = as.factor(bleedthrough$LED)
-bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
-
-rm(criteria, wls)
-
 ## Heatmap light
-bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED, y=wavelength, fill=irradiance)) +
+bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=irradiance)) +
   geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels") +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') + #060038 is a dark blue option
   theme_classic()
@@ -122,7 +106,7 @@ rm(bleed_heatmap_light, fn)
 
 ## Heatmap dark
 
-bleed_heatmap_dark = ggplot(bleedthrough, aes(x=LED, y=wavelength, fill=irradiance)) +
+bleed_heatmap_dark = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=irradiance)) +
   geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels") +
   scale_fill_gradient(low='#060038', high='white', na.value='#fa9900') + 
   theme_presentation()

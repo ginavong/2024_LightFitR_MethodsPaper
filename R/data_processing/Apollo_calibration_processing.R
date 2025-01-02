@@ -24,8 +24,7 @@ source(paste(fun_dir, "unit_conversion_functions.R", sep=''))
 source(paste(fun_dir, "processing_functions.R", sep=''))
 
 
-#---
-# 1. Imports
+# 1. Imports ----
 
 message('Imports')
 
@@ -39,8 +38,7 @@ save_data(raw, fn)
 
 rm(fn, calib_regime_dir)
 
-#---
-# 2. Remove unneeded bits
+# 2. Remove unneeded bits ----
 
 message('Trimming')
 
@@ -62,8 +60,7 @@ rm(start, end)
 stopifnot(nrow(calib) < nrow(raw))
 stopifnot(colnames(calib) == colnames(raw))
 
-#---
-# 3. Add useful columns
+# 3. Add useful columns ----
 
 message('Add useful columns')
 
@@ -109,13 +106,11 @@ calib = data.frame(filename = calib$filename, integration_time = calib$integrati
                    irradiance = calib$irradiance, 
                    watts = calib$watts, mol = calib$mol, umol = calib$umol)
 
-#---
-# Exports
+# 4. Exports ----
 fn = paste(out_dir, light_name, '_calibration_annotated_', date_measured, sep='')
 save_data(calib, fn)
 
-#---
-# Total irradiance
+# 5. Total irradiance ----
 
 message('Total irradiance')
 
@@ -137,8 +132,7 @@ calib_total$watts = oceanViewUnits_to_watts(calib_total$total_irradiance)
 fn = paste(out_dir, light_name, '_calibration_total_', date_measured, sep='')
 save_data(calib_total, fn)
 
-#---
-# Rolling average
+# 6. Rolling average ----
 
 message('Rolling averages')
 
@@ -156,8 +150,7 @@ calib_rolling$umol = moles_to_umol(calib_rolling$mol)
 fn = paste(out_dir, light_name, '_calibration_rollingAverage_', date_measured, sep='')
 save_data(calib_rolling, fn)
 
-#---
-# Find median peak wavelength
+# 7. Find median peak wavelength ----
 criteria = calib$peak==T & calib$LED!=5700
 calib_subset = calib[criteria,]
 
@@ -180,3 +173,42 @@ fn = paste(out_dir, light_name, '_calibration_medianPeaks_', date_measured, sep=
 save_data(peaks, fn)
 
 rm(fn)
+
+# 8. Calculate bleedthrough ----
+
+## Get wls of peaks
+criteria = (calib$intensity==1000) & (calib$peak==TRUE) & (calib$LED != 5700) & (calib$middle_time==TRUE)
+wls = calib[criteria, 'wavelength']
+
+## Filter data using wls
+criteria = (calib$intensity==1000) & (calib$wavelength %in% wls) & (calib$LED != 5700) & (calib$middle_time==TRUE)
+bleedthrough = calib[criteria,]
+
+## Set the peaks to NA since those are difinitionally not bleedthrough
+bleedthrough[bleedthrough$peak==TRUE, 'irradiance'] = NA 
+bleedthrough[bleedthrough$peak==TRUE, 'watts'] = NA 
+bleedthrough[bleedthrough$peak==TRUE, 'mol'] = NA 
+bleedthrough[bleedthrough$peak==TRUE, 'umol'] = NA 
+
+## structure dataframe
+
+peaks$max_intensity_wls = wls
+bleedthrough$LED2 = sapply(1:nrow(bleedthrough), function(i){
+  wl = bleedthrough[i, 'wavelength']
+  name = peaks[peaks$max_intensity_wls==wl, 'LED_name']
+  name
+})
+
+bleedthrough$LED2 = as.factor(bleedthrough$LED2)
+bleedthrough$LED1 = as.factor(str_c(bleedthrough$LED, 'nm'))
+bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
+
+
+bleedthrough = data.frame('LED1'=bleedthrough$LED1, 'LED2'=bleedthrough$LED2, 'wavelength'=bleedthrough$wavelength, 'peak'=bleedthrough$peak, 'same' = bleedthrough$peak, 'irradiance'=bleedthrough$irradiance, 'watts'=bleedthrough$watts, 'mol'=bleedthrough$mol, 'umol'=bleedthrough$umol)
+
+## Export
+
+fn = paste(out_dir, light_name, '_calibration_bleedthrough_', date_measured, sep='')
+save_data(bleedthrough, fn)
+
+rm(criteria, wls, fn)
