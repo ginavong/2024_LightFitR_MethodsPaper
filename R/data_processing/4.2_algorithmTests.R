@@ -305,7 +305,7 @@ stages = unique(algo_test_results$stage)
 
 ### Define function
 
-calculate_mse = function(by, process, types, stages){
+calculate_mse = function(data, by, process, types, stages){
   
   # Calculate
   
@@ -313,20 +313,20 @@ calculate_mse = function(by, process, types, stages){
     
     process_mse = lapply(types, function(ty){
       
-      algos = unique(algo_test_results[algo_test_results$algorithm_type==ty, 'algorithm'])
+      algos = unique(data[data$algorithm_type==ty, 'algorithm'])
       
       type_mse = lapply(algos, function(a){
         
         algo_mse = lapply(stages, function(s){
           
-          bys = unique(algo_test_results[,by])
+          bys = unique(data[,by])
           
           stages_mse = t(sapply(bys, function(i){
             
-            criteria = (algo_test_results$calibration_processing==p) & 
-              (algo_test_results$algorithm_type==ty) & (algo_test_results$algorithm==a) & 
-              (algo_test_results$stage==s) & (algo_test_results[, by]==i)
-            data_subset = algo_test_results[criteria,]
+            criteria = (data$calibration_processing==p) & 
+              (data$algorithm_type==ty) & (data$algorithm==a) & 
+              (data$stage==s) & (data[, by]==i)
+            data_subset = data[criteria,]
             
             by_mse = mean(data_subset$diff_squared)
             
@@ -372,13 +372,13 @@ calculate_mse = function(by, process, types, stages){
 
 ## MSE per event
 
-mse_event = calculate_mse('event', process, types, stages)
+mse_event = calculate_mse(algo_test_results, 'event', process, types, stages)
 mse_event$event = as.integer(mse_event$event)
 
 
 ## MSE per LED
 
-mse_led = calculate_mse('LED', process, types, stages)
+mse_led = calculate_mse(algo_test_results, 'LED', process, types, stages)
   
 
 # 9. Assigning segments based on no. LEDS active ----
@@ -485,7 +485,46 @@ mse_combinations$same = same
 
 mse_combinations = left_join(mse_combinations, bleedthrough[, -c(3,4)], by=c('LED1'='LED1', 'LED2'='LED2', 'same'='same'))
 
-rm(bleedthrough)
+
+## Alternative MSE calculation
+
+mse_combinations2 = lapply(1:nrow(peaks), function(i){
+  
+  # Define variables
+  led1 = peaks[i, 'LED_name']
+  
+  criteria = (algo_test_results$LED ==led1) & (algo_test_results$true_intensity >0)
+  events = unique(algo_test_results[criteria, 'event'])
+  print(length(events))
+  
+  # Subset data
+  criteria = algo_test_results$event %in% events
+  results_subset = algo_test_results[criteria,]
+  
+  # Calculate MSE
+  mse = calculate_mse(data=results_subset, by='LED', process, types, stages)
+  
+  # Format df
+  
+  led1_vec = rep(led1, nrow(mse))
+  mse_without_single = mse$MSE - mse_led$MSE
+  
+  mse_df = cbind(led1_vec, mse_without_single, mse)
+  
+  mse_df
+  
+})
+
+mse_combinations2 = do.call(rbind, mse_combinations2)
+colnames(mse_combinations2) = c('LED1', 'mse_without_single', 'calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED2', 'MSE')
+
+mse_combinations2$same = mse_combinations2$LED1 == mse_combinations2$LED2
+
+mse_combinations2 = left_join(mse_combinations2, bleedthrough[, -c(3,4)], by=c('LED1'='LED1', 'LED2'='LED2', 'same'='same'))
+
+## Tidy
+
+rm(process, types, stages)
 
 # # 11. Find lowest MsE and export for refinement ----
 # #TODO to figure out how to decide for later
