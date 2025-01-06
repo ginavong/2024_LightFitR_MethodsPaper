@@ -527,14 +527,24 @@ mse_combinations2 = left_join(mse_combinations2, bleedthrough[, -c(3,4)], by=c('
 rm(process, types, stages)
 
 # # 11. Find lowest MsE and export for refinement ----
-# #TODO to figure out how to decide for later
 
 ## Find event with lowest MSE
-criteria = (mse_event$complexity==8) & (mse_event$algorithm=='nnls') & (mse_event$algorithm_type=='multidimensional') & (mse_event$stage=='tidied')
-mse_best = mse_event[criteria,]
+criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied')
+mse_subset = mse_event[criteria,]
 
-mse_best[which.min(mse_best$MSE), ]
+mse_best = mse_subset[which.min(mse_subset$MSE), ]
+mse_best
 
+best_event = mse_best[, 'event']
+
+## Subset algo_test_results to best event
+
+criteria = (algo_test_results$event==best_event) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied') & (algo_test_results$calibration_processing=='none')
+best_subset = algo_test_results[criteria,]
+best_subset
+
+## Tidy
+rm(criteria, mse_best, mse_subset, best_event)
 
 # 12. Export data ----
 
@@ -559,6 +569,7 @@ colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algo
 
 ## Export
 save(algo_test_results, mse_event, mse_led, mse_combinations, file='data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
+save(best_subset, file='data/light_testing/fig5_refinement/5a_BestSubset_forSimulation.Rda')
 
 write.csv(algo_test_results, file='data/light_testing/fig4_20240905/4_algo_test_results.csv')
 write.csv(mse_event, file='data/light_testing/fig4_20240905/4_mse_event.csv')
