@@ -9,27 +9,46 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-target = 
-measurement = # or residual 
-intensity = 
+load('data/light_testing/fig5_refinement/5a_BestSubset_forSimulation.Rda')
   
 ## Define variables
 
-nEvents = LightFitR::helio.eventLimit
+nEvents = 20 ^ unique(best_subset$complexity)
 
 # 1. Define search range ----
 
 ## Make ranges proportionate to the residuals of individual LEDs
 
-bound1 = intensity - (sign(residuals) * (residuals^2)) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
-bound2 = intensity + residuals # We want this to be in the same direction as the residual, but smaller
-bounds = sort(c(bound1, bound2))
+bound1 = best_subset$predicted_intensity - (2 * best_subset$diff) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
+bound2 = best_subset$predicted_intensity + (0.5 * best_subset$diff) # We want this to be in the same direction as the residual, but smaller
+
+bound1
+bound2
+
+bounds = rbind(bound1, bound2)
 bounds
+
+## Tidy up
+
+### Sort each pair so that they're in a sensible order
+
+bounds = apply(bounds, 2, function(i){
+  sort(i)
+})
+
+### Set negatives to 0
+
+bounds[which(bounds<0)] =0
+
+bounds
+
+### Remove excess
+rm(bond1, bound2)
 
 # 2. Random intensities into range ----
 
-search_recipe = apply(search_bounds, 2, function(i){
-  possibilities = seq(i, by=1)
+search_recipe = apply(bounds, 2, function(i){
+  possibilities = seq(i[1], i[2], by=1)
   sample(possibilities, size=nEvents, replace=TRUE)
 })
 
