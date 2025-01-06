@@ -539,7 +539,7 @@ best_event = mse_best[, 'event']
 
 ## Subset algo_test_results to best event
 
-criteria = (algo_test_results$event==best_event) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied')
+criteria = (algo_test_results$event==best_event) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied') & (algo_test_results$calibration_processing=='none')
 best_subset = algo_test_results[criteria,]
 best_subset
 
