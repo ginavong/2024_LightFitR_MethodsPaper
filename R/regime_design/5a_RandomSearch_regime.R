@@ -10,10 +10,15 @@ source('R/functions/regime_functions.R')
 ## Import data
 
 load('data/light_testing/fig5_refinement/5a_BestSubset_forSimulation.Rda')
-  
+
+best_subset
+
 ## Define variables
 
-nEvents = 20 ^ unique(best_subset$complexity)
+LEDs_of_interest = c(3,4,7,8)
+LightFitR::helio.dyna.leds[LEDs_of_interest,]
+
+nEvents = LightFitR::helio.eventLimit
 
 # 1. Define search range ----
 
@@ -42,8 +47,12 @@ bounds[which(bounds<0)] =0
 
 bounds
 
+### Round
+
+bounds = round(bounds)
+
 ### Remove excess
-rm(bond1, bound2)
+rm(bound1, bound2)
 
 # 2. Random intensities into range ----
 
@@ -54,25 +63,23 @@ search_recipe = apply(bounds, 2, function(i){
 
 # 3. Make regime ----
 
-## Add 0s to LEDs that are not on
-
-light_recipe = matrix(rep(0, nEvents * nrow(LightFitR::helio.dyna.leds)), nrow=nrow(LightFitR::helio.dyna.leds), ncol=nEvents)
-
-#Go through each column and put it in the right place in the matrix
-
 ## Time recipe
 
 time_recipe = test_times(nEvents)
 
+## Light recipe
+
+light_recipe = rbind(t(search_recipe), rep(0, nEvents)) # Transpose search_recipe and add 9th LED as off
+
 ## Combine to regime
 
 regime = rbind(time_recipe, light_recipe)
-rownames(regime) = c(rownames(times), helio.dyna.leds$name)
+rownames(regime) = c(rownames(time_recipe), helio.dyna.leds$name)
 
 # 4. Export ----
 
-fp = 'data/regimes/fig5_Refinement/RandomSearch/'
+fp = 'data/regimes/fig5_Refinement/'
 
-helio.writeSchedule(regime, paste(fp, '5_RandomSearch.csv'), format='csv')
-helio.writeSchedule(regime, paste(fp, '5_RandomSearch.txt'), format='json')
-write.csv(regime, paste(fp, '5_RandomSearch_intensities.csv'), col.names=F, row.names=T)
+helio.writeSchedule(regime, paste(fp, '5a_RandomSearch.csv', sep=''), format='csv')
+helio.writeSchedule(regime, paste(fp, '5a_RandomSearch.txt', sep=''), format='json')
+write.csv(regime, paste(fp, '5a_RandomSearch_intensities.csv'), col.names=F, row.names=T)
