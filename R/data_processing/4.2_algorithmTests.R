@@ -529,7 +529,7 @@ rm(process, types, stages)
 # # 11. Find lowest MsE and export for refinement ----
 
 ## Find event with lowest MSE
-criteria = (mse_event$complexity==8) &  (mse_event$stage=='tidied')
+criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied')
 mse_subset = mse_event[criteria,]
 
 mse_best = mse_subset[which.min(mse_subset$MSE), ]
