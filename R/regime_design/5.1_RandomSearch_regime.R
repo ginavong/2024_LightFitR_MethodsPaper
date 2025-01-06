@@ -30,7 +30,7 @@ bounds
 
 search_recipe = apply(search_bounds, 2, function(i){
   possibilities = seq(i, by=1)
-  sample(possibilities, size=nEvents)
+  sample(possibilities, size=nEvents, replace=TRUE)
 })
 
 # 3. Make regime ----
