@@ -4,11 +4,12 @@ rm(list=ls())
 
 ## Define paths
 wd = getwd()
-out_dir = "data/light_testing/fig4_20240905/"
+out_dir = "data/algorithm_tiesting/fig4_algorithm_comparisons/"
 
-raw_dir = "data/light_testing/fig4_20240905/measurements/raw"
+raw_dir = "data/heliospectra_measurements/fig4_20240905/raw"
+measurements_dir = "data/heliospectra_measurements/fig4_20240905/"
 regime_dir = "data/regimes/fig4_ComplexityTest/4_ComplexityTest_intensities.csv"
-peaks_dir = 'data/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda'
+peaks_dir = 'data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda'
 
 ## Define variables
 date_measured = "20240905"
@@ -32,11 +33,11 @@ regime = read.csv(regime_dir, row.names=1)
 
 load(peaks_dir)
 peaks = df
-rm(df)
+rm(df, raw_dir)
 
 ## Export Raw data
 
-fn = paste(out_dir, '/measurements/', "4_raw_", date_measured, sep='')
+fn = paste(measurements_dir, "4_raw_", date_measured, sep='')
 save_data(measurements, fn)
 
 rm(fn)
@@ -90,7 +91,7 @@ measurements = data.frame(filename = measurements$filename,
                           mol=measurements$mol, umol = measurements$umol)
 
 ## Export
-fn = paste(out_dir, '/measurements/', "4_annotated_", date_measured, sep='')
+fn = paste(measurements_dir, "4_annotated_", date_measured, sep='')
 save_data(measurements, fn)
 
 rm(fn, peaks)

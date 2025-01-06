@@ -16,7 +16,7 @@ source('ggplot_functions.R')
 setwd(wd)
 
 ## Import data
-load('data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
+load('data/algorithm_testing/fig4_algorithm_comparisons/4_algorithmsTest.Rda')
 
 ## Format data
 

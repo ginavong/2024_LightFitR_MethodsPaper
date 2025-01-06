@@ -4,14 +4,14 @@ Repo for the analysis done on the LightFitR methods paper.
 
 Find the package here: https://github.com/ginavong/LightFitR
 
-# File structures
+# File structure
 
 - data
-    - regimes: Files to load into heliospectra to run the regimes
-    - calibration: Data from calibrating the lights
-    - light_testing: Data from testing the lights
-    - outdoor_irradiance: Measurements of real-world spectra
-    - hypocotyls: Hypocotyl data
+    - algorithm_testing: Data from testing the programming algorithms. Subfolders named by corresponding figures
+    - heliospectra_measurements: Measurements from the Heliospectra light units
+        - calibration: Data from calibrating the lights
+        - Other folders named by the corresponding figures
+    - regimes: Regimes to feed into Heliospectra units in 3 formats to accommodate different firmware versions
 - figures: Figures for the paper. Each folder corresponds to a figure in the paper
 - R
     - functions: Functions which are used frequently across scripts
@@ -34,6 +34,9 @@ Find the package here: https://github.com/ginavong/LightFitR
 | 735   | firebrick                        | #b22222           |
 | 5700k | black / white depending on theme |  #000000/ #FFFFFF |
 
+Heatmaps: low='white', high='#060038', na.value='#fa9900' 
+(may swap low and high for dark mode)
+
 # Standard dataframe formats
 
 ## Spectrophotometer readings
@@ -53,7 +56,7 @@ The raw ascii / txt files should be processed into a dataframe with at least all
 | irradiance | numeric | irradiance measured by spectrometer, in  μW cm^-2 nm^-1 |
 | watts | numeric | converted to W m^-2 nm^-1 |
 | mol | numeric | irradiance converted to mol m^-2 nm^-1 |
-| umol | numeric | irradiance converted to μmol m^-2 nm^-1 (not same as PAR) |
+| umol | numeric | irradiance converted to μmol m^-2 nm^-1 (**not same as PAR**) |
 | Additonal | columns | specific to the dataset |
 
 ## Calibration data

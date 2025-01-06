@@ -13,7 +13,7 @@ source("R/functions/ggplot_functions.R")
 wd = getwd()
 fig3_out = "figures/fig3/"
 sup_out = "figures/S1/"
-data_in = "data/calibration/Apollo_Calib_20240827/"
+data_in = "data/heliospectra_measurements/calibration/Apollo_Calib_20240827/"
 
 ## Import data
 setwd(data_in)

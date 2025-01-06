@@ -6,6 +6,8 @@ rm(list=ls())
 
 wd = getwd()
 functions = 'R/functions/'
+calib_dir = 'data/heliospectra_measurements/calibration/Apollo_Calib_20240827/'
+out_dir = 'data/algorithm_testing/fig4_algorithm_comparisons/'
 
 ## Libraries & functions
 library(LightFitR)
@@ -19,27 +21,33 @@ setwd(wd)
 
 ## Import data
 
-load('data/light_testing/fig4_20240905/4_targetIrradiances_20240905.Rda')
+load('data/algorithm_testing/fig4_algorithm_comparisons/4_targetIrradiances_20240905.Rda')
 target_watts = df
 rm(df)
 
 regime = read.csv('data/regimes/fig4_ComplexityTest/4_ComplexityTest_intensities.csv', row.names=1)
 
-load('data/calibration/Apollo_Calib_20240827/Apollo_calibration_annotated_20240827.Rda')
+### Calibration data
+
+setwd(calib_dir)
+
+load('Apollo_calibration_annotated_20240827.Rda')
 calib_measurements = df
 rm(df)
 
-load('data/calibration/Apollo_Calib_20240827/Apollo_calibration_rollingAverage_20240827.Rda')
+load('Apollo_calibration_rollingAverage_20240827.Rda')
 calib_rolling = df
 rm(df)
 
-load('data/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
+load('Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
 rm(df)
 
-load('data/calibration/Apollo_Calib_20240827/Apollo_calibration_bleedthrough_20240827.Rda')
+load('Apollo_calibration_bleedthrough_20240827.Rda')
 bleedthrough = df
 rm(df)
+
+setwd(wd)
 
 # 1. Filter & format data ----
 #Cuts down on what we need to store in RAM & prevents confusion with too many columns / units
@@ -568,10 +576,16 @@ mse_combinations = data.frame(mse_combinations$calibration_processing, mse_combi
 colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED1', 'LED2', 'same', 'MSE', 'bleedthrough_irradiance', 'bleedthrough_watts', 'bleedthrough_mol', 'bleedthrough_umol')
 
 ## Export
-save(algo_test_results, mse_event, mse_led, mse_combinations, file='data/light_testing/fig4_20240905/4_algorithmsTest.Rda')
+
 save(best_subset, file='data/light_testing/fig5_refinement/5a_BestSubset_forSimulation.Rda')
 
-write.csv(algo_test_results, file='data/light_testing/fig4_20240905/4_algo_test_results.csv')
-write.csv(mse_event, file='data/light_testing/fig4_20240905/4_mse_event.csv')
-write.csv(mse_led, file='data/light_testing/fig4_20240905/4b_mse_led.csv')
-write.csv(mse_combinations, file='data/light_testing/fig4_20240905/4b_mse_combinations.csv')
+setwd(out_dir)
+
+save(algo_test_results, mse_event, mse_led, mse_combinations, file='4_algorithmsTest.Rda')
+
+write.csv(algo_test_results, file='4_algo_test_results.csv')
+write.csv(mse_event, file='4_mse_event.csv')
+write.csv(mse_led, file='4b_mse_led.csv')
+write.csv(mse_combinations, file='4b_mse_combinations.csv')
+
+setwd(wd)
