@@ -576,7 +576,7 @@ colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algo
 
 ## Export
 
-save(best_subset, file='data/light_testing/fig5_refinement/5a_BestSubset_forSimulation.Rda')
+save(refinement_subset, file='data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
 
 setwd(out_dir)
 
