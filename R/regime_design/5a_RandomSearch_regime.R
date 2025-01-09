@@ -43,7 +43,6 @@ random_search = function(data, leds_of_interest, nrow_output){
   ### Set non leds_of_interest to 0
   
   not_interest = setdiff(1:ncol(bounds), leds_of_interest)
-  print(not_interest)
   bounds[, not_interest] = c(0,0)
   
   
@@ -51,7 +50,8 @@ random_search = function(data, leds_of_interest, nrow_output){
   
   bounds[which(bounds<0)] =0
   
-  bounds
+  ### Limit to 1000
+  bounds[which(bounds>1000)] = 1000
   
   ### Round
   
