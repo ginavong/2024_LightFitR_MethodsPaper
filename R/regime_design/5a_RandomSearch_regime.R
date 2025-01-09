@@ -9,57 +9,83 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-load('data/light_testing/fig5_refinement/5a_BestSubset_forSimulation.Rda')
+load('data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
 
-best_subset
+refinement_subset
 
 ## Define variables
 
-LEDs_of_interest = c(3,4,7,8)
-LightFitR::helio.dyna.leds[LEDs_of_interest,]
-
 nEvents = LightFitR::helio.eventLimit
 
-# 1. Define search range ----
+# 1. Make random_search function ----
 
-## Make ranges proportionate to the residuals of individual LEDs
+random_search = function(data, leds_of_interest, nrow_output){
 
-bound1 = best_subset$predicted_intensity - (2 * best_subset$diff) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
-bound2 = best_subset$predicted_intensity + (0.5 * best_subset$diff) # We want this to be in the same direction as the residual, but smaller
+  ## Define search range - Make ranges proportionate to the residuals of individual LEDs
+  
+  bound1 = data$predicted_intensity - (2 * data$diff) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
+  bound2 = data$predicted_intensity + (0.5 * data$diff) # We want this to be in the same direction as the residual, but smaller
+  
+  bound1
+  bound2
+  
+  bounds = rbind(bound1, bound2)
+  bounds
+  
+  ## Tidy up
+  
+  ### Sort each pair so that they're in a sensible order
+  
+  bounds = apply(bounds, 2, function(i){
+    sort(i)
+  })
+  
+  ### Set non leds_of_interest to 0
+  
+  not_interest = setdiff(1:ncol(bounds), leds_of_interest)
+  print(not_interest)
+  bounds[, not_interest] = c(0,0)
+  
+  
+  ### Set negatives to 0
+  
+  bounds[which(bounds<0)] =0
+  
+  bounds
+  
+  ### Round
+  
+  bounds = round(bounds)
+  
+  ### Remove excess variables
+  rm(bound1, bound2)
+  
+  ## Generate random search recipe based on the range provided
+  
+  search_recipe = apply(bounds, 2, function(i){
+    possibilities = seq(i[1], i[2], by=1)
+    sample(possibilities, size=nrow_output, replace=TRUE)
+  })
+  
+  return(search_recipe)
+}
 
-bound1
-bound2
+# 2. Make random search recipe ----
 
-bounds = rbind(bound1, bound2)
-bounds
-
-## Tidy up
-
-### Sort each pair so that they're in a sensible order
-
-bounds = apply(bounds, 2, function(i){
-  sort(i)
+search_recipe = lapply(unique(refinement_subset$event), function(i){
+  
+  # Define variables
+  data_subset = refinement_subset[refinement_subset$event==i,]
+  
+  LEDs_of_interest = which(data_subset$true_intensity !=0)
+  
+  # Run function
+  random_search(data_subset, LEDs_of_interest, nEvents/3)
+  
 })
 
-### Set negatives to 0
+search_recipe = do.call(rbind, search_recipe)
 
-bounds[which(bounds<0)] =0
-
-bounds
-
-### Round
-
-bounds = round(bounds)
-
-### Remove excess
-rm(bound1, bound2)
-
-# 2. Random intensities into range ----
-
-search_recipe = apply(bounds, 2, function(i){
-  possibilities = seq(i[1], i[2], by=1)
-  sample(possibilities, size=nEvents, replace=TRUE)
-})
 
 # 3. Make regime ----
 
