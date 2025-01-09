@@ -534,25 +534,24 @@ mse_combinations2 = left_join(mse_combinations2, bleedthrough[, -c(3,4)], by=c('
 
 rm(process, types, stages)
 
-# # 11. Find lowest MsE and export for refinement ----
+# # 11. Generate data for fig 5 refinement ----
 
-## Find event with lowest MSE
-criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied')
+## Find event with min, median and max MSE
+criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied') & (mse_event$algorithm_type=='multidimensional') & (mse_event$algorithm=='nnls') & (mse_event$calibration_processing=='none')
 mse_subset = mse_event[criteria,]
 
-mse_best = mse_subset[which.min(mse_subset$MSE), ]
-mse_best
+MSEs = sort(unique(mse_subset$MSE))
+min_med_max = MSEs[c(1, length(MSEs)/2, length(MSEs))] # median() doesn't work because length is even
+refine_events = mse_subset[mse_subset$MSE %in% min_med_max, 'event']
 
-best_event = mse_best[, 'event']
+## Subset algo_test_results to these events
 
-## Subset algo_test_results to best event
-
-criteria = (algo_test_results$event==best_event) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied') & (algo_test_results$calibration_processing=='none')
-best_subset = algo_test_results[criteria,]
-best_subset
+criteria = (algo_test_results$event %in% refine_events) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied') & (algo_test_results$calibration_processing=='none')
+refinement_subset = algo_test_results[criteria,]
+refinement_subset
 
 ## Tidy
-rm(criteria, mse_best, mse_subset, best_event)
+rm(criteria, mse_subset, refine_events, min_med_max, MSEs)
 
 # 12. Export data ----
 
