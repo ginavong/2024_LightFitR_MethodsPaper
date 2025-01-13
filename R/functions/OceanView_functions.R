@@ -250,38 +250,42 @@ is.middle = function(events_vec, time_vec){
 #---
 # Get the total irradiance per event
 
-get_total_irradiance = function(spectrophotometer_df, by = c('event', 'time')){
+get_totalIrradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   # Get columns we need to keep, for formatting later
-  discard_cols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
-  discard_nos = which(colnames(spectrophotometer_df) %in% discard_cols)
-  keep_cols = colnames(spectrophotometer_df)[-discard_nos]
+  discardCols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
+  discardNos = which(colnames(spectrophotometer_df) %in% discardCols)
+  keepCols = colnames(spectrophotometer_df)[-discardNos]
   
   # Define variables
   instances = unique(spectrophotometer_df[, by])
   
   dfOut = t(sapply(instances, function(i){
     criteria = spectrophotometer_df[, by] ==i
-    data_subset = spectrophotometer_df[criteria,]
+    dataSubset = spectrophotometer_df[criteria,]
     
     # Values to keep from other columns
-    other_cols = sapply(keep_cols, function(k){
-      uni = unique(data_subset[, k])
+    otherCols = sapply(keepCols, function(k){
+      uni = unique(dataSubset[, k])
       uni
     })
     
     # Calculate total
-    total = sum(data_subset$irradiance)
+    totalIrr = sum(dataSubset$irradiance)
+    totalW = sum(dataSubset$watts)
+    totalMol = sum(dataSubset$mol)
+    totalUMol = sum(dataSubset$umol)
     
-    c(other_cols, total)
+    c(otherCols, totalIrr, totalW, totalMol, totalUMol)
   }))
   
   # Formatting
   dfOut = as.data.frame(dfOut)
-  colnames(dfOut) = c(keep_cols, 'total_irradiance')
+  colnames(dfOut) = c(keepCols, 'total_irradiance', 'total_watts', 'total_mol', 'total_umol')
   
+  # Find a way to format it where yoU keep the data classes of the source dataframe
   dfOut$event = as.numeric(dfOut$event)
-  dfOut$total_irradiance = as.numeric(dfOut$total_irradiance)
+  dfOut$totalIrradiance = as.numeric(dfOut$totalIrradiance)
   
   return(dfOut)
 }
