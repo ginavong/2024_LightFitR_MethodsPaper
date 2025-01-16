@@ -9,18 +9,37 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-target = 
-  measurement = # or residual 
-  intensity = 
+load('data/algorithm_testing/fig5_refinement/5b_forGridSearch.Rda')
+random_search = for_gridSearch
+rm(for_gridSearch)
   
 ## Define variables
-
-LEDs_of_interest = c(3,4,7,8)
-LightFitR::helio.dyna.leds[LEDs_of_interest,]
-
-nEvents = 20 ^ unique(best_subset$complexity)
+treats = unique(random_search$treat)
+LEDs = unique(random_search$LED)
 
 # 1. Define search range ----
+
+search_bounds = apply(treats, function(i){
+  sapply(LEDs, function(l){
+    
+    # Subset data
+    criteria = (random_search$treat==i) & (random_search$LED==l)
+    data_subset = random_search[criteria,]
+    
+    diff = data_subset$diff
+    sign = sign(diff)
+    
+    if(sign[1] != sign[2]){
+      bounds = data_subset$intensity_used
+    }
+    else{
+      first = which.min(abs(diff))
+      intensities = data_subset$intensity_used
+      magnitude = (intensities[first] - intensities[-first]) * data_subset[data_subset$status=='best', 'diff_squared']
+    }
+    
+  })
+})
   
 # 2. Make Combinatorial grid ----
 
