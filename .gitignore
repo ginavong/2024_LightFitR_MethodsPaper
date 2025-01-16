@@ -7,11 +7,13 @@
 
 # Ignore csv files in these folders because Rdas are more space efficient
 
+data/heliospectra_measurements/**/*.csv
 data/heliospectra_measurements/calibration/Apollo_Calib_20240827/*.csv
 data/heliospectra_measurements/fig4_20240905/*.csv
 
 data/algorithm_testing/fig4_algorithm_comparisons/*.csv
 
 # Raw spectrometry files
+data/heliospectra_measurements/**/*.txt
 data/heliospectra_measurements/calibration/Apollo_Calib_20240827/raw/
 data/heliospectra_measurements/fig4_20240905/raw/
