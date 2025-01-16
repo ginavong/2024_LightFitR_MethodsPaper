@@ -548,20 +548,7 @@ refine_events = mse_subset[mse_subset$MSE %in% min_med_max, 'event']
 
 criteria = (algo_test_results$event %in% refine_events) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied') & (algo_test_results$calibration_processing=='none')
 refinement_subset = algo_test_results[criteria,]
-
 refinement_subset
-
-## Format to keep columns we want
-
-refinement = refinement_subset[refinement_subset$true_intensity>0,]
-
-refinement = data.frame(calibration_processing=refinement$calibration_processing,
-                        stage=paste(refinement$algorithm_type, refinement$algorithm, sep='.'), 
-                        treat=refinement$event, 
-                        LED=refinement$LED, wavelength=refinement$wavelength, 
-                        target=refinement$target_irradiance, 
-                        intensity_used=refinement$predicted_intensity)
-
 
 ## Tidy
 rm(criteria, mse_subset, refine_events, min_med_max, MSEs)
@@ -590,7 +577,6 @@ colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algo
 ## Export
 
 save(refinement_subset, file='data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
-save(refinement, file='data/algorithm_testing/fig5_refinement/5_refinement.Rda')
 
 setwd(out_dir)
 
