@@ -153,11 +153,13 @@ rm(events, intensity_used)
 ## Add additional columns to measurements 2
 
 measurements2$calibration_processing = rep('none', nrow(measurements2))
-measurements2$stage = rep('multidimensinal.nnls', nrow(measurements2))
+measurements2$stage = rep('multidimensional.nnls', nrow(measurements2))
 
 measurements2$LED = sapply(measurements2$wavelength, function(wl){
   peaks[peaks$median_peak_wl==wl, 'LED_name']
 })
+
+measurements2$status = rep('none', nrow(measurements2))
 
 ## Format measurements2 df
 
@@ -168,7 +170,7 @@ measurements2 = data.frame(calibration_processing = measurements2$calibration_pr
                            treat = measurements2$treat, event=measurements2$event,
                            LED = measurements2$LED, wavelength = measurements2$wavelength, 
                            intensity_used = measurements2$intensity_used,
-                           target=measurements2$target, measured=measurements2$watts)
+                           target=measurements2$target, measured=measurements2$watts, status=measurements2$status)
 
 ## Refinement
 refinement = measurements2
