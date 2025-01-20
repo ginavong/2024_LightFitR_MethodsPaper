@@ -102,3 +102,128 @@ save_data(measurements, fn)
 
 rm(fn)
 
+# 5.Format refinement df (copied from 5a for now until we tidy up this section of code) ----
+
+message("5. Formatting")
+
+## Format refinement to keep columns we want
+
+refinement = data.frame(calibration_processing=refinement_subset$calibration_processing,
+                        stage=paste(refinement_subset$algorithm_type, refinement_subset$algorithm, sep='.'), 
+                        treat=refinement_subset$event, 
+                        LED=refinement_subset$LED, wavelength=refinement_subset$wavelength, 
+                        target=refinement_subset$target_irradiance, 
+                        intensity_used=refinement_subset$predicted_intensity)
+
+## Filter for middle points and peaks
+
+criteria = (measurements$middle_time==T) & (measurements$peak==T)
+measurements2 = measurements[criteria,]
+rm(criteria)
+
+## Add treatment column
+
+treats = unique(refinement$treat)
+
+measurements2$treat = sapply(measurements2$event, function(i){
+  treats[i]
+})
+
+rm(treats)
+
+## Add target column
+
+measurements2 = left_join(measurements2, 
+                          (refinement |> select(wavelength, target, treat)), 
+                          join_by(wavelength, treat))
+
+## Add intensity_used column
+
+events = unique(measurements2$event)
+intensity_used = sapply(events, function(i){
+  regime[-c(1:4, 13), i]
+})
+
+intensity_used = as.numeric(as.vector(intensity_used))
+
+measurements2$intensity_used = intensity_used
+
+rm(events, intensity_used)
+
+## Add additional columns to measurements 2
+
+measurements2$calibration_processing = rep('none', nrow(measurements2))
+measurements2$stage = rep('multidimensinal.nnls', nrow(measurements2))
+
+measurements2$LED = sapply(measurements2$wavelength, function(wl){
+  peaks[peaks$median_peak_wl==wl, 'LED_name']
+})
+
+## Format measurements2 df
+
+colnames(measurements2)
+
+measurements2 = data.frame(calibration_processing = measurements2$calibration_processing,
+                           stage = measurements2$stage, 
+                           treat = measurements2$treat, event=measurements2$event,
+                           LED = measurements2$LED, wavelength = measurements2$wavelength, 
+                           intensity_used = measurements2$intensity_used,
+                           target=measurements2$target, measured=measurements2$watts)
+
+## Refinement
+refinement = measurements2
+
+# 6. Calculate diff ----
+
+message("6. Calculate errors")
+
+refinement$diff = refinement$measured - refinement$target
+refinement$diff_squared = refinement$diff^2
+
+# 7. MSE ----
+
+events = unique(refinement$event)
+
+mse_refinement = sapply(events, function(i){
+  
+  data_subset = refinement[refinement$event==i,]
+  
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared'))
+  
+  # Calculate mse
+  
+  mse = mean(data_subset$diff_squared)
+  
+  # Format df
+  
+  row = c(data_subset[1, -discard_cols], mse)
+  
+  setNames(row, c(colnames(data_subset)[-discard_cols], 'MSE'))
+  
+  row
+})
+
+## Formatting
+mse_refinement = as.data.frame(t(mse_refinement))
+colnames(mse_refinement)[ncol(mse_refinement)] = 'MSE'
+
+mse_refinement$calibration_processing = as.character(mse_refinement$calibration_processing)
+mse_refinement$stage = as.character(mse_refinement$stage)
+mse_refinement$treat = as.numeric(mse_refinement$treat)
+mse_refinement$event = as.numeric(mse_refinement$event)
+mse_refinement$MSE = as.numeric(mse_refinement$MSE)
+
+rm(events)
+
+# 8. Export ----
+message("8. Export")
+
+refinement_baseline = refinement
+mse_refinement_baseline = mse_refinement
+
+out_dir = 'data/algorithm_testing/fig5_refinement/'
+setwd(out_dir)
+
+save(refinement_baseline, mse_refinement_baseline, file='5.0_baseline.Rda')
+
+setwd(wd)
