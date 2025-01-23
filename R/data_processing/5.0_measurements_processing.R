@@ -28,7 +28,7 @@ load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_ca
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
 
 # 1. Import raw measurements ----
 message("1. Import raw data")
@@ -106,14 +106,6 @@ rm(fn)
 
 message("5. Formatting")
 
-## Format refinement to keep columns we want
-
-refinement = data.frame(calibration_processing=refinement_subset$calibration_processing,
-                        stage=paste(refinement_subset$algorithm_type, refinement_subset$algorithm, sep='.'), 
-                        treat=refinement_subset$event, 
-                        LED=refinement_subset$LED, wavelength=refinement_subset$wavelength, 
-                        target=refinement_subset$target_irradiance, 
-                        intensity_used=refinement_subset$predicted_intensity)
 
 ## Filter for middle points and peaks
 
@@ -131,49 +123,19 @@ measurements2$treat = sapply(measurements2$event, function(i){
 
 rm(treats)
 
-## Add target column
+## Add measurements to refinement
 
-measurements2 = left_join(measurements2, 
-                          (refinement |> select(wavelength, target, treat)), 
+refinement = left_join(refinement, 
+                          (measurements2 |> select(wavelength, watts, treat, event)), 
                           join_by(wavelength, treat))
 
-## Add intensity_used column
 
-events = unique(measurements2$event)
-intensity_used = sapply(events, function(i){
-  regime[-c(1:4, 13), i]
-})
+## Add status column
+refinement$status = rep('none', nrow(refinement))
 
-intensity_used = as.numeric(as.vector(intensity_used))
-
-measurements2$intensity_used = intensity_used
-
-rm(events, intensity_used)
-
-## Add additional columns to measurements 2
-
-measurements2$calibration_processing = rep('none', nrow(measurements2))
-measurements2$stage = rep('multidimensional.nnls', nrow(measurements2))
-
-measurements2$LED = sapply(measurements2$wavelength, function(wl){
-  peaks[peaks$median_peak_wl==wl, 'LED_name']
-})
-
-measurements2$status = rep('none', nrow(measurements2))
-
-## Format measurements2 df
-
-colnames(measurements2)
-
-measurements2 = data.frame(calibration_processing = measurements2$calibration_processing,
-                           stage = measurements2$stage, 
-                           treat = measurements2$treat, event=measurements2$event,
-                           LED = measurements2$LED, wavelength = measurements2$wavelength, 
-                           intensity_used = measurements2$intensity_used,
-                           target=measurements2$target, measured=measurements2$watts, status=measurements2$status)
-
-## Refinement
-refinement = measurements2
+## Checks and final adjustments
+str(refinement)
+colnames(refinement)[9] = 'measured'
 
 # 6. Calculate diff ----
 
@@ -226,6 +188,6 @@ mse_refinement_baseline = mse_refinement
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
 
-save(refinement_baseline, mse_refinement_baseline, file='5.0_baseline.Rda')
+save(refinement_baseline, mse_refinement_baseline, file='5.1_baseline.Rda')
 
 setwd(wd)

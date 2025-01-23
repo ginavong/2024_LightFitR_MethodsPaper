@@ -9,23 +9,18 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-load('data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
 
-refinement_subset
 
 # 1. Make light recipe----
 
-treat = unique(refinement_subset$event)
+treat = unique(refinement$treat)
 
 light_recipe = sapply(treat, function(i){
   
-  data_subset = refinement_subset[refinement_subset$event==i,]
+  data_subset = refinement[refinement$treat==i,]
   
-  recipe = data_subset$predicted_intensity
-  
-  ## Set LEDs not of interest to 0
-  loc = which(data_subset$true_intensity  == 0)
-  recipe[loc] = 0
+  recipe = data_subset$intensity_used
   
   recipe
 })
