@@ -1,15 +1,20 @@
 # Setup ----
+rm(list=ls())
 
 ## Directories
 wd = getwd()
 fun_dir = 'R/functions/'
 fig4_dir = 'figures/fig4/'
 S2_dir = 'figures/S2/'
+S3_dir = 'figures/S3/'
 
 
 ## Libraries & functions
 library(ggplot2)
 library(ggbeeswarm)
+
+library(emmeans)
+library(multcomp)
 
 setwd(fun_dir)
 source('ggplot_functions.R')
@@ -20,70 +25,120 @@ load('data/algorithm_testing/fig4_algorithm_comparisons/4_algorithmsTest.Rda')
 
 ## Format data
 
+## Plot settings 
+
+algo_colours = c('#FF49AE', '#B55000', '#1E7DB3', '#8D1AFB', '#00543D')
+
+pd = 0.9 #position_dodge
+ps = 1 #point_size
+twoPanel_ps = 0.8 #point size for 2 panel plots
+multi_ps = 0.5
+
+resid_lab = '(predicted intensity) - (true intensity)'
+target_irr_lab = expression('target irradiance (W m'^-2 * nm^-1*')')
+
 # 4a MSE after all the steps of the algorithm ----
 
-## Tidied
+## Initial plot with tidied
 
-criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event)
+criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event) &  (mse_event$algorithm!='closest')
 mse_subset = mse_event[criteria,]
 
 fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=ps) +
+  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black', position=position_dodge(width=pd), aes(group = interaction(algorithm_type, algorithm))) +
+  scale_colour_manual(values=algo_colours[-1]) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
 fig4a
 
-rm(criteria, mse_subset)
+## Stats
+mse_subset$algorithm_comb = as.factor(paste(mse_subset$algorithm_type, mse_subset$algorithm_comb, sep='.'))
+mse_subset$complexity = as.factor(mse_subset$complexity)
+mse_subset$algorithm_type = as.factor(mse_subset$algorithm_type)
+mse_subset$algorithm = as.factor(mse_subset$algorithm)
 
-## Tidied without closest
+mod = aov(formula = MSE ~ algorithm_comb + complexity, data = mse_subset)
+summary(mod)
+tukey = TukeyHSD(mod)
+tukey
+pairwise = emmeans(mod, specs=pairwise~algorithm_comb:complexity)
+pairwise
+algorithm.glht = glht(mod, linfct = mcp(algorithm_comb='Tukey'))
+cld(algorithm.glht, alpha=0.05, Letters=letters)
+complexity.glht = glht(mod, linfct=mcp(complexity="Tukey"))
+cld(complexity.glht)
 
-criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event) & (mse_event$algorithm!='closest')
+## Save
+
+fn = paste(fig4_dir, '4a_algorithmMSE', sep='')
+save_fig(fn, fig4a)
+
+rm(criteria, mse_subset, fn)
+
+# S2  ----
+
+## S2a Tidied with closest
+
+criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event)
 mse_subset = mse_event[criteria,]
 
-ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
-  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
+S2a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=ps) +
+  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black', position=position_dodge(width=pd), aes(group = interaction(algorithm_type, algorithm))) +
+  scale_colour_manual(values=algo_colours) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
+S2a
 
-rm(criteria, mse_subset)
+fn = paste(S2_dir, 'S2a_inclClosest', sep='')
+save_fig(fn, S2a)
 
-## Predicted
+rm(criteria, mse_subset, fn)
 
-predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9) +
-  facet_wrap(~stage) +
-  labs(x='number of LED channels active', y='mean squared error') +
-  guides(colour=guide_legend(title='algorithm')) +
-  theme_classic()
-predicted
-
-
-## Processing
+## S2b Processing
 
 processing = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=calibration_processing)) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1, size=multi_ps) +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='calibration processing')) +
   theme_classic()
 processing
 
-## Residuals at different irradiances
+fn = paste(S2_dir, 'S2b_calibProcessing', sep='')
+save_fig(fn, processing)
 
-criteria = (algo_test_results$stage=='tidied')
-algo_subset = algo_test_results[criteria,]
 
-irradiances = ggplot(data=algo_subset, aes(x=target_irradiance, y=diff, colour=LED)) +
-  geom_point() + facet_wrap(~interaction(algorithm_type, algorithm)) +
-  scale_colour_manual(values=led_colours) +
-  geom_hline(yintercept=0) +
+### Stats - not a good test
+mod_processing = aov(MSE~calibration_processing, data=mse_event) #Basically a t test at this point
+summary(mod_processing)
+TukeyHSD(mod_processing)
+
+rm(fn)
+
+## Predicted
+
+predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=multi_ps) +
+  facet_wrap(~stage) +
+  scale_colour_manual(values=algo_colours) +
+  labs(x='number of LED channels active', y='mean squared error') +
+  guides(colour=guide_legend(title='algorithm')) +
   theme_classic()
-irradiances
+predicted
 
-rm(criteria, algo_subset)
+fn = paste(S2_dir, 'S2c_stage', sep='')
+save_fig(fn, predicted)
+
+### Bad stats
+
+mod_predicted = aov(MSE~stage, data=mse_event) # t test with nicer syntax
+summary(mod_predicted)
+
+rm(fn)
 
 # 4b Error by LED ----
 
@@ -91,43 +146,61 @@ criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_
 algo_subset = algo_test_results[criteria,]
 
 fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
-  geom_violin(colour='black') + geom_quasirandom(size=0.8, dodge.width=1) +
+  geom_violin(colour='black') + geom_quasirandom(size=twoPanel_ps, dodge.width=1) +
   stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
+  labs(x='LED channel', y=resid_lab) +
   theme_classic()
 fig4b
 
-rm(criteria, algo_subset)
+fn = paste(fig4_dir, '4b_LEDs', sep='')
+save_fig(fn, fig4b)
 
-## Distribution of all LEDS
+rm(criteria, algo_subset, fn)
+
+
+# S3 ----
+
+## S3a Distribution of all LEDS
 
 criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted')
 algo_subset = algo_test_results[criteria,]
 
 led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
-  geom_violin(colour='black') + geom_quasirandom(size=0.8, dodge.width=1) +
+  geom_violin(colour='black') + geom_quasirandom(size=multi_ps, dodge.width=1) +
   stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
+  labs(x='LED channel', y=resid_lab) +
   theme_classic()
 led
 
-rm(criteria, algo_subset)
+fn = paste(S3_dir, 'S3a_LEDs', sep='')
+save_fig(fn, led)
 
-## MSE by LED
+rm(criteria, algo_subset, fn)
 
-criteria = (mse_led$calibration_processing=='none') & (mse_led$stage=='tidied') & complete.cases(mse_led)
-mse_subset = mse_led[criteria,]
+## S3b Residuals at different irradiances
 
-ggplot(data=mse_subset, aes(x=LED, y=MSE, colour=LED, shape=interaction(algorithm_type, algorithm))) +
-  geom_quasirandom() +
-  labs(y='mean squared error') + scale_colour_manual(values=led_colours) +
+criteria = (algo_test_results$stage=='tidied')
+algo_subset = algo_test_results[criteria,]
+
+irradiances = ggplot(data=algo_subset, aes(x=target_irradiance, y=diff, colour=LED)) +
+  geom_point(size=multi_ps) + facet_wrap(~interaction(algorithm_type, algorithm)) +
+  geom_hline(yintercept=0) +
+  scale_colour_manual(values=led_colours) +
+  labs(x=target_irr_lab, y=resid_lab) +
   theme_classic()
+irradiances
 
-rm(criteria, mse_subset)
+fn = paste(S3_dir, 'S3b_residuals', sep='')
+save_fig(fn, irradiances)
 
-# CombinatioNs of LEDs ----
+rm(criteria, algo_subset, fn)
+
+
+# CombinatioNs of LEDs [Work in progress] ----
 
 ## Heatmaps
 
