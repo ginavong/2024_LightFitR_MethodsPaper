@@ -3,8 +3,8 @@
 rm(list=ls())
 
 ## Set file directories
-out_dir = 'data/heliospectra_measurements/fig5_20250114/random_search/'
-date_measured = '20250114'
+out_dir = #'data/heliospectra_measurements/fig5/random_search/'
+date_measured = 
 
 wd = getwd()
 
@@ -22,7 +22,7 @@ setwd(wd)
 
 ## Load data
 
-regime = read.csv('data/regimes/fig5_Refinement/ 5a_RandomSearch_intensities.csv', row.names=1)
+regime = read.csv('data/regimes/fig5_Refinement/5.1_RandomSearch_intensities.csv', row.names=1)
 
 load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
@@ -169,10 +169,6 @@ measurements2$LED = sapply(measurements2$wavelength, function(wl){
   peaks[peaks$median_peak_wl==wl, 'LED_name']
 })
 
-## Add additional columNs to refinement
-refinement$event = rep(NA, nrow(refinement))
-refinement$measured = rep(NA, nrow(refinement))
-
 ## Format measurements2 df
 
 colnames(measurements2)
@@ -183,10 +179,6 @@ measurements2 = data.frame(calibration_processing = measurements2$calibration_pr
                            LED = measurements2$LED, wavelength = measurements2$wavelength, 
                            intensity_used = measurements2$intensity_used,
                            target=measurements2$target, measured=measurements2$watts)
-
-## Combine dfs
-
-refinement = rbind(refinement, measurements2)
 
 # 6. Calculate diff ----
 
@@ -233,9 +225,9 @@ mse_refinement$MSE = as.numeric(mse_refinement$MSE)
 
 rm(events)
 
-# 8. Lowest MSEs for grid search ----
+# 8. Lowest MSEs ----
 
-message("8. Lowest MSE for grid search")
+message("8. Lowest MSE")
 
 ## Find lowest events
 
@@ -260,12 +252,51 @@ refinement[lowest_index, 'status'] = 'best'
 
 rm(treats, lowest, second, lowest_index, second_index)
 
-# 9. Export ----
+# 9. Intensity distance from best ----
+
+## Distance individual
+
+events = unique(refinement$event)
+
+best = refinement[refinement$status=='best',]
+
+dist = c(sapply(events, function(i){
+  data_subset = refinement[refinement$event==i,]
+  
+  # Best subset
+  treat = unique(data_subset$treat)
+  best_intensity = best[best$treat==treat, 'intensity_used']
+  
+  # Distance
+  data_subset$intensity_used - best_intensity
+  
+}))
+
+refinement$dist = dist
+refinement$dist_squared = dist^2
+
+rm(dist)
+
+## Euclidian distance
+
+euc_dist = sapply(1:nrow(mse_refinement), function(i){
+  event = mse_refinement[i, 'event']
+  dist_squared = refinement[refinement$event==event, 'dist_squared']
+  euclidian = sqrt(sum(dist_squared))
+})
+
+mse_refinement$euc_dist = euc_dist
+
+rm(euc_dist)
+
+#Export ----
+
+refinement_random = refinement
+mse_refinement_random = mse_refinement
 
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
 
-save(refinement, mse_refinement, file='5_refinement.Rda')
-save(for_gridSearch, file='5b_forGridSearch.Rda')
+save(refinement_random, mse_refinement_random, file='5_refinement.Rda')
 
 setwd(wd)
