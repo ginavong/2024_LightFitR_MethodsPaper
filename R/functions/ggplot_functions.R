@@ -18,6 +18,7 @@ led_colours_dark = c('mediumslateblue', 'navy', 'royalblue', 'skyblue', 'forestg
 
 # Labels -----
 irr_w_lab = expression('irradiance (W m'^-2 * nm^-1*')')
+irr_umol_lab = expression('irradiance (μmol m'^-2*nm^-1*')')
 wl_lab = "wavelength (nm)"
 
 # Transparent dark theme for presentations-----
