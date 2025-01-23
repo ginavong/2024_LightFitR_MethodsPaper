@@ -9,13 +9,17 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-load('data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.1_baseline.Rda')
 
-refinement_subset
+refinement_baseline
 
 ## Define variables
 
 nEvents = LightFitR::helio.eventLimit
+
+## Set random seed
+
+set.seed(148)
 
 # 1. Make random_search function ----
 
@@ -23,14 +27,16 @@ random_search = function(data, leds_of_interest, nrow_output){
 
   ## Define search range - Make ranges proportionate to the residuals of individual LEDs
   
-  bound1 = data$predicted_intensity - (2 * data$diff) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
-  bound2 = data$predicted_intensity + (0.5 * data$diff) # We want this to be in the same direction as the residual, but smaller
+  bound1 = data$intensity_used - (10^4 * abs(data$diff)) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
+  bound2 = data$intensity_used + (10^2 * abs(data$diff)) # We want this to be in the same direction as the residual, but smaller
   
   bound1
   bound2
   
   bounds = rbind(bound1, bound2)
   bounds
+  
+  print(bounds)
   
   ## Tidy up
   
@@ -72,15 +78,18 @@ random_search = function(data, leds_of_interest, nrow_output){
 
 # 2. Make random search recipe ----
 
-search_recipe = lapply(unique(refinement_subset$event), function(i){
+treats = unique(refinement_baseline$treat)
+
+search_recipe = lapply(unique(refinement_baseline$treat), function(i){
+  print(i)
   
   # Define variables
-  data_subset = refinement_subset[refinement_subset$event==i,]
+  data_subset = refinement_baseline[refinement_baseline$treat==i,]
   
-  LEDs_of_interest = which(data_subset$true_intensity !=0)
+  LEDs_of_interest = which(data_subset$on==TRUE)
   
   # Run function
-  random_search(data_subset, LEDs_of_interest, nEvents/3)
+  random_search(data_subset, LEDs_of_interest, nEvents/length(treats))
   
 })
 
@@ -106,6 +115,6 @@ rownames(regime) = c(rownames(time_recipe), helio.dyna.leds$name)
 
 fp = 'data/regimes/fig5_Refinement/'
 
-helio.writeSchedule(regime, paste(fp, '5a_RandomSearch.csv', sep=''), format='csv')
-helio.writeSchedule(regime, paste(fp, '5a_RandomSearch.txt', sep=''), format='json')
-write.csv(regime, paste(fp, '5a_RandomSearch_intensities.csv'), col.names=F, row.names=T)
+helio.writeSchedule(regime, paste(fp, '5.1_RandomSearch.csv', sep=''), format='csv')
+helio.writeSchedule(regime, paste(fp, '5.1_RandomSearch.txt', sep=''), format='json')
+write.csv(regime, paste(fp, '5.1_RandomSearch_intensities.csv', sep=''), col.names=F, row.names=T)
