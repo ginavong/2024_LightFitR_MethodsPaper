@@ -16,6 +16,9 @@ library(ggbeeswarm)
 library(emmeans)
 library(multcomp)
 
+library(stringr)
+library(dplyr)
+
 setwd(fun_dir)
 source('ggplot_functions.R')
 setwd(wd)
@@ -54,7 +57,7 @@ fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=inter
 fig4a
 
 ## Stats
-mse_subset$algorithm_comb = as.factor(paste(mse_subset$algorithm_type, mse_subset$algorithm_comb, sep='.'))
+mse_subset$algorithm_comb = as.factor(paste(mse_subset$algorithm_type, mse_subset$algorithm, sep='.'))
 mse_subset$complexity = as.factor(mse_subset$complexity)
 mse_subset$algorithm_type = as.factor(mse_subset$algorithm_type)
 mse_subset$algorithm = as.factor(mse_subset$algorithm)
@@ -65,15 +68,33 @@ tukey = TukeyHSD(mod)
 tukey
 pairwise = emmeans(mod, specs=pairwise~algorithm_comb:complexity)
 pairwise
-algorithm.glht = glht(mod, linfct = mcp(algorithm_comb='Tukey'))
-cld(algorithm.glht, alpha=0.05, Letters=letters)
-complexity.glht = glht(mod, linfct=mcp(complexity="Tukey"))
-cld(complexity.glht)
+CLD = cld(pairwise, alpha=0.05, Letters=letters) #Get the letters of significance
+CLD
+
+## Format CLD dataframe
+CLD$.group = str_replace_all(CLD$.group, pattern=' ', replacement='') # Formatting
+CLD$algorithm_type = str_replace(str_extract(CLD$algorithm_comb, pattern='[:alpha:]+\\.'), '\\.', '')
+CLD$algorithm = str_replace(str_extract(CLD$algorithm_comb, pattern='\\.[:alpha:]+'), '\\.', '')
+CLD$MSE = sapply(1:nrow(CLD), function(i){
+  comb = CLD[i, 'algorithm_comb']
+  comp = CLD[i, 'complexity']
+  
+  criteria = mse_subset$algorithm_comb==comb & mse_subset$complexity == comp
+  max(mse_subset[criteria, 'MSE']) + 1000
+})
+summary(CLD)
+
+## Add labels
+fig4a_labelled = fig4a + geom_text(data=CLD, colour = 'black', size=2, position=position_dodge(width=0.9), aes(x=complexity, y=MSE, label=.group, group=interaction(algorithm_type, algorithm)))
+fig4a_labelled
 
 ## Save
 
 fn = paste(fig4_dir, '4a_algorithmMSE', sep='')
 save_fig(fn, fig4a)
+
+fn = paste(fig4_dir, '4a_labelled', sep='')
+save_fig(fn, fig4a_labelled)
 
 rm(criteria, mse_subset, fn)
 
