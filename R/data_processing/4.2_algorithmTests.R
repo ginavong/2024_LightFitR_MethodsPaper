@@ -559,6 +559,9 @@ colnames(refinement)
 
 refinement = data.frame(calibration_processing=refinement$calibration_processing, stage=refinement$stage, treat=refinement$event, LED=refinement$LED, wavelength=refinement$wavelength, target=refinement$target_irradiance, on=refinement$on, intensity_used=refinement$predicted_intensity)
 
+## Set intensity_used to 0 of on==FaLSe
+refinement[refinement$on==FALSE, 'intensity_used'] = 0
+
 ## Tidy
 rm(criteria, mse_subset, refine_events, min_med_max, MSEs)
 
