@@ -33,7 +33,7 @@ load('data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
 # 1. Import raw measurements ----
 message("1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5_20250114/random_search/raw/')
+measurements = read_many.OceanView('data/heliospectra_measurements/fig5/random_search_20250114/raw/')
 
 raw = measurements
 
@@ -248,35 +248,15 @@ lowest = t(sapply(treats, function(i){
 lowest = as.data.frame(lowest)
 colnames(lowest) = c('treat', 'lowest_event')
 
-## Find second lowest events
-
-second = t(sapply(treats, function(i){
-  data_subset = mse_refinement[mse_refinement$treat==i,]
-  second_mse = sort(unique(data_subset$MSE))[2]
-  second_event = data_subset[data_subset$MSE==second_mse, 'event']
-  c(i, second_event)
-}))
-second = as.data.frame(second)
-colnames(second) = c('treat', 'second')
-
 ## Label dfs with this info
 
 mse_refinement$status = 'none'
 lowest_index = which(mse_refinement$event %in% lowest$lowest_event)
 mse_refinement[lowest_index, 'status'] = 'best'
-second_index = which(mse_refinement$event %in% second$second)
-mse_refinement[second_index, 'status'] = 'second'
 
 refinement$status = 'none'
 lowest_index = which(refinement$event %in% lowest$lowest_event)
 refinement[lowest_index, 'status'] = 'best'
-second_index = which(refinement$event %in% second$second)
-refinement[second_index, 'status'] = 'second'
-
-## Subset the best
-
-criteria = (refinement$status=='best') | (refinement$status=='second')
-for_gridSearch = refinement[criteria,]
 
 rm(treats, lowest, second, lowest_index, second_index)
 

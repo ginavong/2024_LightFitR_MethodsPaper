@@ -33,7 +33,7 @@ load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
 # 1. Import raw measurements ----
 message("1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5_20250114/baseline/raw/')
+measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline/raw/')
 
 raw = measurements
 
