@@ -24,26 +24,10 @@ setwd(wd)
 ## Load data
 
 setwd(data_dir)
-load('5.0_baseline.Rda')
-load('5_refinement.Rda')
+load('5_refinementCollated.Rda')
 setwd(wd)
 
-# 1. Format df
-
-## Combine dataframes (Temporary until I sort my codebase out) ----
-
-mse_refinement_baseline$status = rep('none', nrow(mse_refinement_baseline))
-refinement_baseline$status = rep('none', nrow(refinement_baseline))
-
-refinement = rbind(refinement_baseline, refinement)
-mse_refinement = rbind(mse_refinement_baseline, mse_refinement)
-
-summary(refinement)
-summary(mse_refinement)
-str(refinement)
-str(mse_refinement)
-
-rm(mse_refinement_baseline, refinement_baseline)
+# 1. Format df ----
 
 ## datatypes
 
@@ -63,72 +47,37 @@ refinement$treat = as.factor(refinement$treat)
 
 # 2. MSE plot ----
 
-best_mse = mse_refinement[mse_refinement$status=='best', -6]
-
-mse_plot = ggplot(mse_refinement, aes(x=stage, y=MSE, colour=treat)) + 
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=0.9, aes(colour=treat, shape=status, size=status)) +
-  #geom_point(data=best_mse, colour='black', aes(x=stage, y=MSE, group=treat)) +
-  scale_shape_manual(values=c(8, 16, 15), guide='none') + scale_size_manual(values=c(5, 2, 2), guide='none') +
+mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
+  geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
+  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
   theme_classic()
 mse_plot
 
 # 3. Refinement plot ----
-
-## Messing with df
-
-### new column
-
-relative_event = sapply(1:nrow(refinement), function(i){
-  treat = refinement[i, 'treat']
-  
-  if(refinement[i, 'stage'] == 'multidimensional.nnls'){
-    rel_event=refinement[i, 'event']
-  }
-  else{rel_event = switch(as.character(treat),
-         '43' = refinement[i, 'event'],
-         '51' = refinement[i, 'event'] -50,
-         '58' = refinement[i, 'event'] - 100)
-  }
-  
-  rel_event
-})
-refinement$relative_event = relative_event
-rm(relative_event)
 
 ### Subset df
 
 refinement_subset = refinement[refinement$intensity_used!=0, ]
 
 baseline = refinement_subset[refinement_subset$stage=='multidimensional.nnls',]
-baseline$relative_event = 25
 
 leds_used = which(LightFitR::helio.dyna.leds$name %in% unique(refinement_subset$LED))
 
 ## Plotting!
 
-
-  refinement_intensity_plot = ggplot(refinement_subset, aes(x=relative_event, y=intensity_used, colour=LED)) + facet_wrap(~treat) +
-    geom_hline(data=baseline, linetype='longdash', linewidth=0.8, aes(yintercept=intensity_used, colour=LED)) +
-    geom_point(aes(shape=status, size=status)) + 
-    scale_colour_manual(values=led_colours[leds_used]) +
-    scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 15), guide='none') +
-    theme_classic() 
-refinement_intensity_plot
-
-refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=measured, colour=LED)) + facet_wrap(~treat) +
+refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=measured, colour=LED)) + facet_wrap(~start_MSE) +
   geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=measured, fill=LED)) +
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
-  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 15), guide='none') +
+  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17), guide='none') +
   theme_classic() 
 refinement_target_plot
 
-refinement_residual_plot = ggplot(refinement_subset, aes(x=relative_event, y=diff, colour=LED)) +
-  facet_wrap(~treat) + geom_hline(yintercept=0, colour='black') +
-  geom_hline(data=baseline, linetype='longdash', linewidth=0.8, aes(yintercept=diff, colour=LED)) +
-  geom_point(aes(shape=status, size=status)) + 
-  scale_colour_manual(values=led_colours[leds_used]) +
-  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 15), guide='none') +
+# 4. Euclidian distance plot ----
+
+euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
+  geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
+  geom_point() + 
   theme_classic()
-refinement_residual_plot
+euclidian_plot
