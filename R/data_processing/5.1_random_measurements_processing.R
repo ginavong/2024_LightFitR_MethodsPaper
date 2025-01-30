@@ -3,8 +3,8 @@
 rm(list=ls())
 
 ## Set file directories
-out_dir = #'data/heliospectra_measurements/fig5/random_search/'
-date_measured = 
+out_dir = 'data/heliospectra_measurements/fig5/5.1_RandomSearch_20250127/'
+date_measured = 20250127
 
 wd = getwd()
 
@@ -28,18 +28,18 @@ load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_ca
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5a_SubsetForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
 
 # 1. Import raw measurements ----
 message("1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5/random_search_20250114/raw/')
+measurements = read_many.OceanView('data/heliospectra_measurements/fig5/5.1_RandomSearch_20250127/raw/')
 
 raw = measurements
 
 ## Export raw data
 
-fn = paste(out_dir, 'raw/', '5a_raw_', date_measured, sep='')
+fn = paste(out_dir, 'raw/', '5.1_raw_', date_measured, sep='')
 save_data(measurements, fn)
 
 rm(fn)
@@ -105,15 +105,6 @@ rm(fn)
 
 message("5. Formatting")
 
-## Format refinement to keep columns we want
-
-refinement = data.frame(calibration_processing=refinement_subset$calibration_processing,
-                        stage=paste(refinement_subset$algorithm_type, refinement_subset$algorithm, sep='.'), 
-                        treat=refinement_subset$event, 
-                        LED=refinement_subset$LED, wavelength=refinement_subset$wavelength, 
-                        target=refinement_subset$target_irradiance, 
-                        intensity_used=refinement_subset$predicted_intensity)
-
 ## Filter for middle points and peaks
 
 criteria = (measurements$middle_time==T) & (measurements$peak==T)
@@ -144,16 +135,16 @@ rm(treats)
 ## Add target column
 
 measurements2 = left_join(measurements2, 
-                           (refinement |> select(wavelength, target, treat)), 
+                           (refinement |> select(wavelength, target, treat, calibration_processing)), 
                            join_by(wavelength, treat))
 
 ## Add intensity_used column
 
 events = unique(measurements2$event)
+
 intensity_used = sapply(events, function(i){
   regime[-c(1:4, 13), i]
 })
-
 intensity_used = as.numeric(as.vector(intensity_used))
 
 measurements2$intensity_used = intensity_used
@@ -162,7 +153,6 @@ rm(events, intensity_used)
 
 ## Add additional columns to measurements 2
 
-measurements2$calibration_processing = rep('none', nrow(measurements2))
 measurements2$stage = rep('random.search', nrow(measurements2))
 
 measurements2$LED = sapply(measurements2$wavelength, function(wl){
@@ -184,19 +174,15 @@ measurements2 = data.frame(calibration_processing = measurements2$calibration_pr
 
 message("6. Calculate errors")
 
-refinement$diff = refinement$measured - refinement$target
-refinement$diff_squared = refinement$diff^2
+measurements2$diff = measurements2$measured - measurements2$target
+measurements2$diff_squared = measurements2$diff^2
 
 # 7. Calculate MSE ----
 
-## Filter algorithm raw output for now
-
-refinement = refinement[refinement$stage=='random.search',]
-
-events = unique(refinement$event)
+events = unique(measurements2$event)
 mse_refinement = sapply(events, function(i){
   
-  data_subset = refinement[refinement$event==i,]
+  data_subset = measurements2[measurements2$event==i,]
   
   discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared'))
   
@@ -215,15 +201,15 @@ mse_refinement = sapply(events, function(i){
 
 ## Formatting
 mse_refinement = as.data.frame(t(mse_refinement))
-colnames(mse_refinement)[ncol(mse_refinement)] = 'MSE'
 
+colnames(mse_refinement)
+str(mse_refinement)
 mse_refinement$calibration_processing = as.character(mse_refinement$calibration_processing)
 mse_refinement$stage = as.character(mse_refinement$stage)
 mse_refinement$treat = as.numeric(mse_refinement$treat)
 mse_refinement$event = as.numeric(mse_refinement$event)
 mse_refinement$MSE = as.numeric(mse_refinement$MSE)
-
-rm(events)
+str(mse_refinement)
 
 # 8. Lowest MSEs ----
 
@@ -246,22 +232,20 @@ mse_refinement$status = 'none'
 lowest_index = which(mse_refinement$event %in% lowest$lowest_event)
 mse_refinement[lowest_index, 'status'] = 'best'
 
-refinement$status = 'none'
-lowest_index = which(refinement$event %in% lowest$lowest_event)
-refinement[lowest_index, 'status'] = 'best'
+measurements2$status = 'none'
+lowest_index = which(measurements2$event %in% lowest$lowest_event)
+measurements2[lowest_index, 'status'] = 'best'
 
-rm(treats, lowest, second, lowest_index, second_index)
+rm(treats, lowest,lowest_index)
 
 # 9. Intensity distance from best ----
 
 ## Distance individual
 
-events = unique(refinement$event)
-
-best = refinement[refinement$status=='best',]
+best = measurements2[measurements2$status=='best',]
 
 dist = c(sapply(events, function(i){
-  data_subset = refinement[refinement$event==i,]
+  data_subset = measurements2[measurements2$event==i,]
   
   # Best subset
   treat = unique(data_subset$treat)
@@ -272,8 +256,8 @@ dist = c(sapply(events, function(i){
   
 }))
 
-refinement$dist = dist
-refinement$dist_squared = dist^2
+measurements2$dist = dist
+measurements2$dist_squared = dist^2
 
 rm(dist)
 
@@ -281,7 +265,7 @@ rm(dist)
 
 euc_dist = sapply(1:nrow(mse_refinement), function(i){
   event = mse_refinement[i, 'event']
-  dist_squared = refinement[refinement$event==event, 'dist_squared']
+  dist_squared = measurements2[measurements2$event==event, 'dist_squared']
   euclidian = sqrt(sum(dist_squared))
 })
 
@@ -291,12 +275,12 @@ rm(euc_dist)
 
 #Export ----
 
-refinement_random = refinement
+refinement_random = measurements2
 mse_refinement_random = mse_refinement
 
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
 
-save(refinement_random, mse_refinement_random, file='5_refinement.Rda')
+save(refinement_random, mse_refinement_random, file='5.2_RandomRefinement.Rda')
 
 setwd(wd)
