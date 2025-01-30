@@ -3,7 +3,7 @@
 rm(list=ls())
 
 ## Set file directories
-out_dir = 'data/heliospectra_measurements/fig5_20250114/baseline/'
+out_dir = 'data/heliospectra_measurements/fig5/baseline_20250114/'
 date_measured = '20250114'
 
 wd = getwd()
@@ -33,7 +33,7 @@ load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
 # 1. Import raw measurements ----
 message("1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline/raw/')
+measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline_20250114/raw/')
 
 raw = measurements
 
@@ -131,7 +131,8 @@ refinement = left_join(refinement,
 
 
 ## Add status column
-refinement$status = rep('none', nrow(refinement))
+refinement$status = rep('start', nrow(refinement))
+refinement$relative_event = rep(25, nrow(refinement))
 
 ## Checks and final adjustments
 str(refinement)

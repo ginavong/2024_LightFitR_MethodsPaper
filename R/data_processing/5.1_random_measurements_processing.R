@@ -132,10 +132,10 @@ measurements2$treat = sapply(measurements2$event, function(i){
 
 rm(treats)
 
-## Add target column
+## Add columns from refinement
 
 measurements2 = left_join(measurements2, 
-                           (refinement |> select(wavelength, target, treat, calibration_processing)), 
+                           (refinement |> select(wavelength, target, treat, calibration_processing, on)), 
                            join_by(wavelength, treat))
 
 ## Add intensity_used column
@@ -151,6 +151,22 @@ measurements2$intensity_used = intensity_used
 
 rm(events, intensity_used)
 
+## Relative event
+
+relative_event = sapply(1:nrow(measurements2), function(i){
+  treat = measurements2[i, 'treat']
+  
+  rel_event = switch(as.character(treat),
+                          '43' = measurements2[i, 'event'],
+                          '51' = measurements2[i, 'event'] -50,
+                          '58' = measurements2[i, 'event'] - 100)
+  
+  rel_event
+})
+measurements2$relative_event = relative_event
+rm(relative_event)
+
+
 ## Add additional columns to measurements 2
 
 measurements2$stage = rep('random.search', nrow(measurements2))
@@ -159,6 +175,7 @@ measurements2$LED = sapply(measurements2$wavelength, function(wl){
   peaks[peaks$median_peak_wl==wl, 'LED_name']
 })
 
+
 ## Format measurements2 df
 
 colnames(measurements2)
@@ -166,7 +183,9 @@ colnames(measurements2)
 measurements2 = data.frame(calibration_processing = measurements2$calibration_processing,
                            stage = measurements2$stage, 
                            treat = measurements2$treat, event=measurements2$event,
-                           LED = measurements2$LED, wavelength = measurements2$wavelength, 
+                           relative_event = measurements2$relative_event,
+                           LED = measurements2$LED, wavelength = measurements2$wavelength,
+                           on = measurements2$on,
                            intensity_used = measurements2$intensity_used,
                            target=measurements2$target, measured=measurements2$watts)
 
@@ -208,7 +227,10 @@ mse_refinement$calibration_processing = as.character(mse_refinement$calibration_
 mse_refinement$stage = as.character(mse_refinement$stage)
 mse_refinement$treat = as.numeric(mse_refinement$treat)
 mse_refinement$event = as.numeric(mse_refinement$event)
-mse_refinement$MSE = as.numeric(mse_refinement$MSE)
+mse_refinement$relative_event = as.numeric(mse_refinement$relative_event)
+mse_refinement$on = as.logical(mse_refinement$on)
+mse_refinement$MSE = c(as.numeric(mse_refinement$V7))
+mse_refinement = mse_refinement[, -7]
 str(mse_refinement)
 
 # 8. Lowest MSEs ----
@@ -273,7 +295,7 @@ mse_refinement$euc_dist = euc_dist
 
 rm(euc_dist)
 
-#Export ----
+# 10. Export ----
 
 refinement_random = measurements2
 mse_refinement_random = mse_refinement
