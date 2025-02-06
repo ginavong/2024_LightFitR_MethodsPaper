@@ -13,11 +13,10 @@ S3_dir = 'figures/S3/'
 library(ggplot2)
 library(ggbeeswarm)
 
-library(emmeans)
-library(multcomp)
-
 library(stringr)
 library(dplyr)
+
+library(FSA)
 
 setwd(fun_dir)
 source('ggplot_functions.R')
@@ -42,10 +41,17 @@ target_irr_lab = expression('target irradiance (W m'^-2 * nm^-1*')')
 
 # 4a MSE after all the steps of the algorithm ----
 
-## Initial plot with tidied
+## Data subset
 
 criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event) &  (mse_event$algorithm!='closest')
 mse_subset = mse_event[criteria,]
+
+mse_subset$algorithm_comb = as.factor(paste(mse_subset$algorithm_type, mse_subset$algorithm, sep='.'))
+mse_subset$complexity = as.factor(mse_subset$complexity)
+mse_subset$algorithm_type = as.factor(mse_subset$algorithm_type)
+mse_subset$algorithm = as.factor(mse_subset$algorithm)
+
+## Initial plot with tidied
 
 fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=ps) +
@@ -56,45 +62,41 @@ fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=inter
   theme_classic()
 fig4a
 
-## Stats
-mse_subset$algorithm_comb = as.factor(paste(mse_subset$algorithm_type, mse_subset$algorithm, sep='.'))
-mse_subset$complexity = as.factor(mse_subset$complexity)
-mse_subset$algorithm_type = as.factor(mse_subset$algorithm_type)
-mse_subset$algorithm = as.factor(mse_subset$algorithm)
+## Stats - Kruskal test with Dunn correction
 
-mod = aov(formula = MSE ~ algorithm_comb + complexity, data = mse_subset)
-summary(mod)
-tukey = TukeyHSD(mod)
-tukey
-pairwise = emmeans(mod, specs=pairwise~algorithm_comb:complexity)
-pairwise
-CLD = cld(pairwise, alpha=0.05, Letters=letters) #Get the letters of significance
-CLD
+complexity = unique(mse_subset$complexity)
 
-## Format CLD dataframe
-CLD$.group = str_replace_all(CLD$.group, pattern=' ', replacement='') # Formatting
-CLD$algorithm_type = str_replace(str_extract(CLD$algorithm_comb, pattern='[:alpha:]+\\.'), '\\.', '')
-CLD$algorithm = str_replace(str_extract(CLD$algorithm_comb, pattern='\\.[:alpha:]+'), '\\.', '')
-CLD$MSE = sapply(1:nrow(CLD), function(i){
-  comb = CLD[i, 'algorithm_comb']
-  comp = CLD[i, 'complexity']
+stats_test = lapply(complexity, function(i){
+  criteria = mse_subset$complexity==i
+  complexity_subset = mse_subset[criteria,]
   
-  criteria = mse_subset$algorithm_comb==comb & mse_subset$complexity == comp
-  max(mse_subset[criteria, 'MSE']) + 1000
+  #Stats test
+  mod = FSA::dunnTest(MSE~algorithm_comb, data=complexity_subset,
+                method='holm', two.sided = F)
+  
+  # Format df
+  complex = rep(i, nrow(mod$res))
+  
+  cbind(complex, mod$res)
+  
 })
-summary(CLD)
 
-## Add labels
-fig4a_labelled = fig4a + geom_text(data=CLD, colour = 'black', size=2, position=position_dodge(width=0.9), aes(x=complexity, y=MSE, label=.group, group=interaction(algorithm_type, algorithm)))
-fig4a_labelled
+stats_test = do.call(rbind, stats_test)
+colnames(stats_test)[1] = 'complexity'
+
+stats_test$signif = symnum(stats_test$P.adj,
+                           corr = FALSE, na = FALSE, 
+                           cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1), 
+                           symbols = c("***", "**", "*", ".", " "))
+
 
 ## Save
 
 fn = paste(fig4_dir, '4a_algorithmMSE', sep='')
 save_fig(fn, fig4a)
 
-fn = paste(fig4_dir, '4a_labelled', sep='')
-save_fig(fn, fig4a_labelled)
+fn = paste(fig4_dir, '4a_statsTests.csv', sep='')
+write.csv(stats_test, file=fn)
 
 rm(criteria, mse_subset, fn)
 
@@ -104,6 +106,11 @@ rm(criteria, mse_subset, fn)
 
 criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event)
 mse_subset = mse_event[criteria,]
+
+mse_subset$algorithm_comb = as.factor(paste(mse_subset$algorithm_type, mse_subset$algorithm, sep='.'))
+mse_subset$complexity = as.factor(mse_subset$complexity)
+mse_subset$algorithm_type = as.factor(mse_subset$algorithm_type)
+mse_subset$algorithm = as.factor(mse_subset$algorithm)
 
 S2a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=ps) +
@@ -119,26 +126,6 @@ save_fig(fn, S2a)
 
 rm(criteria, mse_subset, fn)
 
-## S2b Processing
-
-processing = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=calibration_processing)) +
-  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1, size=multi_ps) +
-  facet_wrap(~interaction(algorithm_type, algorithm)) +
-  labs(x='number of LED channels active', y='mean squared error') +
-  guides(colour=guide_legend(title='calibration processing')) +
-  theme_classic()
-processing
-
-fn = paste(S2_dir, 'S2b_calibProcessing', sep='')
-save_fig(fn, processing)
-
-
-### Stats - not a good test
-mod_processing = aov(MSE~calibration_processing, data=mse_event) #Basically a t test at this point
-summary(mod_processing)
-TukeyHSD(mod_processing)
-
-rm(fn)
 
 ## Predicted
 
@@ -154,12 +141,20 @@ predicted
 fn = paste(S2_dir, 'S2c_stage', sep='')
 save_fig(fn, predicted)
 
-### Bad stats
 
-mod_predicted = aov(MSE~stage, data=mse_event) # t test with nicer syntax
-summary(mod_predicted)
+# ## Calibration Processing
+# 
+# processing = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=calibration_processing)) +
+#   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1, size=multi_ps) +
+#   facet_wrap(~interaction(algorithm_type, algorithm)) +
+#   labs(x='number of LED channels active', y='mean squared error') +
+#   guides(colour=guide_legend(title='calibration processing')) +
+#   theme_classic()
+# processing
+# 
+# fn = paste(S2_dir, 'S2b_calibProcessing', sep='')
+# save_fig(fn, processing)
 
-rm(fn)
 
 # 4b Error by LED ----
 
