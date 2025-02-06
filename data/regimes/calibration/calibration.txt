@@ -1,5 +1,5 @@
 {
-"text": "data/regimes/calibration.txt",
+"text": "data/regimes/calibration/calibration.txt",
 "type" : 0,
 "no_of_wave_lengths" : 9,
 "no_of_events": 144,

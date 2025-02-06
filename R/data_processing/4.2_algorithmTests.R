@@ -608,7 +608,7 @@ save(algo_test_results, mse_event, mse_led, mse_combinations, file='4_algorithms
 
 write.csv(algo_test_results, file='4_algo_test_results.csv')
 write.csv(mse_event, file='4_mse_event.csv')
-write.csv(mse_led, file='4b_mse_led.csv')
-write.csv(mse_combinations, file='4b_mse_combinations.csv')
+write.csv(mse_led, file='4_mse_led.csv')
+write.csv(mse_combinations, file='4_mse_combinations.csv')
 
 setwd(wd)

@@ -45,6 +45,6 @@ rownames(regime) = c(rownames(time_mat), LightFitR::helio.dyna.leds$name)
 fp = 'data/regimes/fig5_Refinement/'
 
 
-helio.writeSchedule(regime, paste(fp, '5.0_Baseline.csv', sep=''), format='csv')
-helio.writeSchedule(regime, paste(fp, '5.0_Baseline.txt', sep=''), format='json')
-write.csv(regime, paste(fp, '5.0_Baseline_intensities.csv'), col.names=F, row.names=T)
+helio.writeSchedule(regime, paste(fp, '5_Baseline.csv', sep=''), format='csv')
+helio.writeSchedule(regime, paste(fp, '5_Baseline.txt', sep=''), format='json')
+write.csv(regime, paste(fp, '5_Baseline_intensities.csv', sep=''), col.names=F, row.names=T)

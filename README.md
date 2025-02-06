@@ -18,7 +18,18 @@ Find the package here: https://github.com/ginavong/LightFitR
     - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data`. These scripts take a while to run.
     - analysis: Scripts for analysing data and generating figures. Outputs to `figures`
     - regime_design: Scripts which design light regimes. Outputs to `data/regimes`.
+    - `scripts_order.R`: All the scripts to produce analysis and figs for the paper, in the correct order.
 - renv: files for the `renv` package to run
+
+## File naming
+
+Scripts: `x.y_description_of_contents` where x=figure it corresponds to; y=step in the sequence of generating the figure. 
+e.g. `4.2_etc` is the second script for fig4. 
+
+Dataframes: `x_description_of_contents` where x=figure it corresponds to.
+If the dataframe is needed for multiple figures (e.g. calibration), it will not follow this scheme.
+All measurements to include date it was taken on, in format `yyyymmdd`
+
 
 # Style guide
 
