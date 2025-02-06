@@ -115,6 +115,6 @@ rownames(regime) = c(rownames(time_recipe), helio.dyna.leds$name)
 
 fp = 'data/regimes/fig5_Refinement/'
 
-helio.writeSchedule(regime, paste(fp, '5.1_RandomSearch.csv', sep=''), format='csv')
-helio.writeSchedule(regime, paste(fp, '5.1_RandomSearch.txt', sep=''), format='json')
-write.csv(regime, paste(fp, '5.1_RandomSearch_intensities.csv', sep=''), col.names=F, row.names=T)
+helio.writeSchedule(regime, paste(fp, '5_RandomSearch.csv', sep=''), format='csv')
+helio.writeSchedule(regime, paste(fp, '5_RandomSearch.txt', sep=''), format='json')
+write.csv(regime, paste(fp, '5_RandomSearch_intensities.csv', sep=''), col.names=F, row.names=T)

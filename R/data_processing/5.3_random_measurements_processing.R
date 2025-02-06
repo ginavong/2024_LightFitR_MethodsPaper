@@ -303,6 +303,6 @@ mse_refinement_random = mse_refinement
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
 
-save(refinement_random, mse_refinement_random, file='5.2_RandomRefinement.Rda')
+save(refinement_random, mse_refinement_random, file='5_RandomRefinement.Rda')
 
 setwd(wd)

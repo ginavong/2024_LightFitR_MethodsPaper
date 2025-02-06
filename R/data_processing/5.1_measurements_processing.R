@@ -22,7 +22,7 @@ setwd(wd)
 
 ## Load data
 
-regime = read.csv('data/regimes/fig5_Refinement/ 5.0_Baseline_intensities.csv', row.names=1)
+regime = read.csv('data/regimes/fig5_Refinement/5.0_Baseline_intensities.csv', row.names=1)
 
 load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
@@ -39,7 +39,7 @@ raw = measurements
 
 ## Export raw data
 
-fn = paste(out_dir, 'raw/', '5.0_raw_', date_measured, sep='')
+fn = paste(out_dir, 'raw/', '5_baseline_raw_', date_measured, sep='')
 save_data(measurements, fn)
 
 rm(fn)
@@ -97,7 +97,7 @@ measurements = data.frame(filename = measurements$filename,
 
 ## ExpoRt
 
-fn = paste(out_dir, '5.0_annotated_', date_measured, sep='')
+fn = paste(out_dir, '5_baseline_annotated_', date_measured, sep='')
 save_data(measurements, fn)
 
 rm(fn)
@@ -189,6 +189,6 @@ mse_refinement_baseline = mse_refinement
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
 
-save(refinement_baseline, mse_refinement_baseline, file='5.1_baseline.Rda')
+save(refinement_baseline, mse_refinement_baseline, file='5_baseline_mse.Rda')
 
 setwd(wd)

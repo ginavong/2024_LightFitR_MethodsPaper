@@ -53,6 +53,9 @@ mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) +
   theme_classic()
 mse_plot
 
+fn = paste(main_dir, 'fig5.png', sep='')
+ggsave(fn, mse_plot)
+
 # 3. Refinement plot ----
 
 ### Subset df
@@ -74,6 +77,9 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=measu
   theme_classic() 
 refinement_target_plot
 
+fn = paste(sup_dir, 'S4a.png', sep='')
+ggsave(fn, refinement_target_plot)
+
 # 4. Euclidian distance plot ----
 
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
@@ -82,3 +88,6 @@ euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)
   scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   theme_classic()
 euclidian_plot
+
+fn = paste(sup_dir, 'S4b.png', sep='')
+ggsave(fn, euclidian_plot)
