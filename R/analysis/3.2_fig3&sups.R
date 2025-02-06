@@ -47,7 +47,7 @@ spectrum_light = ggplot(data=calib[criteria,], aes(x=wavelength, y=watts, colour
   labs(x = wl_lab, y=irr_w_lab) +
   theme_classic()
 
-fn = paste(sup_out, 'S1/S1a', sep='')
+fn = paste(sup_out, 'S1a', sep='')
 save_fig(fn, spectrum_light)
 
 rm(criteria, spectrum_light, fn)
@@ -93,11 +93,16 @@ rm(criteria, peak_line_light, fn)
 
 # Bleedthrough heatmap ----
 
+## Format df
+
+bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
+
 ## Heatmap light
 bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=irradiance)) +
   geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels") +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') + #060038 is a dark blue option
   theme_classic()
+bleed_heatmap_light
 
 fn = paste(fig3_out, '3b_bleedthrough', sep='')
 save_fig(fn, bleed_heatmap_light)
