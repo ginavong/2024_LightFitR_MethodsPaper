@@ -18,6 +18,7 @@ Find the package here: https://github.com/ginavong/LightFitR
     - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data`. These scripts take a while to run.
     - analysis: Scripts for analysing data and generating figures. Outputs to `figures`
     - regime_design: Scripts which design light regimes. Outputs to `data/regimes`.
+    - `scripts_order.R`: All the scripts to produce analysis and figs for the paper, in the correct order.
 - renv: files for the `renv` package to run
 
 ## File naming
