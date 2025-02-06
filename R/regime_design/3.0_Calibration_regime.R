@@ -37,8 +37,8 @@ rownames(regime) = c(rownames(time_mat), helio.dyna.leds$name)
 
 # Export
 
-helio.writeSchedule(regime, 'data/regimes/calibration.csv', format='csv')
-helio.writeSchedule(regime, 'data/regimes/calibration.txt', format='json')
-write.csv(regime, 'data/regimes/calibration_intensities.csv', row.names=T, col.names=F)
+helio.writeSchedule(regime, 'data/regimes/calibration/calibration.csv', format='csv')
+helio.writeSchedule(regime, 'data/regimes/calibration/calibration.txt', format='json')
+write.csv(regime, 'data/regimes/calibration/calibration_intensities.csv', row.names=T, col.names=F)
 
 rm(list=ls())
