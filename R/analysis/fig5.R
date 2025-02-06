@@ -70,7 +70,7 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=measu
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
-  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17), guide='none') +
+  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   theme_classic() 
 refinement_target_plot
 
@@ -78,6 +78,7 @@ refinement_target_plot
 
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
-  geom_point() + 
+  geom_point(aes(shape=status)) + 
+  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   theme_classic()
 euclidian_plot
