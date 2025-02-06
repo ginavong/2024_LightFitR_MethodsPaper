@@ -4,7 +4,7 @@ rm(list=ls())
 
 ## Define paths
 wd = getwd()
-out_dir = "data/algorithm_tiesting/fig4_algorithm_comparisons/"
+out_dir = "data/algorithm_testing/fig4_algorithm_comparisons/"
 
 raw_dir = "data/heliospectra_measurements/fig4_20240905/raw"
 measurements_dir = "data/heliospectra_measurements/fig4_20240905/"
@@ -26,7 +26,7 @@ source("unit_conversion_functions.R")
 setwd(wd)
 
 # 1. Data import ----
-message("Import data")
+message("1. Import data")
 
 measurements = read_many.OceanView(raw_dir)
 regime = read.csv(regime_dir, row.names=1)
@@ -43,7 +43,7 @@ save_data(measurements, fn)
 rm(fn)
 
 # 2. Trimming ----
-message("Trimming data")
+message("2. Trimming data")
 
 ## Trim wavelengths
 measurements = trim_wavelengths(measurements)
@@ -56,7 +56,7 @@ measurements = trim_times(start, end, measurements)
 rm(start, end)
 
 # 3. Annotate with useful columns ----
-message("Annotate with useful columns")
+message("3. Annotate with useful columns")
 
 ## Assign event numbers
 events = event_nos_timestamp(regime, measurements)
@@ -80,7 +80,7 @@ measurements$umol = moles_to_umol(measurements$mol)
 measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
 # 4. Format & export ----
-message("Format & export")
+message("4. Format & export")
 
 ## Format
 measurements = data.frame(filename = measurements$filename, 
@@ -97,6 +97,8 @@ save_data(measurements, fn)
 rm(fn, peaks)
 
 # 5. Process measurements into target irradiances ----
+
+message('5. Process into target irradiances')
 
 ## Filter data
 criteria = (measurements$middle_time==T) & (measurements$peak==T)
