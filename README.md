@@ -20,6 +20,15 @@ Find the package here: https://github.com/ginavong/LightFitR
     - regime_design: Scripts which design light regimes. Outputs to `data/regimes`.
 - renv: files for the `renv` package to run
 
+## File naming
+
+Scripts & .Rda files: `x.y_description_of_contents` where x=figure it corresponds to; y=step in the sequence of generating the figure. 
+e.g. `4.2_etc` is the second script for fig4. 
+If the dataframe is needed for multiple figures (e.g. calibration), it will not follow this scheme.
+
+All measurements to include date it was taken on, in format `yyyymmdd`
+
+
 # Style guide
 
 | LED   | colour                           | HEX               |
