@@ -10,7 +10,7 @@ fun_dir = 'R/functions/'
 
 data_dir = 'data/algorithm_testing/fig5_refinement/'
 main_dir = 'figures/fig5/'
-sup_dir = 'figures/S4'
+sup_dir = 'figures/S4/'
 
 ## Functions / Libraries
 
@@ -61,8 +61,10 @@ ggsave(fn, mse_plot)
 ### Subset df
 
 refinement_subset = refinement[refinement$intensity_used!=0, ]
+refinement_subset$LED = as.factor(refinement_subset$LED)
 
 baseline = refinement_subset[refinement_subset$stage=='multidimensional.nnls',]
+baseline$LED = as.factor(baseline$LED)
 
 leds_used = which(LightFitR::helio.dyna.leds$name %in% unique(refinement_subset$LED))
 
