@@ -52,6 +52,8 @@ setwd(wd)
 # 1. Filter & format data ----
 #Cuts down on what we need to store in RAM & prevents confusion with too many columns / units
 
+message('1. Filter dataframe')
+
 ## Calibration measurements
 criteria = (calib_measurements$middle_time==T)
 calib = calib_measurements[criteria,]
@@ -71,7 +73,7 @@ rm(calib_measurements, criteria)
 
 # 2. Predict regime that was used ----
 
-message('Running algorithms')
+message('2. Running algorithms')
 
 ## Setup
 nEvents = ncol(target_watts)
@@ -205,7 +207,7 @@ rm(calib, calib_rolling)
 
 # 4. Compile dataframes ----
 
-message('Formatting dataframe')
+message('4. Formatting dataframe')
 
 ## Setup
 
@@ -292,6 +294,8 @@ rm(target_mat, target_watts,
 
 # 6. Calculate differences ----
 
+message('6. Calculate differences')
+
 algo_test_results$diff = algo_test_results$predicted_intensity - algo_test_results$true_intensity
 
 # 7. Squared error ----
@@ -300,7 +304,7 @@ algo_test_results$diff_squared = algo_test_results$diff ^2
 
 # 8. Mean squared error ----
 
-message('Calculating mean squared error')
+message('8. Calculating mean squared error')
 
 ## MSE function
 
@@ -391,6 +395,8 @@ mse_led = calculate_mse(algo_test_results, 'LED', process, types, stages)
 
 # 9. Assigning segments based on no. LEDS active ----
 
+message('Assign segments')
+
 ## Make dictionary
 
 events = unique(algo_test_results$event)
@@ -415,6 +421,8 @@ mse_event$complexity = sapply(mse_event$event, function(i){
 rm(complexity_dict)
 
 # 10. MSE per combination of LEDs ----
+
+message('10. MSE by combination of LED')
 
 ## Make the combinations
 
@@ -536,6 +544,8 @@ rm(process, types, stages)
 
 # 11. Generate data for fig 5 refinement ----
 
+message('11. Generate data for fig5 refinement')
+
 ## Find event with min, median and max MSE
 criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied') & (mse_event$algorithm_type=='multidimensional') & (mse_event$algorithm=='nnls') & (mse_event$calibration_processing=='none')
 mse_subset = mse_event[criteria,]
@@ -552,12 +562,14 @@ refinement_subset
 
 ## Format df
 refinement_subset$on = refinement_subset$true_intensity != 0
-refinement = refinement_subset[, c(1:3, 5, 7:9, 11, 14)]
-refinement$stage = paste(refinement$algorithm_type, refinement$algorithm, sep='.')
-refinement = refinement[, -c(2:3)]
-colnames(refinement)
+refinement_subset$stage = paste(refinement_subset$algorithm_type, refinement_subset$algorithm, sep='.')
+colnames(refinement_subset)
 
-refinement = data.frame(calibration_processing=refinement$calibration_processing, stage=refinement$stage, treat=refinement$event, LED=refinement$LED, wavelength=refinement$wavelength, target=refinement$target_irradiance, on=refinement$on, intensity_used=refinement$predicted_intensity)
+refinement= data.frame(calibration_processing=refinement_subset$calibration_processing, 
+                        stage=refinement_subset$stage, treat=refinement_subset$event, 
+                        LED=refinement_subset$LED, wavelength=refinement_subset$wavelength, 
+                        target=refinement_subset$target_irradiance, 
+                        on=refinement_subset$on, intensity_used=refinement_subset$predicted_intensity)
 
 ## Set intensity_used to 0 of on==FaLSe
 refinement[refinement$on==FALSE, 'intensity_used'] = 0
@@ -567,7 +579,7 @@ rm(criteria, mse_subset, refine_events, min_med_max, MSEs)
 
 # 12. Export data ----
 
-message('Exporting data')
+message('12. Exporting data')
 
 ## Rearrange columns
 
