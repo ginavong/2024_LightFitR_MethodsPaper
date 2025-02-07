@@ -227,7 +227,8 @@ is.middle = function(events_vec, time_vec){
     } 
     else{ # If it's an even length of times, randomly pick either side of the median
       halfway = length(times)/2
-      rand = sample(c(halfway, halfway+1), size=1)
+      #rand = sample(c(halfway, halfway+1), size=1)
+      rand = halfway
       med = times[rand]
     }
     
