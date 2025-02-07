@@ -225,10 +225,9 @@ is.middle = function(events_vec, time_vec){
     if((length(times) %% 2) ==1){ # If it's an odd length of times, find the straightforward median
       med = median(times)
     } 
-    else{ # If it's an even length of times, randomly pick either side of the median
+    else{ # If it's an even length of times, randomly pick the lower side of the median
       halfway = length(times)/2
-      rand = sample(c(halfway, halfway+1), size=1)
-      med = times[rand]
+      med = times[halfway] #Yes, this produces a slight bias, but at least it's consistent
     }
     
     # Format median timepoint as characters that can be matched
