@@ -65,7 +65,7 @@ calib_rolling = calib_rolling[criteria, ]
 calib_rolling = LightFitR::internal.calibCombine(calib_rolling$LED, calib_rolling$wavelength, calib_rolling$intensity, calib_rolling$watts) ##Format it in the way that the package can take it
 
 ## Regime
-regime = as.matrix(regime[c(5:12), -150])
+regime = as.matrix(regime[c(5:12), ])
 class(regime) = 'numeric'
 
 ## Tidy up 
