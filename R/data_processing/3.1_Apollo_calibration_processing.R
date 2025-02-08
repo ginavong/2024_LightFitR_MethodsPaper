@@ -54,7 +54,7 @@ end = "12:00:00"
 
 calib = trim_times(start, end, calib)
 
-rm(start, end)
+rm(start)
 
 ## Checks
 stopifnot(nrow(calib) < nrow(raw))
@@ -66,7 +66,7 @@ message('Add useful columns')
 
 ## Assign event numbers
 
-events = event_nos_timestamp(calib_regime, calib)
+events = event_nos_timestamp(calib_regime, calib, end)
 
 calib$event = events
 rm(events)

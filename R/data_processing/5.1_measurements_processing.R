@@ -56,14 +56,14 @@ start = regime[1,1]
 end = '00:40:00'
 measurements = trim_times(start, end, measurements)
 
-rm(start, end)
+rm(start)
 
 # 3. Annotate ----
 message("3. Annotate")
 
 ## Assign event numbers
 
-events = event_nos_timestamp(regime, measurements)
+events = event_nos_timestamp(regime, measurements, end)
 events[which(is.na(events))] = 3 # This is crude placeholder until we get the bug in the function fixed.
 measurements$event = events
 

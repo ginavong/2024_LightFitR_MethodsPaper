@@ -53,13 +53,13 @@ start = regime[1,1]
 end = "12:30:00"
 measurements = trim_times(start, end, measurements)
 
-rm(start, end)
+rm(start)
 
 # 3. Annotate with useful columns ----
 message("3. Annotate with useful columns")
 
 ## Assign event numbers
-events = event_nos_timestamp(regime, measurements)
+events = event_nos_timestamp(regime, measurements, end)
 measurements$event = events
 
 rm(events)
