@@ -169,10 +169,10 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, end_time
   
   # Checks
   lenMatch = length(events_vec) == nrow(OceanView_dataframe)
-  rangeMatch = range(events_vec, na.rm=T) == range(events)
-  uniqMatch = length(unique(events_vec)) == (ncol(intensities_matrix) + 1) #+1 for any NAs
+  rangeMatch = range(events_vec, na.rm=T) == range(timeDictionary[,1])
+  uniqMatch = length(unique(events_vec)) == (ncol(intensities_matrix)) #+1 for any NAs
   
-  checks = c(lenMatch, rangeMatch, uniqMatch)
+  checks = c(lenMatch, rangeMatch[1], rangeMatch[2], uniqMatch)
 # 
 #   sapply(1:ncol(intensities), function(i){
 #     print(length(unique(measurements[measurements$event==i, 'filename'])))
