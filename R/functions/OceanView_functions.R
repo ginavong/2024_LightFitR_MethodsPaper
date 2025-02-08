@@ -126,7 +126,7 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, end_time
   })
   timeDictionary = data.frame(t(timeDictionary), row.names=times$char)
   
-  nEvents = (max(timeDictionary, na.rm=T)-min(timeDictionary, na.rm=T))
+  nEvents = length(unique(timeDictionary[,1]))
   message(paste(nEvents, ' events out of ', ncol(intensities_matrix), ' found.')) 
   rm(timeBins, nEvents)
   
