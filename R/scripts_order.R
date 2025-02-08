@@ -7,7 +7,7 @@ source('R/regime_design/3.0_Calibration_regime.R')
 source('R/data_processing/3.1_Apollo_calibration_processing.R')
 source('R/analysis/3.2_fig3&sups.R')
 
-# Figure 4 and Supplementsgit 
+# Figure 4 and Supplements
 
 source('R/regime_design/4.0_ComplexityTest_regime.R')
 source('R/data_processing/4.1_measurements_processing.R')

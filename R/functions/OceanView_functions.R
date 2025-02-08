@@ -95,25 +95,25 @@ trim_times = function(start, end, df){
 #---
 # Match the timestamp with the event number from the light schedule
 
-event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_scripts = 1){ 
+event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, end_time, n_test_scripts = 1){ 
   
   # Get times of events and group them into bins
   
-  events = lubridate::as_datetime(lubridate::hms(intensities_matrix[1,]))
-  time_bins = lubridate::interval(events[-length(events)], events[-1]) # Find time intervals between each event
+  events = lubridate::as_datetime(lubridate::hms(c(intensities_matrix[1,], end_time)))
+  timeBins = lubridate::interval(events[-length(events)], events[-1]) # Find time intervals between each event
   
   # Get times of measurements
-  times_char = unique(OceanView_dataframe$time)
-  measurements_times = lubridate::as_datetime(hms(times_char))
+  timesChar = unique(OceanView_dataframe$time)
+  measurementsTimes = lubridate::as_datetime(hms(timesChar))
   
-  times = data.frame(char=times_char, datetime = measurements_times)
-  rm(times_char, measurements_times)
+  times = data.frame(char=timesChar, datetime = measurementsTimes)
+  rm(timesChar, measurementsTimes)
   
   # Make dictionary of measurement times and their corresponding event number
   
-  time_dictionary = sapply(times$datetime, function(time){
+  timeDictionary = sapply(times$datetime, function(time){
     
-    event = which(time %within% time_bins) # The positions will correspond with the event number
+    event = which(time %within% timeBins) # The positions will correspond with the event number
     
     if(length(event) < n_test_scripts+1){ # ? accounts for the measurements taken outside of the script time
       # Add NAs to make the lengths of event the same
@@ -124,11 +124,11 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_s
     #print(length(event))
     event
   })
-  time_dictionary = data.frame(t(time_dictionary), row.names=times$char)
+  timeDictionary = data.frame(t(timeDictionary), row.names=times$char)
   
-  nEvents = (max(time_dictionary, na.rm=T)-min(time_dictionary, na.rm=T))
+  nEvents = length(unique(timeDictionary[,1]))
   message(paste(nEvents, ' events out of ', ncol(intensities_matrix), ' found.')) 
-  rm(time_bins, nEvents)
+  rm(timeBins, nEvents)
   
   # Make vector of event numbers
   
@@ -140,7 +140,7 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_s
     # # TODO This is useful when analysing data from multiple scripts, but look into how to work this into the fuction
     # type = stringr::str_extract(fn, pattern='test22[:alpha:]') #Get test20 part
     # type = stringr::str_extract(type, pattern='[:alpha:]$') #Get last letter on test20 part
-    # segment = which(letters == type) #Determine (numerically) which segment it belongs to, corresponds with colnumber of time_dictionary
+    # segment = which(letters == type) #Determine (numerically) which segment it belongs to, corresponds with colnumber of timeDictionary
     # rm(type)
     
     if(n_test_scripts==1){
@@ -152,7 +152,7 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_s
     
     if(length(unique(fn_times))==1){ # There should be 1 unique time
       time = (unique(fn_times))
-      event = time_dictionary[as.character(time), segment]
+      event = timeDictionary[as.character(time), segment]
     }
     else{
       warning(paste(fn, 'failed to get allocated to an event', sep=' '))
@@ -169,16 +169,16 @@ event_nos_timestamp = function(intensities_matrix, OceanView_dataframe, n_test_s
   
   # Checks
   lenMatch = length(events_vec) == nrow(OceanView_dataframe)
-  rangeMatch = range(events_vec, na.rm=T) == range(events)
-  uniqMatch = length(unique(events_vec)) == (ncol(intensities_matrix) + 1) #+1 for any NAs
+  rangeMatch = range(events_vec, na.rm=T) == range(timeDictionary[,1])
+  uniqMatch = length(unique(events_vec)) == (ncol(intensities_matrix)) #+1 for any NAs
   
-  checks = c(lenMatch, rangeMatch, uniqMatch)
+  checks = c(lenMatch, rangeMatch[1], rangeMatch[2], uniqMatch)
 # 
 #   sapply(1:ncol(intensities), function(i){
 #     print(length(unique(measurements[measurements$event==i, 'filename'])))
 #   })
   
-  rm(time_dictionary)
+  rm(timeDictionary)
   
   if(all(checks)){
     message(paste('Checks passed: ', paste(which(checks), collapse=', '), '\n'))
@@ -249,7 +249,7 @@ is.middle = function(events_vec, time_vec){
 #---
 # Get the total irradiance per event
 
-get_totalIrradiance = function(spectrophotometer_df, by = c('event', 'time')){
+get_total_irradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   # Get columns we need to keep, for formatting later
   discardCols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
@@ -284,7 +284,10 @@ get_totalIrradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   # Find a way to format it where yoU keep the data classes of the source dataframe
   dfOut$event = as.numeric(dfOut$event)
-  dfOut$totalIrradiance = as.numeric(dfOut$totalIrradiance)
+  dfOut$total_irradiance = as.numeric(dfOut$total_irradiance)
+  dfOut$total_watts = as.numeric(dfOut$total_watts)
+  dfOut$total_mol = as.numeric(dfOut$total_mol)
+  dfOut$total_umol = as.numeric(dfOut$total_umol)
   
   return(dfOut)
 }
