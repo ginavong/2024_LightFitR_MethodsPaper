@@ -249,7 +249,7 @@ is.middle = function(events_vec, time_vec){
 #---
 # Get the total irradiance per event
 
-get_totalIrradiance = function(spectrophotometer_df, by = c('event', 'time')){
+get_total_irradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   # Get columns we need to keep, for formatting later
   discardCols = c('wavelength', 'irradiance', 'watts', 'mol', 'umol', 'peak')
@@ -284,7 +284,10 @@ get_totalIrradiance = function(spectrophotometer_df, by = c('event', 'time')){
   
   # Find a way to format it where yoU keep the data classes of the source dataframe
   dfOut$event = as.numeric(dfOut$event)
-  dfOut$totalIrradiance = as.numeric(dfOut$totalIrradiance)
+  dfOut$total_irradiance = as.numeric(dfOut$total_irradiance)
+  dfOut$total_watts = as.numeric(dfOut$total_watts)
+  dfOut$total_mol = as.numeric(dfOut$total_mol)
+  dfOut$total_umol = as.numeric(dfOut$total_umol)
   
   return(dfOut)
 }
