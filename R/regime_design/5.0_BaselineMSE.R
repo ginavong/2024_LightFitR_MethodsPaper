@@ -9,38 +9,39 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
+load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_annotated_20240827.Rda')
+calib = df
+load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
+peaks = df
 
+rm(df)
 
-# 1. Make light recipe----
+## Format calib
+calib = calib[calib$middle_time==T,]
 
-treat = unique(refinement$treat)
+# 1. Make Target ----
 
-light_recipe = sapply(treat, function(i){
-  
-  data_subset = refinement[refinement$treat==i,]
-  
-  recipe = data_subset$intensity_used
-  
-  recipe
+treat = unique(baseline_targets$treat)
+
+target = sapply(treat, function(i){
+  baseline_targets[baseline_targets$treat==i, 'target']
 })
 
-# 2. Time recipe ----
-#This is sligtly different to the typical time recipe. BC there are so few points, we can have 10mins per event.
+target = rbind(target, rep(0, ncol(target)))
 
-nEvents = ncol(light_recipe)
+# 2. Make Times ----
+
+nEvents = ncol(target)
+
 time_vec = seq(from=lubridate::hm('00:00'), by=lubridate::minutes(10), length.out=nEvents)
 time_vec = as.POSIXct(time_vec, origin=lubridate::origin, tz='GMT')
-time_mat = LightFitR::internal.makeTimes(time_vec)
-
-rm(time_vec)
 
 # 3. Regime ----
 
-regime = rbind(time_mat, light_recipe, rep(0, ncol(light_recipe)))
-rownames(regime) = c(rownames(time_mat), LightFitR::helio.dyna.leds$name)
+regime = makeRegime(time_vec, target, calib$LED, calib$wavelength, calib$intensity, calib$watts, peaks=peaks$median_peak_wl, method='nnls')
 
-## Export
+# 4. Export
 
 fp = 'data/regimes/fig5_Refinement/'
 
