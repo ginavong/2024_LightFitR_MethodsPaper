@@ -9,7 +9,7 @@ source('R/functions/regime_functions.R')
 
 ## Import data
 
-load('data/algorithm_testing/fig5_refinement/5.1_baseline.Rda')
+load('data/algorithm_testing/fig5_refinement/5_baseline_mse.Rda')
 
 refinement_baseline
 

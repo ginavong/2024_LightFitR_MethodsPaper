@@ -22,13 +22,13 @@ setwd(wd)
 
 ## Load data
 
-regime = read.csv('data/regimes/fig5_Refinement/5.1_RandomSearch_intensities.csv', row.names=1)
+regime = read.csv('data/regimes/fig5_Refinement/5_RandomSearch_intensities.csv', row.names=1)
 
 load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
 
 # 1. Import raw measurements ----
 message("1. Import raw data")
@@ -113,7 +113,7 @@ rm(criteria)
 
 ## Add treatment column
 
-treats = unique(refinement$treat)
+treats = unique(baseline_targets$treat)
 
 measurements2$treat = sapply(measurements2$event, function(i){
   
@@ -135,7 +135,7 @@ rm(treats)
 ## Add columns from refinement
 
 measurements2 = left_join(measurements2, 
-                           (refinement |> select(wavelength, target, treat, calibration_processing, on)), 
+                           (baseline_targets |> select(wavelength, target, treat, calibration_processing, on)), 
                            join_by(wavelength, treat))
 
 ## Add intensity_used column
@@ -198,12 +198,14 @@ measurements2$diff_squared = measurements2$diff^2
 
 # 7. Calculate MSE ----
 
+message("7. Calculate MSE")
+
 events = unique(measurements2$event)
 mse_refinement = sapply(events, function(i){
   
   data_subset = measurements2[measurements2$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared', 'on'))
   
   # Calculate mse
   
@@ -223,14 +225,13 @@ mse_refinement = as.data.frame(t(mse_refinement))
 
 colnames(mse_refinement)
 str(mse_refinement)
-mse_refinement$calibration_processing = as.character(mse_refinement$calibration_processing)
-mse_refinement$stage = as.character(mse_refinement$stage)
-mse_refinement$treat = as.numeric(mse_refinement$treat)
-mse_refinement$event = as.numeric(mse_refinement$event)
-mse_refinement$relative_event = as.numeric(mse_refinement$relative_event)
-mse_refinement$on = as.logical(mse_refinement$on)
-mse_refinement$MSE = c(as.numeric(mse_refinement$V7))
-mse_refinement = mse_refinement[, -7]
+mse_refinement$calibration_processing = c(as.character(mse_refinement$calibration_processing))
+mse_refinement$stage = c(as.character(mse_refinement$stage))
+mse_refinement$treat = c(as.numeric(mse_refinement$treat))
+mse_refinement$event = c(as.numeric(mse_refinement$event))
+mse_refinement$relative_event = c(as.numeric(mse_refinement$relative_event))
+mse_refinement$MSE = c(as.numeric(mse_refinement$V6))
+mse_refinement = mse_refinement[,-6]
 str(mse_refinement)
 
 # 8. Lowest MSEs ----
@@ -239,7 +240,7 @@ message("8. Lowest MSE")
 
 ## Find lowest events
 
-treats = unique(refinement$treat)
+treats = unique(baseline_targets$treat)
 lowest = t(sapply(treats, function(i){
   data_subset = mse_refinement[mse_refinement$treat ==i,]
   min_event = data_subset[which.min(data_subset$MSE), 'event']

@@ -14,10 +14,10 @@ source('R/functions/processing_functions.R')
 
 ## Import data
 
-fn = paste(data_dir, '5.1_baseline.Rda', sep='')
+fn = paste(data_dir, '5_baseline_mse.Rda', sep='')
 load(fn)
 
-fn = paste(data_dir, '5.2_RandomRefinement.Rda', sep='')
+fn = paste(data_dir, '5_RandomRefinement.Rda', sep='')
 load(fn)
 
 rm(fn)
@@ -35,6 +35,9 @@ refinement_baseline$dist_squared = NA
 ### Match col_order with refinement_random
 col_order = c(1:3, 10, 12, 4:5, 7:8, 6, 9, 13:14, 11, 15:16)
 refinement_baseline = refinement_baseline[, col_order]
+
+col_order = c(1:3, 9, 5, 4, 6, 8, 10, 7, 11:16)
+refinement_random = refinement_random[, col_order]
 
 colnames(refinement_baseline)
 colnames(refinement_random)
@@ -61,10 +64,10 @@ mse_refinement_baseline$status = as.character(mse_refinement_baseline$status)
 
 ### Want colnames = c('calibration_processing', 'stage', 'treat', 'event', 'relative_event', 'status', 'MSE', 'euc_dist')
 
-col_order = c(1:3, 5, 7, 6, 8:9)
+col_order = c(1:4, 6, 5, 7:8)
 mse_refinement_baseline = mse_refinement_baseline[, col_order]
 
-col_order = c(1:5, 8, 7, 9)
+col_order = c(1:5, 7, 6, 8)
 mse_refinement_random = mse_refinement_random[, col_order]
 
 rm(col_order)

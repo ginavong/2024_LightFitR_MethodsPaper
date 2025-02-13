@@ -22,7 +22,7 @@ setwd(wd)
 
 ## Load data
 
-regime = read.csv('data/regimes/fig5_Refinement/ 5.0_Baseline_intensities.csv', row.names=1)
+regime = read.csv('data/regimes/fig5_Refinement/5_Baseline_intensities.csv', row.names=1)
 
 load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
@@ -123,7 +123,7 @@ measurements2$treat = sapply(measurements2$event, function(i){
 rm(treats)
 
 ## Add intensity_used column
-intensities = c(as.matrix(regime[-c(1:4, 13),]))
+intensities = c(as.numeric(as.matrix(regime[-c(1:4, 13),])))
 
 measurements2$intensity_used = intensities
 
@@ -132,7 +132,7 @@ rm(intensities)
 ## Add measurements to refinement
 
 refinement = left_join(baseline_targets, 
-                          (measurements2 |> select(wavelength, watts, treat, event)), 
+                          (measurements2 |> select(wavelength, watts, treat, event, intensity_used)), 
                           join_by(wavelength, treat, event))
 
 
@@ -159,7 +159,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = refinement[refinement$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared', 'on'))
   
   # Calculate mse
   

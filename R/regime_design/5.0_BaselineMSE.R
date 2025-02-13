@@ -25,10 +25,21 @@ calib = calib[calib$middle_time==T,]
 treat = unique(baseline_targets$treat)
 
 target = sapply(treat, function(i){
-  baseline_targets[baseline_targets$treat==i, 'target']
+  baseline_subset = baseline_targets[baseline_targets$treat==i, ]
+  tar = baseline_subset$target # get target
+  
+  # Set not on to 0
+  off = which(baseline_subset$on==FALSE)
+  tar[off] = 0
+  
+  # Return
+  tar
 })
 
 target = rbind(target, rep(0, ncol(target)))
+
+
+
 
 # 2. Make Times ----
 

@@ -31,7 +31,7 @@ setwd(wd)
 
 ## datatypes
 
-ref_types = c('character', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'character')
+ref_types = c('character', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'character', 'numeric', 'numeric', 'character')
 for(i in 1:length(ref_types)){
   class(refinement[,i]) = ref_types[i]
 }
