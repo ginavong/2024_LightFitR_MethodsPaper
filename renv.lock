@@ -58,15 +58,15 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "ginavong",
       "RemoteRepo": "LightFitR",
-      "RemoteRef": "1464c55fa4dff76c3e4d8372f1ea2f414e337f58",
-      "RemoteSha": "1464c55fa4dff76c3e4d8372f1ea2f414e337f58",
+      "RemoteRef": "79ccdb94191960cb660873906f570b29c5afbc0c",
+      "RemoteSha": "79ccdb94191960cb660873906f570b29c5afbc0c",
       "Requirements": [
         "R",
         "lubridate",
         "nnls",
         "stringr"
       ],
-      "Hash": "a326c4b17d90a0bbc3037ee55461c913"
+      "Hash": "9e99c6ee258c8afee7db8774147244fb"
     },
     "MASS": {
       "Package": "MASS",
