@@ -28,7 +28,7 @@ load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_ca
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
 
 # 1. Import raw measurements ----
 message("1. Import raw data")
@@ -64,7 +64,6 @@ message("3. Annotate")
 ## Assign event numbers
 
 events = event_nos_timestamp(regime, measurements, end)
-events[which(is.na(events))] = 3 # This is crude placeholder until we get the bug in the function fixed.
 measurements$event = events
 
 rm(events)
@@ -115,7 +114,7 @@ rm(criteria)
 
 ## Add treatment column
 
-treats = unique(refinement$treat)
+treats = unique(baseline_targets$treat)
 
 measurements2$treat = sapply(measurements2$event, function(i){
   treats[i]
@@ -123,11 +122,18 @@ measurements2$treat = sapply(measurements2$event, function(i){
 
 rm(treats)
 
+## Add intensity_used column
+intensities = c(as.matrix(regime[-c(1:4, 13),]))
+
+measurements2$intensity_used = intensities
+
+rm(intensities)
+
 ## Add measurements to refinement
 
-refinement = left_join(refinement, 
+refinement = left_join(baseline_targets, 
                           (measurements2 |> select(wavelength, watts, treat, event)), 
-                          join_by(wavelength, treat))
+                          join_by(wavelength, treat, event))
 
 
 ## Add status column
