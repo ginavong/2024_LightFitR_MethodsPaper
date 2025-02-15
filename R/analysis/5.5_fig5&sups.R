@@ -29,9 +29,11 @@ setwd(wd)
 
 # 1. Format df ----
 
+message("5.5.1 Formatting")
+
 ## datatypes
 
-ref_types = c('character', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'character')
+ref_types = c('character', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'character', 'numeric', 'numeric', 'character')
 for(i in 1:length(ref_types)){
   class(refinement[,i]) = ref_types[i]
 }
@@ -47,6 +49,8 @@ refinement$treat = as.factor(refinement$treat)
 
 # 2. MSE plot ----
 
+message("fig5")
+
 mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
   scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
@@ -57,6 +61,8 @@ fn = paste(main_dir, 'fig5.png', sep='')
 ggsave(fn, mse_plot)
 
 # 3. Refinement plot ----
+
+message("figS4a")
 
 ### Subset df
 
@@ -70,12 +76,13 @@ leds_used = which(LightFitR::helio.dyna.leds$name %in% unique(refinement_subset$
 
 ## Plotting!
 
-refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=measured, colour=LED)) + facet_wrap(~start_MSE) +
+refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol, colour=LED)) + facet_wrap(~start_MSE) +
   geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=measured, fill=LED)) +
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
   scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
+  labs(x='event', y=irr_umol_lab) +
   theme_classic() 
 refinement_target_plot
 
@@ -83,6 +90,8 @@ fn = paste(sup_dir, 'S4a.png', sep='')
 ggsave(fn, refinement_target_plot)
 
 # 4. Euclidian distance plot ----
+
+message("figS4b")
 
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +

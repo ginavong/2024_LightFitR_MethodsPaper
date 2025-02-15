@@ -24,3 +24,5 @@ source('R/data_processing/5.4_RefinementProcessing.R')
 source('R/analysis/5.5_fig5&sups.R')
 
 # Reset
+
+rm(list=ls())

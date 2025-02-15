@@ -1,5 +1,5 @@
 Schedule.exported.from;data/regimes/calibration/calibration.csv;;;;;;;;
-Lamp timestamp;2025-02-08 18:46:10;;;;;;;;
+Lamp timestamp;2025-02-15 14:14:36;;;;;;;;
 ;380nm;400nm;420nm;450nm;530nm;620nm;660nm;735nm;5700k
 00:00:00;0;0;0;0;0;0;0;0;0
 00:05:00;1;0;0;0;0;0;0;0;0

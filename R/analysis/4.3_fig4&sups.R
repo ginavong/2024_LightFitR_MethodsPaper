@@ -37,9 +37,11 @@ twoPanel_ps = 0.8 #point size for 2 panel plots
 multi_ps = 0.5
 
 resid_lab = '(predicted intensity) - (true intensity)'
-target_irr_lab = expression('target irradiance (W m'^-2 * nm^-1*')')
+target_irr_lab = expression('target irradiance (μ m'^-2 * nm^-1*')')
 
 # 4a MSE after all the steps of the algorithm ----
+
+message("fig4a")
 
 ## Data subset
 
@@ -102,6 +104,8 @@ rm(criteria, mse_subset, fn)
 
 # S2  ----
 
+message("figS2")
+
 ## S2a Tidied with closest
 
 criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event)
@@ -138,27 +142,14 @@ predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=in
   theme_classic()
 predicted
 
-fn = paste(S2_dir, 'S2c_stage', sep='')
+fn = paste(S2_dir, 'S2b_stage', sep='')
 save_fig(fn, predicted)
-
-
-# ## Calibration Processing
-# 
-# processing = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=calibration_processing)) +
-#   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1, size=multi_ps) +
-#   facet_wrap(~interaction(algorithm_type, algorithm)) +
-#   labs(x='number of LED channels active', y='mean squared error') +
-#   guides(colour=guide_legend(title='calibration processing')) +
-#   theme_classic()
-# processing
-# 
-# fn = paste(S2_dir, 'S2b_calibProcessing', sep='')
-# save_fig(fn, processing)
-
 
 # 4b Error by LED ----
 
-criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='lm') | (algo_test_results$algorithm_type=='multidimensional' & algo_test_results$algorithm=='nnls'))
+message("fig4b")
+
+criteria = (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='lm') | (algo_test_results$algorithm_type=='multidimensional' & algo_test_results$algorithm=='nnls'))
 algo_subset = algo_test_results[criteria,]
 
 fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
@@ -178,9 +169,11 @@ rm(criteria, algo_subset, fn)
 
 # S3 ----
 
+message("figS3")
+
 ## S3a Distribution of all LEDS
 
-criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted')
+criteria = (algo_test_results$stage=='predicted')
 algo_subset = algo_test_results[criteria,]
 
 led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
@@ -217,6 +210,8 @@ rm(criteria, algo_subset, fn)
 
 
 # CombinatioNs of LEDs [Work in progress] ----
+
+message("Combination of LEDs")
 
 ## Heatmaps
 

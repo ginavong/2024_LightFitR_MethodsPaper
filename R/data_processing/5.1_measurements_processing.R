@@ -22,16 +22,16 @@ setwd(wd)
 
 ## Load data
 
-regime = read.csv('data/regimes/fig5_Refinement/ 5.0_Baseline_intensities.csv', row.names=1)
+regime = read.csv('data/regimes/fig5_Refinement/5_Baseline_intensities.csv', row.names=1)
 
 load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
 
 # 1. Import raw measurements ----
-message("1. Import raw data")
+message("5.1.1. Import raw data")
 
 measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline_20250114/raw/')
 
@@ -45,7 +45,7 @@ save_data(measurements, fn)
 rm(fn)
 
 # 2. Trimming ----
-message('2. Trimming data')
+message('5.1.2. Trimming data')
 
 ## Trim wavelengths
 measurements = trim_wavelengths(measurements)
@@ -59,12 +59,11 @@ measurements = trim_times(start, end, measurements)
 rm(start)
 
 # 3. Annotate ----
-message("3. Annotate")
+message("5.1.3. Annotate")
 
 ## Assign event numbers
 
 events = event_nos_timestamp(regime, measurements, end)
-events[which(is.na(events))] = 3 # This is crude placeholder until we get the bug in the function fixed.
 measurements$event = events
 
 rm(events)
@@ -85,7 +84,7 @@ measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
 # 4. Format & Export ----
 
-message("4. Export annotated")
+message("5.1.4. Export annotated")
 
 ## Format
 measurements = data.frame(filename = measurements$filename, 
@@ -104,7 +103,7 @@ rm(fn)
 
 # 5.Format refinement df (copied from 5a for now until we tidy up this section of code) ----
 
-message("5. Formatting")
+message("5.1.5. Formatting")
 
 
 ## Filter for middle points and peaks
@@ -115,7 +114,7 @@ rm(criteria)
 
 ## Add treatment column
 
-treats = unique(refinement$treat)
+treats = unique(baseline_targets$treat)
 
 measurements2$treat = sapply(measurements2$event, function(i){
   treats[i]
@@ -123,11 +122,18 @@ measurements2$treat = sapply(measurements2$event, function(i){
 
 rm(treats)
 
+## Add intensity_used column
+intensities = c(as.numeric(as.matrix(regime[-c(1:4, 13),])))
+
+measurements2$intensity_used = intensities
+
+rm(intensities)
+
 ## Add measurements to refinement
 
-refinement = left_join(refinement, 
-                          (measurements2 |> select(wavelength, watts, treat, event)), 
-                          join_by(wavelength, treat))
+refinement = left_join(baseline_targets, 
+                          (measurements2 |> select(wavelength, irradiance, watts, mol, umol, treat, event, intensity_used)), 
+                          join_by(wavelength, treat, event))
 
 
 ## Add status column
@@ -136,16 +142,18 @@ refinement$relative_event = rep(25, nrow(refinement))
 
 ## Checks and final adjustments
 str(refinement)
-colnames(refinement)[9] = 'measured'
+colnames(refinement) #=
 
 # 6. Calculate diff ----
 
-message("6. Calculate errors")
+message("5.1.6. Calculate errors")
 
-refinement$diff = refinement$measured - refinement$target
+refinement$diff = refinement$umol - refinement$target
 refinement$diff_squared = refinement$diff^2
 
 # 7. MSE ----
+
+message("5.1.7. Calculate MSE")
 
 events = unique(refinement$event)
 
@@ -153,7 +161,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = refinement[refinement$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
   
   # Calculate mse
   
@@ -181,7 +189,7 @@ mse_refinement$MSE = as.numeric(mse_refinement$MSE)
 rm(events)
 
 # 8. Export ----
-message("8. Export")
+message("5.1.8. Export")
 
 refinement_baseline = refinement
 mse_refinement_baseline = mse_refinement
