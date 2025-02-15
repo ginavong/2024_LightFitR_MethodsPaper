@@ -50,7 +50,7 @@ time_vec = as.POSIXct(time_vec, origin=lubridate::origin, tz='GMT')
 
 # 3. Regime ----
 
-regime = makeRegime(time_vec, target, calib$LED, calib$wavelength, calib$intensity, calib$watts, peaks=peaks$median_peak_wl, method='nnls')
+regime = makeRegime(time_vec, target, calib$LED, calib$wavelength, calib$intensity, calib$umol, peaks=peaks$median_peak_wl, method='nnls')
 
 # 4. Export
 

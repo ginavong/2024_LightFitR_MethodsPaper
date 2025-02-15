@@ -187,13 +187,15 @@ measurements2 = data.frame(calibration_processing = measurements2$calibration_pr
                            LED = measurements2$LED, wavelength = measurements2$wavelength,
                            on = measurements2$on,
                            intensity_used = measurements2$intensity_used,
-                           target=measurements2$target, measured=measurements2$watts)
+                           target=measurements2$target, 
+                           irradiance=measurements2$irradiance, watts=measurements2$watts,
+                           mol=measurements2$mol, umol=measurements2$umol)
 
 # 6. Calculate diff ----
 
 message("6. Calculate errors")
 
-measurements2$diff = measurements2$measured - measurements2$target
+measurements2$diff = measurements2$umol - measurements2$target
 measurements2$diff_squared = measurements2$diff^2
 
 # 7. Calculate MSE ----
@@ -205,7 +207,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = measurements2[measurements2$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared', 'on'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
   
   # Calculate mse
   

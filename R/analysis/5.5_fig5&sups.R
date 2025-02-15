@@ -70,12 +70,13 @@ leds_used = which(LightFitR::helio.dyna.leds$name %in% unique(refinement_subset$
 
 ## Plotting!
 
-refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=measured, colour=LED)) + facet_wrap(~start_MSE) +
+refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol, colour=LED)) + facet_wrap(~start_MSE) +
   geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=measured, fill=LED)) +
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
   scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
+  labs(x='event', y=irr_umol_lab) +
   theme_classic() 
 refinement_target_plot
 
