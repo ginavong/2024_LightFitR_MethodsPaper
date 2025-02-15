@@ -41,10 +41,10 @@ led_wls = LightFitR::helio.dyna.leds[-9, 'wavelength'] # Supposed wavelengths of
 
 criteria = calib$middle_time==T
 
-spectrum_light = ggplot(data=calib[criteria,], aes(x=wavelength, y=watts, colour=LED)) +
+spectrum_light = ggplot(data=calib[criteria,], aes(x=wavelength, y=umol, colour=LED)) +
   geom_point(size=0.8) + scale_color_manual(values=led_colours) +
   geom_vline(xintercept = led_wls, colour='darkgrey') +
-  labs(x = wl_lab, y=irr_w_lab) +
+  labs(x = wl_lab, y=irr_umol_lab) +
   theme_classic()
 
 fn = paste(sup_out, 'S1a', sep='')
@@ -54,7 +54,7 @@ rm(criteria, spectrum_light, fn)
 
 # Calibration heatmap ----
 
-heatmap_light = ggplot(data=calib, aes(x=event, y=wavelength, fill=irradiance)) +
+heatmap_light = ggplot(data=calib, aes(x=event, y=wavelength, fill=umol)) +
   geom_tile() + labs(x='timepoint', y=wl_lab) +
   theme_classic()
 
@@ -67,9 +67,9 @@ rm(heatmap_light, fn)
 
 criteria = total$middle_time == T
 
-total_line_light = ggplot(data=total[criteria,], aes(x=intensity, y=watts, colour=LED)) +
+total_line_light = ggplot(data=total[criteria,], aes(x=intensity, y=total_umol, colour=LED)) +
   geom_point() + geom_smooth(se=F, linewidth=0.5) +
-  scale_colour_manual(values = led_colours) + labs(y=expression('total irradiance (W m'^-2 * nm^-1*')')) +
+  scale_colour_manual(values = led_colours) + labs(y=expression('total irradiance (μmol m'^-2 * nm^-1*')')) +
   theme_classic()
 
 fn = paste(sup_out, 'S1c', sep='')
@@ -81,9 +81,9 @@ rm(criteria, total_line_light, fn)
 
 criteria = (calib$peak==T) & (calib$LED != 5700) & (calib$middle_time==T)
 
-peak_line_light = ggplot(data=calib[criteria,], aes(x=intensity, y=watts, colour=LED)) +
+peak_line_light = ggplot(data=calib[criteria,], aes(x=intensity, y=umol, colour=LED)) +
   geom_smooth(se=F, linewidth=0.6) + geom_point() + 
-  scale_colour_manual(values = led_colours) + labs(y=irr_w_lab) +
+  scale_colour_manual(values = led_colours) + labs(y=irr_umol_lab) +
   theme_classic()
 
 fn = paste(fig3_out, '3A_line', sep='')
@@ -98,8 +98,8 @@ rm(criteria, peak_line_light, fn)
 bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
 
 ## Heatmap light
-bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=irradiance)) +
-  geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels") +
+bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
+  geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels", fill=irr_umol_lab) +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') + #060038 is a dark blue option
   theme_classic()
 bleed_heatmap_light
@@ -111,8 +111,8 @@ rm(bleed_heatmap_light, fn)
 
 ## Heatmap dark
 
-bleed_heatmap_dark = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=irradiance)) +
-  geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels") +
+bleed_heatmap_dark = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
+  geom_tile() + labs(x='LED which is on', y="Irradiance of wavelengths at other channels", fill=irr_umol_lab) +
   scale_fill_gradient(low='#060038', high='white', na.value='#fa9900') + 
   theme_presentation()
 bleed_heatmap_dark

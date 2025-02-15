@@ -121,7 +121,7 @@ target = sapply(events, function(i){
   
   ledOrder = order(dataSubset$wavelength)
   
-  event_irradiances = dataSubset[ledOrder, 'watts']
+  event_irradiances = dataSubset[ledOrder, 'umol']
   event_irradiances
 })
 

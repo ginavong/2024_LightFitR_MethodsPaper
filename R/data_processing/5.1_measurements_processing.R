@@ -132,7 +132,7 @@ rm(intensities)
 ## Add measurements to refinement
 
 refinement = left_join(baseline_targets, 
-                          (measurements2 |> select(wavelength, watts, treat, event, intensity_used)), 
+                          (measurements2 |> select(wavelength, irradiance, watts, mol, umol, treat, event, intensity_used)), 
                           join_by(wavelength, treat, event))
 
 
@@ -142,13 +142,13 @@ refinement$relative_event = rep(25, nrow(refinement))
 
 ## Checks and final adjustments
 str(refinement)
-colnames(refinement)[9] = 'measured'
+colnames(refinement) #=
 
 # 6. Calculate diff ----
 
 message("6. Calculate errors")
 
-refinement$diff = refinement$measured - refinement$target
+refinement$diff = refinement$umol - refinement$target
 refinement$diff_squared = refinement$diff^2
 
 # 7. MSE ----
@@ -159,7 +159,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = refinement[refinement$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'measured', 'diff', 'diff_squared', 'on'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
   
   # Calculate mse
   
