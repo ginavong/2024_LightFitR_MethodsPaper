@@ -19,8 +19,6 @@ data_in = "data/heliospectra_measurements/calibration/Apollo_Calib_20240827/"
 setwd(data_in)
 load("Apollo_calibration_annotated_20240827.Rda")
 calib = df
-load("Apollo_calibration_rollingAverage_20240827.Rda")
-rolling = df
 load("Apollo_calibration_total_20240827.Rda")
 total = df
 load("Apollo_calibration_bleedthrough_20240827.Rda")
@@ -31,7 +29,6 @@ rm(df)
 ## Format dfs
 
 calib$LED = as.factor(calib$LED)
-rolling$LED = as.factor(rolling$LED)
 total$LED = as.factor(total$LED)
 
 ## Set variables

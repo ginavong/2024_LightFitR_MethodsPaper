@@ -138,27 +138,12 @@ predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=in
   theme_classic()
 predicted
 
-fn = paste(S2_dir, 'S2c_stage', sep='')
+fn = paste(S2_dir, 'S2b_stage', sep='')
 save_fig(fn, predicted)
-
-
-# ## Calibration Processing
-# 
-# processing = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=calibration_processing)) +
-#   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=1, size=multi_ps) +
-#   facet_wrap(~interaction(algorithm_type, algorithm)) +
-#   labs(x='number of LED channels active', y='mean squared error') +
-#   guides(colour=guide_legend(title='calibration processing')) +
-#   theme_classic()
-# processing
-# 
-# fn = paste(S2_dir, 'S2b_calibProcessing', sep='')
-# save_fig(fn, processing)
-
 
 # 4b Error by LED ----
 
-criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='lm') | (algo_test_results$algorithm_type=='multidimensional' & algo_test_results$algorithm=='nnls'))
+criteria = (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='lm') | (algo_test_results$algorithm_type=='multidimensional' & algo_test_results$algorithm=='nnls'))
 algo_subset = algo_test_results[criteria,]
 
 fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
@@ -180,7 +165,7 @@ rm(criteria, algo_subset, fn)
 
 ## S3a Distribution of all LEDS
 
-criteria = (algo_test_results$calibration_processing != 'rolling') & (algo_test_results$stage=='predicted')
+criteria = (algo_test_results$stage=='predicted')
 algo_subset = algo_test_results[criteria,]
 
 led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +

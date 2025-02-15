@@ -132,25 +132,7 @@ calib_total$watts = oceanViewUnits_to_watts(calib_total$total_irradiance)
 fn = paste(out_dir, light_name, '_calibration_total_', date_measured, sep='')
 save_data(calib_total, fn)
 
-# 6. Rolling average ----
-
-message('Rolling averages')
-
-calib_rolling = rolling_average(calib)
-
-## Calculate peaks
-calib_rolling$peak = find_peaks(calib_rolling, by='time')
-
-## Unit conversions
-calib_rolling$watts = oceanViewUnits_to_watts(calib_rolling$irradiance)
-calib_rolling$mol = watts_to_moles(calib_rolling$wavelength, calib_rolling$watts)
-calib_rolling$umol = moles_to_umol(calib_rolling$mol)
-
-## Export
-fn = paste(out_dir, light_name, '_calibration_rollingAverage_', date_measured, sep='')
-save_data(calib_rolling, fn)
-
-# 7. Find median peak wavelength ----
+# 6. Find median peak wavelength ----
 criteria = calib$peak==T & calib$LED!=5700
 calib_subset = calib[criteria,]
 
@@ -174,7 +156,7 @@ save_data(peaks, fn)
 
 rm(fn)
 
-# 8. Calculate bleedthrough ----
+# 7. Calculate bleedthrough ----
 
 ## Get wls of peaks
 criteria = (calib$intensity==1000) & (calib$peak==TRUE) & (calib$LED != 5700) & (calib$middle_time==TRUE)

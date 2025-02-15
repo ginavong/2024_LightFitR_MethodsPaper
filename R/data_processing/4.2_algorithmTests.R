@@ -35,10 +35,6 @@ load('Apollo_calibration_annotated_20240827.Rda')
 calib_measurements = df
 rm(df)
 
-load('Apollo_calibration_rollingAverage_20240827.Rda')
-calib_rolling = df
-rm(df)
-
 load('Apollo_calibration_medianPeaks_20240827.Rda')
 peaks = df
 rm(df)
@@ -59,11 +55,6 @@ criteria = (calib_measurements$middle_time==T)
 calib = calib_measurements[criteria,]
 calib = LightFitR::internal.calibCombine(calib$LED, calib$wavelength, calib$intensity, calib$umol) #Format it in the way that the package can take it
 
-## calibration rolling
-criteria = (calib_rolling$middle_time==T)
-calib_rolling = calib_rolling[criteria, ]
-calib_rolling = LightFitR::internal.calibCombine(calib_rolling$LED, calib_rolling$wavelength, calib_rolling$intensity, calib_rolling$umol) ##Format it in the way that the package can take it
-
 ## Regime
 regime = as.matrix(regime[c(5:12), ])
 class(regime) = 'numeric'
@@ -82,32 +73,17 @@ nEvents = ncol(target)
 
 closest_mat_calib = LightFitR::internal.closestIntensities(target, calib, peaks=peaks$median_peak_wl)
 
-closest_mat_rolling = LightFitR::internal.closestIntensities(target, calib_rolling, peaks=peaks$median_peak_wl)
-
 ## multidim NNLS with calib
 
 nnls_multidim_calib= LightFitR::nnls_intensities(target, closest_mat_calib, calib$led, calib$wavelength, calib$intensity, calib$irradiance, peaks=peaks$median_peak_wl)
 
 tidied_nnls_multidim_calib= LightFitR::internal.tidyIntensities(nnls_multidim_calib, calib$intensity) #Turns everything into an integer and caps intensities to 1000
 
-## multidimensional NNLS with rolling calib
-
-nnls_multidim_rolling = LightFitR::nnls_intensities(target, closest_mat_rolling, calib_rolling$led, calib_rolling$wavelength, calib_rolling$intensity, calib_rolling$irradiance, peaks=peaks$median_peak_wl)
-
-tidied_nnls_multidim_rolling = LightFitR::internal.tidyIntensities(nnls_multidim_rolling, calib_rolling$intensity)
-
 ## multidim SLE with calib
 
 sle_multidim_calib = LightFitR::sle_intensities(target, closest_mat_calib, calib$led, calib$wavelength, calib$intensity, calib$irradiance, peaks=peaks$median_peak_wl)
 
 tidied_sle_multidim_calib = LightFitR::internal.tidyIntensities(sle_multidim_calib, calib$intensity)
-
-## multidim SLE with rolling
-
-sle_multidim_rolling = LightFitR::sle_intensities(target, closest_mat_rolling, calib_rolling$led, calib_rolling$wavelength, calib_rolling$intensity, calib_rolling$irradiance, peaks=peaks$median_peak_wl)
-
-tidied_sle_multidim_rolling = LightFitR::internal.tidyIntensities(sle_multidim_rolling, calib_rolling$intensity)
-
 
 ## Linear regression with calib
 
@@ -132,29 +108,6 @@ lm_calib = t(sapply(1:8, function(l){
 
 tidied_lm_calib = LightFitR::internal.tidyIntensities(lm_calib, calib$intensity)
 
-## Linear regression with rolling
-
-lm_rolling = t(sapply(1:8, function(l){
-  
-  # Define variables
-  led = LightFitR::helio.dyna.leds[l, 'wavelength']
-  peak = peaks[l, 'median_peak_wl']
-  led_target = data.frame(irradiance = target[l,])
-  
-  # Subset calibration data
-  criteria = (calib_rolling$led==led) & (calib_rolling$wavelength==peak)
-  calib_subset = calib_rolling[criteria,]
-  
-  # Make the model
-  mod = lm(intensity~irradiance, data=calib_subset)
-  
-  # Predict the intensities
-  predict(mod, led_target)
-}))
-
-
-tidied_lm_rolling = LightFitR::internal.tidyIntensities(lm_rolling, calib_rolling$intensity)
-
 ## Individual NNLS
 
 nnls_calib = t(sapply(1:8, function(l){
@@ -177,33 +130,10 @@ nnls_calib = t(sapply(1:8, function(l){
 
 tidied_nnls_calib = LightFitR::internal.tidyIntensities(nnls_calib, calib$intensity)
 
-## Individual NNLS with rolling
-
-nnls_rolling = t(sapply(1:8, function(l){
-  
-  # Define variables
-  led = LightFitR::helio.dyna.leds[l, 'wavelength']
-  peak = peaks[l, 'median_peak_wl']
-  led_target = data.frame(irradiance = target[l,])
-  
-  # Subset calibration data
-  criteria = (calib_rolling$led==led) & (calib_rolling$wavelength==peak)
-  calib_subset = calib_rolling[criteria,]
-  
-  # Make model
-  mod = nnls::nnls(as.matrix(calib_subset$irradiance), calib_subset$intensity)
-  
-  int = mod$x * led_target
-  int$irradiance
-}))
-
-tidied_nnls_rolling = LightFitR::internal.tidyIntensities(nnls_rolling, calib_rolling$intensity)
-
-
 # 3. Tidy up ----
 
 ## Remove dfs we don't need anymore
-rm(calib, calib_rolling)
+rm(calib)
 
 # 4. Compile dataframes ----
 
@@ -253,44 +183,39 @@ format_df = function(calib_processing, algorithm_type, algorithm, peaks, target,
 ## Format dfs
 
 df_closest_mat_calib = format_df('none', 'individual', 'closest', peaks, target_mat, regime, closest_mat_calib, closest_mat_calib)
-df_closest_mat_rolling = format_df('rolling', 'individual', 'closest', peaks, target_mat, regime, closest_mat_rolling, closest_mat_rolling)
 
 df_lm_calib = format_df('none', 'individual', 'lm', peaks, target_mat, regime, lm_calib, tidied_lm_calib)
-df_lm_rolling = format_df('rolling', 'individual', 'lm', peaks, target_mat, regime, lm_rolling, tidied_lm_rolling)
 
 df_nnls_calib = format_df('none', 'individual', 'nnls', peaks, target_mat, regime, nnls_calib, tidied_nnls_calib)
-df_nnls_rolling = format_df('rolling', 'individual', 'nnls', peaks, target_mat, regime, nnls_rolling, tidied_nnls_rolling)
 
 df_nnls_multidim_calib = format_df('none', 'multidimensional', 'nnls', peaks, target_mat, regime, nnls_multidim_calib, tidied_nnls_multidim_calib)
-df_nnls_multidim_rolling = format_df('rolling', 'multidimensional', 'nnls', peaks, target_mat, regime, nnls_multidim_rolling, tidied_nnls_multidim_rolling)
 
 df_sle_multidim_calib = format_df('none', 'multidimensional', 'sle', peaks, target_mat, regime, sle_multidim_calib, tidied_sle_multidim_calib)
-df_sle_multidim_rolling = format_df('rolling', 'multidimensional', 'sle', peaks, target_mat, regime, sle_multidim_rolling, tidied_sle_multidim_rolling)
 
 ## Combine into one df
-algo_test_results = rbind(df_closest_mat_calib, df_closest_mat_rolling, 
-                          df_lm_calib, df_lm_rolling, 
-                          df_nnls_calib, df_nnls_rolling,
-                          df_nnls_multidim_calib, df_nnls_multidim_rolling,
-                          df_sle_multidim_calib, df_sle_multidim_rolling)
+algo_test_results = rbind(df_closest_mat_calib,  
+                          df_lm_calib,
+                          df_nnls_calib,
+                          df_nnls_multidim_calib, 
+                          df_sle_multidim_calib)
 
 # 5. Big tidy up ----
 
 rm(target_mat, target, 
-   closest_mat_calib, closest_mat_rolling,
-   lm_calib, lm_rolling,
-   nnls_calib, nnls_rolling,
-   nnls_multidim_calib, nnls_multidim_rolling,
-   sle_multidim_calib, sle_multidim_rolling,
-   tidied_lm_calib, tidied_lm_rolling,
-   tidied_nnls_calib, tidied_nnls_rolling,
-   tidied_nnls_multidim_calib, tidied_nnls_multidim_rolling,
-   tidied_sle_multidim_calib, tidied_sle_multidim_rolling,
-  df_closest_mat_calib, df_closest_mat_rolling, 
-  df_lm_calib, df_lm_rolling, 
-  df_nnls_calib, df_nnls_rolling,
-  df_nnls_multidim_calib, df_nnls_multidim_rolling,
-  df_sle_multidim_calib, df_sle_multidim_rolling)
+   closest_mat_calib, 
+   lm_calib, 
+   nnls_calib, 
+   nnls_multidim_calib, 
+   sle_multidim_calib, 
+   tidied_lm_calib, 
+   tidied_nnls_calib,
+   tidied_nnls_multidim_calib, 
+   tidied_sle_multidim_calib, 
+  df_closest_mat_calib, 
+  df_lm_calib, 
+  df_nnls_calib, 
+  df_nnls_multidim_calib, 
+  df_sle_multidim_calib)
 
 # 6. Calculate differences ----
 
