@@ -24,6 +24,8 @@ rm(fn)
 
 # 1. Combine dataframes ----
 
+message("5.4.1. Combine dataframes")
+
 ## Refinement
 
 colnames(refinement_baseline)
@@ -70,6 +72,8 @@ str(mse_refinement)
 
 # 2. Add starting_MSE column ----
 
+message("5.4.2. Add columns")
+
 treat_dict = data.frame(treat = c(43, 51, 58), label = c('high', 'low', 'mid'))
 
 treats = refinement$treat
@@ -88,6 +92,8 @@ mse_refinement$start_MSE = start_MSE
 rm(treats, start_MSE)
 
 # 3. Export ----
+
+message("5.4.3. Export")
 
 fn = paste(data_dir, '5_refinementCollated.Rda', sep='')
 save(refinement, mse_refinement, file=fn)

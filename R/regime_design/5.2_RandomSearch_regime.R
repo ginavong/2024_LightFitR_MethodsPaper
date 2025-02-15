@@ -23,6 +23,8 @@ set.seed(148)
 
 # 1. Make random_search function ----
 
+message("5.2.1 Random Search Function")
+
 random_search = function(data, leds_of_interest, nrow_output){
 
   ## Define search range - Make ranges proportionate to the residuals of individual LEDs
@@ -78,6 +80,8 @@ random_search = function(data, leds_of_interest, nrow_output){
 
 # 2. Make random search recipe ----
 
+message("5.2.2 Random search recipe")
+
 treats = unique(refinement_baseline$treat)
 
 search_recipe = lapply(unique(refinement_baseline$treat), function(i){
@@ -98,6 +102,8 @@ search_recipe = do.call(rbind, search_recipe)
 
 # 3. Make regime ----
 
+message("5.2.3 Make regime")
+
 ## Time recipe
 
 time_recipe = test_times(nEvents)
@@ -112,6 +118,8 @@ regime = rbind(time_recipe, light_recipe)
 rownames(regime) = c(rownames(time_recipe), helio.dyna.leds$name)
 
 # 4. Export ----
+
+message("5.2.4 Export")
 
 fp = 'data/regimes/fig5_Refinement/'
 

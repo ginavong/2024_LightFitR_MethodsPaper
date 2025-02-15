@@ -50,9 +50,13 @@ time_vec = as.POSIXct(time_vec, origin=lubridate::origin, tz='GMT')
 
 # 3. Regime ----
 
+message("5.0.3 Make regime")
+
 regime = makeRegime(time_vec, target, calib$LED, calib$wavelength, calib$intensity, calib$umol, peaks=peaks$median_peak_wl, method='nnls')
 
 # 4. Export
+
+message("5.0.4 Export")
 
 fp = 'data/regimes/fig5_Refinement/'
 

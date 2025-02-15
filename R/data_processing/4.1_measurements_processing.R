@@ -26,7 +26,7 @@ source("unit_conversion_functions.R")
 setwd(wd)
 
 # 1. Data import ----
-message("1. Import data")
+message("4.1.1. Import data")
 
 measurements = read_many.OceanView(raw_dir)
 regime = read.csv(regime_dir, row.names=1)
@@ -43,7 +43,7 @@ save_data(measurements, fn)
 rm(fn)
 
 # 2. Trimming ----
-message("2. Trimming data")
+message("4.1.2. Trimming data")
 
 ## Trim wavelengths
 measurements = trim_wavelengths(measurements)
@@ -56,7 +56,7 @@ measurements = trim_times(start, end, measurements)
 rm(start)
 
 # 3. Annotate with useful columns ----
-message("3. Annotate with useful columns")
+message("4.1.3. Annotate with useful columns")
 
 ## Assign event numbers
 events = event_nos_timestamp(regime, measurements, end)
@@ -80,7 +80,7 @@ measurements$umol = moles_to_umol(measurements$mol)
 measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
 # 4. Format & export ----
-message("4. Format & export")
+message("4.1.4. Format & export")
 
 ## Format
 measurements = data.frame(filename = measurements$filename, 
@@ -98,7 +98,7 @@ rm(fn, peaks)
 
 # 5. Process measurements into target irradiances ----
 
-message('5. Process into target irradiances')
+message('4.1.5. Process into target irradiances')
 
 ## Filter data
 criteria = (measurements$middle_time==T) & (measurements$peak==T)

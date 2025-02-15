@@ -31,7 +31,7 @@ rm(df)
 load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
 
 # 1. Import raw measurements ----
-message("1. Import raw data")
+message("5.3.1. Import raw data")
 
 measurements = read_many.OceanView('data/heliospectra_measurements/fig5/5.1_RandomSearch_20250127/raw/')
 
@@ -45,7 +45,7 @@ save_data(measurements, fn)
 rm(fn)
 
 # 2. Trimming ----
-message('2. Trimming data')
+message('5.3.2. Trimming data')
 
 ## Trim wavelengths
 measurements = trim_wavelengths(measurements)
@@ -59,7 +59,7 @@ measurements = trim_times(start, end, measurements)
 rm(start)
 
 # 3. Annotate ----
-message("3. Annotate")
+message("5.3.3. Annotate")
 
 ## Assign event numbers
 
@@ -84,7 +84,7 @@ measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
 # 4. Format & Export ----
 
-message("4. Export annotated")
+message("5.3.4. Export annotated")
 
 ## Format
 measurements = data.frame(filename = measurements$filename, 
@@ -103,7 +103,7 @@ rm(fn)
 
 # 5.Format refinement df ----
 
-message("5. Formatting")
+message("5.3.5. Formatting")
 
 ## Filter for middle points and peaks
 
@@ -193,14 +193,14 @@ measurements2 = data.frame(calibration_processing = measurements2$calibration_pr
 
 # 6. Calculate diff ----
 
-message("6. Calculate errors")
+message("5.3.6. Calculate errors")
 
 measurements2$diff = measurements2$umol - measurements2$target
 measurements2$diff_squared = measurements2$diff^2
 
 # 7. Calculate MSE ----
 
-message("7. Calculate MSE")
+message("5.3.7. Calculate MSE")
 
 events = unique(measurements2$event)
 mse_refinement = sapply(events, function(i){
@@ -238,7 +238,7 @@ str(mse_refinement)
 
 # 8. Lowest MSEs ----
 
-message("8. Lowest MSE")
+message("5.3.8. Lowest MSE")
 
 ## Find lowest events
 
@@ -264,6 +264,8 @@ measurements2[lowest_index, 'status'] = 'best'
 rm(treats, lowest,lowest_index)
 
 # 9. Intensity distance from best ----
+
+message("5.3.9. Euclidian distance")
 
 ## Distance individual
 
@@ -299,6 +301,8 @@ mse_refinement$euc_dist = euc_dist
 rm(euc_dist)
 
 # 10. Export ----
+
+message("5.3.10. Export")
 
 refinement_random = measurements2
 mse_refinement_random = mse_refinement

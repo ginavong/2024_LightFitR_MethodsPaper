@@ -41,6 +41,8 @@ target_irr_lab = expression('target irradiance (μ m'^-2 * nm^-1*')')
 
 # 4a MSE after all the steps of the algorithm ----
 
+message("fig4a")
+
 ## Data subset
 
 criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event) &  (mse_event$algorithm!='closest')
@@ -102,6 +104,8 @@ rm(criteria, mse_subset, fn)
 
 # S2  ----
 
+message("figS2")
+
 ## S2a Tidied with closest
 
 criteria = (mse_event$calibration_processing=='none') & (mse_event$stage=='tidied') & complete.cases(mse_event)
@@ -143,6 +147,8 @@ save_fig(fn, predicted)
 
 # 4b Error by LED ----
 
+message("fig4b")
+
 criteria = (algo_test_results$stage=='predicted') & ((algo_test_results$algorithm=='lm') | (algo_test_results$algorithm_type=='multidimensional' & algo_test_results$algorithm=='nnls'))
 algo_subset = algo_test_results[criteria,]
 
@@ -162,6 +168,8 @@ rm(criteria, algo_subset, fn)
 
 
 # S3 ----
+
+message("figS3")
 
 ## S3a Distribution of all LEDS
 
@@ -202,6 +210,8 @@ rm(criteria, algo_subset, fn)
 
 
 # CombinatioNs of LEDs [Work in progress] ----
+
+message("Combination of LEDs")
 
 ## Heatmaps
 

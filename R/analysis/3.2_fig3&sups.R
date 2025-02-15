@@ -36,6 +36,8 @@ led_wls = LightFitR::helio.dyna.leds[-9, 'wavelength'] # Supposed wavelengths of
 
 # Calibration spectrum ------
 
+message("figS1a")
+
 criteria = calib$middle_time==T
 
 spectrum_light = ggplot(data=calib[criteria,], aes(x=wavelength, y=umol, colour=LED)) +
@@ -62,6 +64,8 @@ rm(heatmap_light, fn)
 
 # Total irradiance line ----
 
+message("figS1c")
+
 criteria = total$middle_time == T
 
 total_line_light = ggplot(data=total[criteria,], aes(x=intensity, y=total_umol, colour=LED)) +
@@ -76,6 +80,8 @@ rm(criteria, total_line_light, fn)
 
 # Irradiance at peak ----
 
+message("fig3a")
+
 criteria = (calib$peak==T) & (calib$LED != 5700) & (calib$middle_time==T)
 
 peak_line_light = ggplot(data=calib[criteria,], aes(x=intensity, y=umol, colour=LED)) +
@@ -89,6 +95,7 @@ save_fig(fn, peak_line_light)
 rm(criteria, peak_line_light, fn)
 
 # Bleedthrough heatmap ----
+message("fig3b")
 
 ## Format df
 
@@ -120,6 +127,7 @@ save_fig(fn, bleed_heatmap_dark)
 rm(bleed_heatmap_dark, fn, bleedthrough)
 
 # Peaks move ----
+message("fig3c&d")
 
 ## Main panel
 criteria = (calib$peak==TRUE) & (calib$LED != 5700) & (calib$intensity > 0) & complete.cases(calib)

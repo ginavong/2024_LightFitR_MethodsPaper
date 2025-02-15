@@ -26,7 +26,7 @@ source(paste(fun_dir, "processing_functions.R", sep=''))
 
 # 1. Imports ----
 
-message('Imports')
+message('3.1.1 Imports')
 
 calib_regime = read.csv(calib_regime_dir, row.names=1)
 raw = read_many.OceanView(raw_dir)
@@ -40,7 +40,7 @@ rm(fn, calib_regime_dir)
 
 # 2. Remove unneeded bits ----
 
-message('Trimming')
+message('3.1.2 Trimming')
 
 calib = na.omit(raw)
 
@@ -62,7 +62,7 @@ stopifnot(colnames(calib) == colnames(raw))
 
 # 3. Add useful columns ----
 
-message('Add useful columns')
+message('3.1.3 Add useful columns')
 
 ## Assign event numbers
 
@@ -112,7 +112,7 @@ save_data(calib, fn)
 
 # 5. Total irradiance ----
 
-message('Total irradiance')
+message('3.1.5 Total irradiance')
 
 calib_total = get_total_irradiance(calib, by='time')
 
@@ -157,6 +157,8 @@ save_data(peaks, fn)
 rm(fn)
 
 # 7. Calculate bleedthrough ----
+
+message("3.1.7 Calculate bleedthrough")
 
 ## Get wls of peaks
 criteria = (calib$intensity==1000) & (calib$peak==TRUE) & (calib$LED != 5700) & (calib$middle_time==TRUE)

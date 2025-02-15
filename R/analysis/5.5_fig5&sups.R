@@ -29,6 +29,8 @@ setwd(wd)
 
 # 1. Format df ----
 
+message("5.5.1 Formatting")
+
 ## datatypes
 
 ref_types = c('character', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'character', 'numeric', 'numeric', 'character')
@@ -47,6 +49,8 @@ refinement$treat = as.factor(refinement$treat)
 
 # 2. MSE plot ----
 
+message("fig5")
+
 mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
   scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
@@ -57,6 +61,8 @@ fn = paste(main_dir, 'fig5.png', sep='')
 ggsave(fn, mse_plot)
 
 # 3. Refinement plot ----
+
+message("figS4a")
 
 ### Subset df
 
@@ -84,6 +90,8 @@ fn = paste(sup_dir, 'S4a.png', sep='')
 ggsave(fn, refinement_target_plot)
 
 # 4. Euclidian distance plot ----
+
+message("figS4b")
 
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +

@@ -48,7 +48,7 @@ setwd(wd)
 # 1. Filter & format data ----
 #Cuts down on what we need to store in RAM & prevents confusion with too many columns / units
 
-message('1. Filter dataframe')
+message('4.2.1. Filter dataframe')
 
 ## Calibration measurements
 criteria = (calib_measurements$middle_time==T)
@@ -64,7 +64,7 @@ rm(calib_measurements, criteria)
 
 # 2. Predict regime that was used ----
 
-message('2. Running algorithms')
+message('4.2.2. Running algorithms')
 
 ## Setup
 nEvents = ncol(target)
@@ -137,7 +137,7 @@ rm(calib)
 
 # 4. Compile dataframes ----
 
-message('4. Formatting dataframe')
+message('4.2.4. Formatting dataframe')
 
 ## Setup
 
@@ -219,7 +219,7 @@ rm(target_mat, target,
 
 # 6. Calculate differences ----
 
-message('6. Calculate differences')
+message('4.2.6. Calculate differences')
 
 algo_test_results$diff = algo_test_results$predicted_intensity - algo_test_results$true_intensity
 
@@ -229,7 +229,7 @@ algo_test_results$diff_squared = algo_test_results$diff ^2
 
 # 8. Mean squared error ----
 
-message('8. Calculating mean squared error')
+message('4.2.8. Calculating mean squared error')
 
 ## MSE function
 
@@ -320,7 +320,7 @@ mse_led = calculate_mse(algo_test_results, 'LED', process, types, stages)
 
 # 9. Assigning segments based on no. LEDS active ----
 
-message('Assign segments')
+message('4.2.9 Assign segments')
 
 ## Make dictionary
 
@@ -347,7 +347,7 @@ rm(complexity_dict)
 
 # 10. MSE per combination of LEDs ----
 
-message('10. MSE by combination of LED')
+message('4.2.10. MSE by combination of LED')
 
 ## Make the combinations
 
@@ -469,7 +469,7 @@ rm(process, types, stages)
 
 # 11. Generate data for fig 5 refinement ----
 
-message('11. Generate data for fig5 refinement')
+message('4.2.11. Generate data for fig5 refinement')
 
 ## Find event with min, median and max MSE
 criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied') & (mse_event$algorithm_type=='multidimensional') & (mse_event$algorithm=='nnls') & (mse_event$calibration_processing=='none')
@@ -504,7 +504,7 @@ rm(criteria, mse_subset, refine_events, min_med_max, MSEs)
 
 # 12. Export data ----
 
-message('12. Exporting data')
+message('4.2.12. Exporting data')
 
 ## Rearrange columns
 
