@@ -37,7 +37,7 @@ twoPanel_ps = 0.8 #point size for 2 panel plots
 multi_ps = 0.5
 
 resid_lab = '(predicted intensity) - (true intensity)'
-target_irr_lab = expression('target irradiance (W m'^-2 * nm^-1*')')
+target_irr_lab = expression('target irradiance (μ m'^-2 * nm^-1*')')
 
 # 4a MSE after all the steps of the algorithm ----
 
