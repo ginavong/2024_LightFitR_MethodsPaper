@@ -86,6 +86,7 @@ rm(time_vec)
 message("5.0.4. Make regime")
 
 regime = rbind(time_mat, light_recipe)
+rownames(regime) = c(rownames(time_mat), helio.dyna.leds$name)
 
 # 5. Export -----
 message("5.0.5. Export")
