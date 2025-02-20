@@ -31,18 +31,8 @@ setwd(wd)
 
 message("5.5.1 Formatting")
 
-## datatypes
-
-ref_types = c('character', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'character', 'numeric', 'numeric', 'character')
-for(i in 1:length(ref_types)){
-  class(refinement[,i]) = ref_types[i]
-}
-
-mse_types = c('character', 'character', 'character', 'numeric', 'numeric', 'character')
-for(i in 1:length(mse_types)){
-  class(mse_refinement[,i]) = mse_types[i]
-}
-rm(i, mse_types, ref_types)
+str(refinement)
+str(mse_refinement)
 
 mse_refinement$treat = as.factor(mse_refinement$treat)
 refinement$treat = as.factor(refinement$treat)
@@ -77,7 +67,7 @@ leds_used = which(LightFitR::helio.dyna.leds$name %in% unique(refinement_subset$
 ## Plotting!
 
 refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol, colour=LED)) + facet_wrap(~start_MSE) +
-  geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=measured, fill=LED)) +
+  geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=umol, fill=LED)) +
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
@@ -86,8 +76,12 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   theme_classic() 
 refinement_target_plot
 
+## Export
+
 fn = paste(sup_dir, 'S4a.png', sep='')
 ggsave(fn, refinement_target_plot)
+
+rm(refinement_subset, baseline, leds_used)
 
 # 4. Euclidian distance plot ----
 
