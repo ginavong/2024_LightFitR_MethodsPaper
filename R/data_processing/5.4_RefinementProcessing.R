@@ -74,9 +74,9 @@ str(mse_refinement_random)
 mse_refinement = rbind(mse_refinement_baseline, mse_refinement_random)
 str(mse_refinement)
 
-# 2. Add starting_MSE column ----
+# 3. Add starting_MSE column ----
 
-message("5.4.2. Add columns")
+message("5.4.3. Add columns")
 
 treat_dict = data.frame(treat = c(56, 57, 60), label = c('low', 'mid', 'high'))
 
@@ -95,9 +95,9 @@ mse_refinement$start_MSE = c(as.character(start_MSE))
 
 rm(treats, start_MSE)
 
-# 3. Export ----
+# 4. Export ----
 
-message("5.4.3. Export")
+message("5.4.4. Export")
 
 fn = paste(data_dir, '5_refinementCollated.Rda', sep='')
 save(refinement, mse_refinement, file=fn)
