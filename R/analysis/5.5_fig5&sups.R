@@ -85,8 +85,6 @@ refinement_target_plot
 fn = paste(sup_dir, 'S4a.png', sep='')
 ggsave(fn, refinement_target_plot)
 
-rm(refinement_subset, baseline, leds_used)
-
 # 4. Euclidian distance plot ----
 
 message("figS4b")
@@ -128,21 +126,34 @@ write.csv(test_results, file=fn)
 
 rm(fn, criteria, mse_subset, treats)
 
-# 5. Residuals per LED
+# 6. IntensIty vs irradiance plot ----
 
-criteria = refinement$on==TRUE
+int_irr_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
+  facet_wrap(~start_MSE) + geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
+  geom_point(aes(shape=status, size=status)) +
+  scale_colour_manual(values=led_colours[leds_used]) +
+  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 0.5, 2), guide='none')
+int_irr_plot
+
+fn = paste(sup_dir, 'S4d_int_irr.png', sep='')
+ggsave(int_irr_plot, file=fn)
+
+rm(refinement_subset, fn)
+
+# 7. Just mid
+
+criteria = refinement$start_MSE=='mid' & refinement$on==TRUE & refinement$LED=='620nm'
 refinement_subset = refinement[criteria,]
 
-resid_plot = ggplot(refinement_subset, aes(x=LED, y=diff)) +
-  geom_violin(fill='transparent') + geom_quasirandom(aes(, colour=LED, shape=status, size=status)) +
-  facet_wrap(~start_MSE) +
-  scale_colour_manual(values=led_colours[-1]) + 
-  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 1, 4), guide='none') +
-  geom_hline(yintercept=0) +
+mid_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
+  geom_hline(data=refinement_subset, aes(yintercept=target, colour=LED)) +
+  geom_point(aes(shape=status, size=status)) +
+  scale_colour_manual(values=led_colours[6]) +
+  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 01, 2), guide='none') +
   theme_classic()
-resid_plot
+mid_plot
 
-fn = paste(sup_dir, 'S4c.png', sep='')
-ggsave(fn, resid_plot)
+fn = paste(sup_dir, 'S4e_620nm.png', sep='')
+ggsave(mid_plot, file=fn)
 
-rm(criteria, refinement_subset)
+rm(criteria, refinement_subset, fn)
