@@ -19,22 +19,46 @@ load('5_baseline_mse.Rda')
 load('5_RandomRefinement.Rda')
 setwd(wd)
 
-# 1. Combine dataframes ----
+# 1. Calculate Euclidian distance of baseline ----
+message('5.4.1. Euclidian distance of baseline')
 
-message("5.4.1. Combine dataframes")
+## Dist
+best = refinement_random[refinement_random$status=='best',]
+treats = unique(refinement_baseline$treat)
+
+refinement_baseline$dist = as.numeric(sapply(treats, function(i){
+  best_intensity = best[best$treat==i, 'intensity_used']
+  baseline_intensity = refinement_baseline[refinement_baseline$treat==i, 'intensity_used']
+  
+  dist = baseline_intensity - best_intensity
+  dist
+}))
+
+refinement_baseline$dist_squared = as.numeric(refinement_baseline$dist ^2)
+
+## Euclidian distance
+
+treats = unique(mse_refinement_baseline$treat)
+
+mse_refinement_baseline$euc_dist = as.numeric(sapply(treats, function(i){
+  dist_squared = refinement_baseline[refinement_baseline$treat==i, 'dist_squared']
+  mean(dist_squared)
+}))
+
+## Tidy
+rm(best, treats)
+
+# 2. Combine dataframes ----
+
+message("5.4.2. Combine dataframes")
 
 ## Refinement
 
 colnames(refinement_baseline)
 colnames(refinement_random)
 
-refinement_baseline$dist = as.numeric(NA)
-refinement_baseline$dist_squared = as.numeric(NA)
-
 str(refinement_baseline)
 str(refinement_random)
-
-### Combine
 
 refinement = rbind(refinement_baseline, refinement_random)
 str(refinement)
@@ -44,12 +68,9 @@ str(refinement)
 colnames(mse_refinement_baseline)
 colnames(mse_refinement_random)
 
-mse_refinement_baseline$euc_dist = as.numeric(NA)
-
 str(mse_refinement_baseline)
 str(mse_refinement_random)
 
-### Combine
 mse_refinement = rbind(mse_refinement_baseline, mse_refinement_random)
 str(mse_refinement)
 
