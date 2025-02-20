@@ -138,9 +138,9 @@ rm(intensities, events)
 
 ## Add measurements to refinement
 
-refinement = left_join(baseline_targets, 
-                          (measurements2 |> select(wavelength, irradiance, watts, mol, umol, treat, event, intensity_used)), 
-                          join_by(wavelength, treat, intensity_used))
+refinement = left_join(baseline_targets,
+                        (measurements2 |> select(wavelength, irradiance, watts, mol, umol, treat, event, intensity_used, filename, time, middle_time, peak)),
+                         join_by(wavelength, treat, intensity_used))
 
 
 ## Add status column
@@ -170,7 +170,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = refinement[refinement$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on', 'peak'))
   
   # Calculate mse
   
@@ -189,6 +189,9 @@ mse_refinement = sapply(events, function(i){
 mse_refinement = as.data.frame(t(mse_refinement))
 colnames(mse_refinement)[ncol(mse_refinement)] = 'MSE'
 
+mse_refinement$filename = as.character(mse_refinement$filename)
+mse_refinement$time = as.character(mse_refinement$time)
+mse_refinement$middle_time = as.logical(mse_refinement$middle_time)
 mse_refinement$calibration_processing = as.character(mse_refinement$calibration_processing)
 mse_refinement$stage = as.character(mse_refinement$stage)
 mse_refinement$status = as.character(mse_refinement$status)
@@ -206,8 +209,26 @@ summary(mse_refinement)
 # 8. Export ----
 message("5.1.8. Export")
 
+## Format
+
+refinement = refinement |> select(filename, time, middle_time, 
+       calibration_processing, stage, 
+       treat, event, relative_event, status,
+       LED, on, wavelength, peak,
+       intensity_used, target,
+       irradiance, watts, mol, umol,
+       diff, diff_squared)
+
+mse_refinement = mse_refinement |> select(filename, time, middle_time, 
+                                          calibration_processing, stage, 
+                                          treat, event, relative_event, status,
+                                          MSE)
+
 refinement_baseline = refinement
 mse_refinement_baseline = mse_refinement
+
+
+## Export
 
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
