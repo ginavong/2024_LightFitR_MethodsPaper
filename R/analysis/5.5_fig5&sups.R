@@ -116,6 +116,7 @@ test_results = t(sapply(treats, function(i){
   test = cor.test(test_subset$euc_dist, test_subset$MSE, method='spearman')
   
   print(test)
+  print(test$p.value)
   
   c(i, test$estimate, test$statistic, test$p.value)
 }))
@@ -127,6 +128,7 @@ write.csv(test_results, file=fn)
 rm(fn, criteria, mse_subset, treats)
 
 # 6. IntensIty vs irradiance plot ----
+message('S4d')
 
 int_irr_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
   facet_wrap(~start_MSE) + geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
@@ -141,6 +143,8 @@ ggsave(int_irr_plot, file=fn)
 rm(refinement_subset, fn)
 
 # 7. Just mid
+
+message('S4e')
 
 criteria = refinement$start_MSE=='mid' & refinement$on==TRUE & refinement$LED=='620nm'
 refinement_subset = refinement[criteria,]
