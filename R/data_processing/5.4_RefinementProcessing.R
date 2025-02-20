@@ -42,7 +42,7 @@ treats = unique(mse_refinement_baseline$treat)
 
 mse_refinement_baseline$euc_dist = as.numeric(sapply(treats, function(i){
   dist_squared = refinement_baseline[refinement_baseline$treat==i, 'dist_squared']
-  mean(dist_squared)
+  sqrt(sum(dist_squared))
 }))
 
 ## Tidy
