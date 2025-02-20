@@ -91,16 +91,42 @@ rm(refinement_subset, baseline, leds_used)
 
 message("figS4b")
 
+## Plot
+
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
-  geom_point(aes(shape=status)) +
+  geom_point(aes(shape=status, size=status)) +
   scale_color_manual(values=OkabeIto) + 
-  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
+  scale_size_manual(values=c(3, 1, 3), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   theme_classic()
 euclidian_plot
 
 fn = paste(sup_dir, 'S4b.png', sep='')
 ggsave(fn, euclidian_plot)
+
+## Stats
+
+criteria = complete.cases(mse_refinement)
+mse_subset = mse_refinement[criteria,]
+treats = unique(mse_refinement$start_MSE)
+
+test_results = t(sapply(treats, function(i){
+  
+  print(i)
+  
+  test_subset = mse_subset[mse_subset$start_MSE==i, ]
+  test = cor.test(test_subset$euc_dist, test_subset$MSE, method='spearman')
+  
+  print(test)
+  
+  c(i, test$estimate, test$statistic, test$p.value)
+}))
+colnames(test_results) = c('start_MSE', 'rho', 'S', 'p.value')
+
+fn = paste(sup_dir, 'S4b_SpearmanRank.csv', sep='')
+write.csv(test_results, file=fn)
+
+rm(fn, criteria, mse_subset, treats)
 
 # 5. Residuals per LED
 
@@ -118,3 +144,5 @@ resid_plot
 
 fn = paste(sup_dir, 'S4c.png', sep='')
 ggsave(fn, resid_plot)
+
+rm(criteria, refinement_subset)
