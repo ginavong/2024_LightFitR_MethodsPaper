@@ -27,6 +27,9 @@ setwd(data_dir)
 load('5_refinementCollated.Rda')
 setwd(wd)
 
+## ggplot defaults
+OkabeIto = palette.colors(palette = "Okabe-Ito")[2:4]
+
 # 1. Format df ----
 
 message("5.5.1 Formatting")
@@ -43,6 +46,7 @@ message("fig5")
 
 mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
+  scale_color_manual(values=OkabeIto) +
   scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
   theme_classic()
 mse_plot
@@ -89,7 +93,8 @@ message("figS4b")
 
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
-  geom_point(aes(shape=status)) + 
+  geom_point(aes(shape=status)) +
+  scale_color_manual(values=OkabeIto) + 
   scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   theme_classic()
 euclidian_plot
@@ -110,3 +115,6 @@ resid_plot = ggplot(refinement_subset, aes(x=LED, y=diff)) +
   geom_hline(yintercept=0) +
   theme_classic()
 resid_plot
+
+fn = paste(sup_dir, 'S4c.png', sep='')
+ggsave(fn, resid_plot)
