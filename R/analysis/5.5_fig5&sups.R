@@ -96,3 +96,17 @@ euclidian_plot
 
 fn = paste(sup_dir, 'S4b.png', sep='')
 ggsave(fn, euclidian_plot)
+
+# 5. Residuals per LED
+
+criteria = refinement$on==TRUE
+refinement_subset = refinement[criteria,]
+
+resid_plot = ggplot(refinement_subset, aes(x=LED, y=diff)) +
+  geom_violin(fill='transparent') + geom_quasirandom(aes(, colour=LED, shape=status, size=status)) +
+  facet_wrap(~start_MSE) +
+  scale_colour_manual(values=led_colours[-1]) + 
+  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 1, 4), guide='none') +
+  geom_hline(yintercept=0) +
+  theme_classic()
+resid_plot
