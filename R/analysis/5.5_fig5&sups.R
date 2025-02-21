@@ -54,8 +54,8 @@ mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) +
   theme_manuscript()
 mse_plot
 
-fn = paste(main_dir, 'fig5.png', sep='')
-ggsave(fn, mse_plot)
+fn = paste(main_dir, 'fig5', sep='')
+save_fig(fn, mse_plot)
 
 # 3. Refinement plot ----
 
@@ -85,8 +85,8 @@ refinement_target_plot
 
 ## Export
 
-fn = paste(sup_dir, 'S4a.png', sep='')
-ggsave(fn, refinement_target_plot)
+fn = paste(sup_dir, 'S4a', sep='')
+save_fig(fn, refinement_target_plot)
 
 # 4. Euclidian distance plot ----
 
@@ -103,8 +103,8 @@ euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)
   theme_manuscript()
 euclidian_plot
 
-fn = paste(sup_dir, 'S4b.png', sep='')
-ggsave(fn, euclidian_plot)
+fn = paste(sup_dir, 'S4b', sep='')
+save_fig(fn, euclidian_plot)
 
 ## Stats
 
@@ -142,7 +142,7 @@ int_irr_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LE
 int_irr_plot
 
 fn = paste(sup_dir, 'S4d_int_irr.png', sep='')
-ggsave(int_irr_plot, file=fn)
+save_fig(fn, int_irr_plot)
 
 rm(refinement_subset, fn)
 
@@ -162,6 +162,6 @@ mid_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) 
 mid_plot
 
 fn = paste(sup_dir, 'S4e_620nm.png', sep='')
-ggsave(mid_plot, file=fn)
+save_fig(fn, mid_plot)
 
 rm(criteria, refinement_subset, fn)
