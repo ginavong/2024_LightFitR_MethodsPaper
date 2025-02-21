@@ -1,0 +1,21 @@
+{
+"text": "data/regimes/fig5_Refinement/5_Baseline.txt",
+"type" : 0,
+"no_of_wave_lengths" : 9,
+"no_of_events": 3,
+"wavelengths" : [
+{"wl" : 380,"pwr": 94 },
+{"wl" : 400,"pwr": 94 },
+{"wl" : 420,"pwr": 94 },
+{"wl" : 450,"pwr": 94 },
+{"wl" : 530,"pwr": 94 },
+{"wl" : 620,"pwr": 94 },
+{"wl" : 660,"pwr": 94 },
+{"wl" : 735,"pwr": 94 },
+{"wl" : 5700,"pwr": 94 }
+],
+"events":[
+{"hour" : 0, "minute" : 0, "second" : 0, "intensities" : [{"wl":380,"i":0},{"wl":400,"i":67},{"wl":420,"i":73},{"wl":450,"i":0},{"wl":530,"i":0},{"wl":620,"i":0},{"wl":660,"i":43},{"wl":735,"i":49},{"wl":5700,"i":0}]},
+{"hour" : 0, "minute" : 10, "second" : 0, "intensities" : [{"wl":380,"i":0},{"wl":400,"i":0},{"wl":420,"i":72},{"wl":450,"i":0},{"wl":530,"i":0},{"wl":620,"i":41},{"wl":660,"i":27},{"wl":735,"i":49},{"wl":5700,"i":0}]},
+{"hour" : 0, "minute" : 20, "second" : 0, "intensities" : [{"wl":380,"i":0},{"wl":400,"i":0},{"wl":420,"i":37},{"wl":450,"i":38},{"wl":530,"i":0},{"wl":620,"i":0},{"wl":660,"i":49},{"wl":735,"i":6},{"wl":5700,"i":0}]}
+]}

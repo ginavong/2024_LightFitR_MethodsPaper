@@ -3,8 +3,8 @@
 rm(list=ls())
 
 ## Set file directories
-out_dir = 'data/heliospectra_measurements/fig5/baseline_20250114/'
-date_measured = '20250114'
+out_dir = 'data/heliospectra_measurements/fig5/baseline_20250218/'
+date_measured = '20250218'
 
 wd = getwd()
 
@@ -28,12 +28,13 @@ load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_ca
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250215.Rda')
+
 
 # 1. Import raw measurements ----
 message("5.1.1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline_20250114/raw/')
+measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline_20250218/raw/')
 
 raw = measurements
 
@@ -115,25 +116,31 @@ rm(criteria)
 ## Add treatment column
 
 treats = unique(baseline_targets$treat)
+events = sort(unique(measurements2$event))
+dict = cbind(events, treats)
 
 measurements2$treat = sapply(measurements2$event, function(i){
-  treats[i]
+  dict[events==i, 'treats']
 })
 
-rm(treats)
+rm(treats, events, dict)
 
 ## Add intensity_used column
-intensities = c(as.numeric(as.matrix(regime[-c(1:4, 13),])))
+events = unique(measurements2$event)
 
-measurements2$intensity_used = intensities
+intensities = c(sapply(events, function(i){
+  regime[-c(1:4, 13),i]
+}))
 
-rm(intensities)
+measurements2$intensity_used = as.numeric(intensities)
+
+rm(intensities, events)
 
 ## Add measurements to refinement
 
-refinement = left_join(baseline_targets, 
-                          (measurements2 |> select(wavelength, irradiance, watts, mol, umol, treat, event, intensity_used)), 
-                          join_by(wavelength, treat, event))
+refinement = left_join(baseline_targets,
+                        (measurements2 |> select(wavelength, irradiance, watts, mol, umol, treat, event, intensity_used, filename, time, middle_time, peak)),
+                         join_by(wavelength, treat, intensity_used))
 
 
 ## Add status column
@@ -151,6 +158,8 @@ message("5.1.6. Calculate errors")
 refinement$diff = refinement$umol - refinement$target
 refinement$diff_squared = refinement$diff^2
 
+summary(refinement)
+
 # 7. MSE ----
 
 message("5.1.7. Calculate MSE")
@@ -161,7 +170,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = refinement[refinement$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on', 'peak'))
   
   # Calculate mse
   
@@ -180,19 +189,46 @@ mse_refinement = sapply(events, function(i){
 mse_refinement = as.data.frame(t(mse_refinement))
 colnames(mse_refinement)[ncol(mse_refinement)] = 'MSE'
 
+mse_refinement$filename = as.character(mse_refinement$filename)
+mse_refinement$time = as.character(mse_refinement$time)
+mse_refinement$middle_time = as.logical(mse_refinement$middle_time)
 mse_refinement$calibration_processing = as.character(mse_refinement$calibration_processing)
 mse_refinement$stage = as.character(mse_refinement$stage)
+mse_refinement$status = as.character(mse_refinement$status)
 mse_refinement$treat = as.numeric(mse_refinement$treat)
 mse_refinement$event = as.numeric(mse_refinement$event)
+mse_refinement$relative_event = as.numeric(mse_refinement$relative_event)
 mse_refinement$MSE = as.numeric(mse_refinement$MSE)
 
+## Tidy
+
 rm(events)
+summary(mse_refinement)
+
 
 # 8. Export ----
 message("5.1.8. Export")
 
+## Format
+
+refinement = refinement |> select(filename, time, middle_time, 
+       calibration_processing, stage, 
+       treat, event, relative_event, status,
+       LED, on, wavelength, peak,
+       intensity_used, target,
+       irradiance, watts, mol, umol,
+       diff, diff_squared)
+
+mse_refinement = mse_refinement |> select(filename, time, middle_time, 
+                                          calibration_processing, stage, 
+                                          treat, event, relative_event, status,
+                                          MSE)
+
 refinement_baseline = refinement
 mse_refinement_baseline = mse_refinement
+
+
+## Export
 
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)

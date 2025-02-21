@@ -16,7 +16,7 @@ source('R/analysis/4.3_fig4&sups.R')
 
 # Figure 5 and Supplements
 
-source('R/regime_design/5.0_BaselineMSE.R')
+source('R/regime_design/5.0_Baseline.R')
 source('R/data_processing/5.1_measurements_processing.R')
 source('R/regime_design/5.2_RandomSearch_regime.R')
 source('R/data_processing/5.3_random_measurements_processing.R')

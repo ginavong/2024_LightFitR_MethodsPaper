@@ -29,8 +29,8 @@ random_search = function(data, leds_of_interest, nrow_output){
 
   ## Define search range - Make ranges proportionate to the residuals of individual LEDs
   
-  bound1 = data$intensity_used - (10^4 * abs(data$diff)) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
-  bound2 = data$intensity_used + (10^2 * abs(data$diff)) # We want this to be in the same direction as the residual, but smaller
+  bound1 = data$intensity_used - (10^3.4 * data$diff) # We want bound1 to be in the opposite direction of the residual, and we want it to be a big range
+  bound2 = data$intensity_used + (10^2 * data$diff) # We want this to be in the same direction as the residual, but smaller
   
   bound1
   bound2
@@ -89,6 +89,8 @@ search_recipe = lapply(unique(refinement_baseline$treat), function(i){
   
   # Define variables
   data_subset = refinement_baseline[refinement_baseline$treat==i,]
+  
+  print(data_subset$intensity_used)
   
   LEDs_of_interest = which(data_subset$on==TRUE)
   

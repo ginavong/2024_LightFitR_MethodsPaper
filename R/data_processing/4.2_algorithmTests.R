@@ -347,7 +347,7 @@ rm(complexity_dict)
 
 # 10. MSE per combination of LEDs ----
 
-message('4.2.10. MSE by combination of LED')
+message('4.2.10. MSE by combination of LED (experimental)')
 
 ## Make the combinations
 
@@ -467,44 +467,9 @@ mse_combinations2 = left_join(mse_combinations2, bleedthrough[, -c(3,4)], by=c('
 
 rm(process, types, stages)
 
-# 11. Generate data for fig 5 refinement ----
+# 11. Export data ----
 
-message('4.2.11. Generate data for fig5 refinement')
-
-## Find event with min, median and max MSE
-criteria = (mse_event$complexity==4) &  (mse_event$stage=='tidied') & (mse_event$algorithm_type=='multidimensional') & (mse_event$algorithm=='nnls') & (mse_event$calibration_processing=='none')
-mse_subset = mse_event[criteria,]
-
-MSEs = sort(unique(mse_subset$MSE))
-min_med_max = MSEs[c(1, length(MSEs)/2, length(MSEs))] # median() doesn't work because length is even
-refine_events = mse_subset[mse_subset$MSE %in% min_med_max, 'event']
-
-## Subset algo_test_results to these events
-
-criteria = (algo_test_results$event %in% refine_events) & (algo_test_results$algorithm_type=='multidimensional') & (algo_test_results$algorithm=='nnls') & (algo_test_results$stage=='tidied') & (algo_test_results$calibration_processing=='none')
-refinement_subset = algo_test_results[criteria,]
-refinement_subset
-
-## Format df
-refinement_subset$on = refinement_subset$true_intensity != 0
-refinement_subset$stage = paste(refinement_subset$algorithm_type, refinement_subset$algorithm, sep='.')
-colnames(refinement_subset)
-
-refinement= data.frame(calibration_processing=refinement_subset$calibration_processing, 
-                        stage=refinement_subset$stage, treat=refinement_subset$event, 
-                        LED=refinement_subset$LED, wavelength=refinement_subset$wavelength, 
-                        target=refinement_subset$target_irradiance, 
-                        on=refinement_subset$on, intensity_used=refinement_subset$predicted_intensity)
-
-## Set intensity_used to 0 of on==FaLSe
-refinement[refinement$on==FALSE, 'intensity_used'] = 0
-
-## Tidy
-rm(criteria, mse_subset, refine_events, min_med_max, MSEs)
-
-# 12. Export data ----
-
-message('4.2.12. Exporting data')
+message('4.2.11. Exporting data')
 
 ## Rearrange columns
 
@@ -524,8 +489,6 @@ mse_combinations = data.frame(mse_combinations$calibration_processing, mse_combi
 colnames(mse_combinations) = c('calibration_processing', 'algorithm_type', 'algorithm', 'stage', 'LED1', 'LED2', 'same', 'MSE', 'bleedthrough_irradiance', 'bleedthrough_watts', 'bleedthrough_mol', 'bleedthrough_umol')
 
 ## Export
-
-save(refinement, file='data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement.Rda')
 
 setwd(out_dir)
 

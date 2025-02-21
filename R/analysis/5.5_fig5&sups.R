@@ -27,22 +27,15 @@ setwd(data_dir)
 load('5_refinementCollated.Rda')
 setwd(wd)
 
+## ggplot defaults
+OkabeIto = palette.colors(palette = "Okabe-Ito")[2:4]
+
 # 1. Format df ----
 
 message("5.5.1 Formatting")
 
-## datatypes
-
-ref_types = c('character', 'character', 'numeric', 'numeric', 'numeric', 'numeric', 'character', 'character', 'numeric', 'character', 'numeric', 'numeric', 'numeric', 'character', 'numeric', 'numeric', 'character')
-for(i in 1:length(ref_types)){
-  class(refinement[,i]) = ref_types[i]
-}
-
-mse_types = c('character', 'character', 'character', 'numeric', 'numeric', 'character')
-for(i in 1:length(mse_types)){
-  class(mse_refinement[,i]) = mse_types[i]
-}
-rm(i, mse_types, ref_types)
+str(refinement)
+str(mse_refinement)
 
 mse_refinement$treat = as.factor(mse_refinement$treat)
 refinement$treat = as.factor(refinement$treat)
@@ -53,6 +46,7 @@ message("fig5")
 
 mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
+  scale_color_manual(values=OkabeIto) +
   scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
   theme_classic()
 mse_plot
@@ -77,7 +71,7 @@ leds_used = which(LightFitR::helio.dyna.leds$name %in% unique(refinement_subset$
 ## Plotting!
 
 refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol, colour=LED)) + facet_wrap(~start_MSE) +
-  geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=measured, fill=LED)) +
+  geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=umol, fill=LED)) +
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
@@ -86,6 +80,8 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   theme_classic() 
 refinement_target_plot
 
+## Export
+
 fn = paste(sup_dir, 'S4a.png', sep='')
 ggsave(fn, refinement_target_plot)
 
@@ -93,12 +89,75 @@ ggsave(fn, refinement_target_plot)
 
 message("figS4b")
 
+## Plot
+
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
-  geom_point(aes(shape=status)) + 
-  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
+  geom_point(aes(shape=status, size=status)) +
+  scale_color_manual(values=OkabeIto) + 
+  scale_size_manual(values=c(3, 1, 3), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   theme_classic()
 euclidian_plot
 
 fn = paste(sup_dir, 'S4b.png', sep='')
 ggsave(fn, euclidian_plot)
+
+## Stats
+
+criteria = complete.cases(mse_refinement)
+mse_subset = mse_refinement[criteria,]
+treats = unique(mse_refinement$start_MSE)
+
+test_results = t(sapply(treats, function(i){
+  
+  print(i)
+  
+  test_subset = mse_subset[mse_subset$start_MSE==i, ]
+  test = cor.test(test_subset$euc_dist, test_subset$MSE, method='spearman')
+  
+  print(test)
+  print(test$p.value)
+  
+  c(i, test$estimate, test$statistic, test$p.value)
+}))
+colnames(test_results) = c('start_MSE', 'rho', 'S', 'p.value')
+
+fn = paste(sup_dir, 'S4b_SpearmanRank.csv', sep='')
+write.csv(test_results, file=fn)
+
+rm(fn, criteria, mse_subset, treats)
+
+# 6. IntensIty vs irradiance plot ----
+message('S4d')
+
+int_irr_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
+  facet_wrap(~start_MSE) + geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
+  geom_point(aes(shape=status, size=status)) +
+  scale_colour_manual(values=led_colours[leds_used]) +
+  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 0.5, 2), guide='none')
+int_irr_plot
+
+fn = paste(sup_dir, 'S4d_int_irr.png', sep='')
+ggsave(int_irr_plot, file=fn)
+
+rm(refinement_subset, fn)
+
+# 7. Just mid
+
+message('S4e')
+
+criteria = refinement$start_MSE=='mid' & refinement$on==TRUE & refinement$LED=='620nm'
+refinement_subset = refinement[criteria,]
+
+mid_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
+  geom_hline(data=refinement_subset, aes(yintercept=target, colour=LED)) +
+  geom_point(aes(shape=status, size=status)) +
+  scale_colour_manual(values=led_colours[6]) +
+  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 01, 2), guide='none') +
+  theme_classic()
+mid_plot
+
+fn = paste(sup_dir, 'S4e_620nm.png', sep='')
+ggsave(mid_plot, file=fn)
+
+rm(criteria, refinement_subset, fn)

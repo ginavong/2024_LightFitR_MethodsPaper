@@ -14,34 +14,51 @@ source('R/functions/processing_functions.R')
 
 ## Import data
 
-fn = paste(data_dir, '5_baseline_mse.Rda', sep='')
-load(fn)
+setwd(data_dir)
+load('5_baseline_mse.Rda')
+load('5_RandomRefinement.Rda')
+setwd(wd)
 
-fn = paste(data_dir, '5_RandomRefinement.Rda', sep='')
-load(fn)
+# 1. Calculate Euclidian distance of baseline ----
+message('5.4.1. Euclidian distance of baseline')
 
-rm(fn)
+## Dist
+best = refinement_random[refinement_random$status=='best',]
+treats = unique(refinement_baseline$treat)
 
-# 1. Combine dataframes ----
+refinement_baseline$dist = as.numeric(sapply(treats, function(i){
+  best_intensity = best[best$treat==i, 'intensity_used']
+  baseline_intensity = refinement_baseline[refinement_baseline$treat==i, 'intensity_used']
+  
+  dist = baseline_intensity - best_intensity
+  dist
+}))
 
-message("5.4.1. Combine dataframes")
+refinement_baseline$dist_squared = as.numeric(refinement_baseline$dist ^2)
+
+## Euclidian distance
+
+treats = unique(mse_refinement_baseline$treat)
+
+mse_refinement_baseline$euc_dist = as.numeric(sapply(treats, function(i){
+  dist_squared = refinement_baseline[refinement_baseline$treat==i, 'dist_squared']
+  sqrt(sum(dist_squared))
+}))
+
+## Tidy
+rm(best, treats)
+
+# 2. Combine dataframes ----
+
+message("5.4.2. Combine dataframes")
 
 ## Refinement
 
 colnames(refinement_baseline)
 colnames(refinement_random)
 
-refinement_baseline$dist = NA
-refinement_baseline$dist_squared = NA
-
-### Match col_order with refinement_random
-
-#Look into dplyr::select and dplyr::relocate
-
-colnames(refinement_baseline)
-colnames(refinement_random)
-
-### Combine
+str(refinement_baseline)
+str(refinement_random)
 
 refinement = rbind(refinement_baseline, refinement_random)
 str(refinement)
@@ -51,49 +68,36 @@ str(refinement)
 colnames(mse_refinement_baseline)
 colnames(mse_refinement_random)
 
-mse_refinement_baseline$euc_dist = NA
-
 str(mse_refinement_baseline)
 str(mse_refinement_random)
 
-### Coltypes
-
-mse_refinement_baseline$relative_event = as.numeric(mse_refinement_baseline$relative_event)
-mse_refinement_baseline$status = as.character(mse_refinement_baseline$status)
-
-### Want colnames = c('calibration_processing', 'stage', 'treat', 'event', 'relative_event', 'status', 'MSE', 'euc_dist')
-
-#Look into dplyr::select and dplyr::relocate
-
-### Combine
 mse_refinement = rbind(mse_refinement_baseline, mse_refinement_random)
 str(mse_refinement)
 
+# 3. Add starting_MSE column ----
 
-# 2. Add starting_MSE column ----
+message("5.4.3. Add columns")
 
-message("5.4.2. Add columns")
-
-treat_dict = data.frame(treat = c(43, 51, 58), label = c('high', 'low', 'mid'))
+treat_dict = data.frame(treat = c(56, 57, 60), label = c('low', 'mid', 'high'))
 
 treats = refinement$treat
 start_MSE = sapply(treats, function(i){
   treat_dict[treat_dict$treat==i, 'label']
 })
 start_MSE
-refinement$start_MSE = start_MSE
+refinement$start_MSE = c(as.character(start_MSE))
 
 treats = mse_refinement$treat
 start_MSE = sapply(treats, function(i){
   treat_dict[treat_dict$treat==i, 'label']
 })
-mse_refinement$start_MSE = start_MSE
+mse_refinement$start_MSE = c(as.character(start_MSE))
 
 rm(treats, start_MSE)
 
-# 3. Export ----
+# 4. Export ----
 
-message("5.4.3. Export")
+message("5.4.4. Export")
 
 fn = paste(data_dir, '5_refinementCollated.Rda', sep='')
 save(refinement, mse_refinement, file=fn)
