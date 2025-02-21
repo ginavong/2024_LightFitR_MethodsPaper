@@ -130,38 +130,3 @@ fn = paste(sup_dir, 'S4b_SpearmanRank.csv', sep='')
 write.csv(test_results, file=fn)
 
 rm(fn, criteria, mse_subset, treats)
-
-# 6. IntensIty vs irradiance plot ----
-message('S4d')
-
-int_irr_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
-  facet_wrap(~start_MSE) + geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
-  geom_point(aes(shape=status, size=status)) +
-  scale_colour_manual(values=led_colours[leds_used]) +
-  shapes + scale_size_manual(values=c(2, 3, 0.5), guide='none')
-int_irr_plot
-
-fn = paste(sup_dir, 'S4d_int_irr.png', sep='')
-save_fig(fn, int_irr_plot)
-
-rm(refinement_subset, fn)
-
-# 7. Just mid
-
-message('S4e')
-
-criteria = refinement$start_MSE=='mid' & refinement$on==TRUE & refinement$LED=='620nm'
-refinement_subset = refinement[criteria,]
-
-mid_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) +
-  geom_hline(data=refinement_subset, aes(yintercept=target, colour=LED)) +
-  geom_point(aes(shape=status, size=status)) +
-  scale_colour_manual(values=led_colours[6]) +
-  shapes + scale_size_manual(values=c(3, 3, 1), guide='none') +
-  theme_manuscript()
-mid_plot
-
-fn = paste(sup_dir, 'S4e_620nm.png', sep='')
-save_fig(fn, mid_plot)
-
-rm(criteria, refinement_subset, fn)
