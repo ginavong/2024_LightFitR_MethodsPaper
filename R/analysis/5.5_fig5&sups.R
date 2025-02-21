@@ -29,6 +29,8 @@ setwd(wd)
 
 ## ggplot defaults
 OkabeIto = palette.colors(palette = "Okabe-Ito")[2:4]
+shapes = scale_shape_manual(values=c(17, 8, 16))
+col_lab = 'algorithm MSE'
 
 # 1. Format df ----
 
@@ -47,7 +49,8 @@ message("fig5")
 mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
   scale_color_manual(values=OkabeIto) +
-  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
+  shapes + scale_size_manual(values=c(4, 5, 2), guide='none') +
+  labs(x='mean squared error of algorithm intensities', y='mean squared error', colour=col_lab) +
   theme_manuscript()
 mse_plot
 
@@ -75,7 +78,7 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
-  scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
+  scale_size_manual(values=c(1, 4, 1), guide='none') + shapes +
   labs(x='event', y=irr_umol_lab) +
   theme_manuscript() 
 refinement_target_plot
@@ -95,7 +98,8 @@ euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
   geom_point(aes(shape=status, size=status)) +
   scale_color_manual(values=OkabeIto) + 
-  scale_size_manual(values=c(3, 1, 3), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
+  scale_size_manual(values=c(3, 3, 1), guide='none') + shapes +
+  labs(x='euclidian distance to best intensities', y='mean squared error', colour=col_lab) +
   theme_manuscript()
 euclidian_plot
 
@@ -134,7 +138,7 @@ int_irr_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LE
   facet_wrap(~start_MSE) + geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) +
   scale_colour_manual(values=led_colours[leds_used]) +
-  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 0.5, 2), guide='none')
+  shapes + scale_size_manual(values=c(2, 3, 0.5), guide='none')
 int_irr_plot
 
 fn = paste(sup_dir, 'S4d_int_irr.png', sep='')
@@ -153,7 +157,7 @@ mid_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) 
   geom_hline(data=refinement_subset, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) +
   scale_colour_manual(values=led_colours[6]) +
-  scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 01, 2), guide='none') +
+  shapes + scale_size_manual(values=c(3, 3, 1), guide='none') +
   theme_manuscript()
 mid_plot
 

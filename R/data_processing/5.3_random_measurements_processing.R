@@ -243,11 +243,11 @@ colnames(lowest) = c('treat', 'lowest_event')
 
 ## Label dfs with this info
 
-mse_refinement$status = 'none'
+mse_refinement$status = 'random.search'
 lowest_index = which(mse_refinement$event %in% lowest$lowest_event)
 mse_refinement[lowest_index, 'status'] = 'best'
 
-measurements2$status = 'none'
+measurements2$status = 'random.search'
 lowest_index = which(measurements2$event %in% lowest$lowest_event)
 measurements2[lowest_index, 'status'] = 'best'
 

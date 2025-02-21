@@ -144,7 +144,7 @@ refinement = left_join(baseline_targets,
 
 
 ## Add status column
-refinement$status = rep('start', nrow(refinement))
+refinement$status = rep('algorithm', nrow(refinement))
 refinement$relative_event = rep(25, nrow(refinement))
 
 ## Checks and final adjustments
