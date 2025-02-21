@@ -48,7 +48,7 @@ mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) +
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
   scale_color_manual(values=OkabeIto) +
   scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(5, 2, 4), guide='none') +
-  theme_classic()
+  theme_manuscript()
 mse_plot
 
 fn = paste(main_dir, 'fig5.png', sep='')
@@ -77,7 +77,7 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
   scale_size_manual(values=c(4, 1, 1), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
   labs(x='event', y=irr_umol_lab) +
-  theme_classic() 
+  theme_manuscript() 
 refinement_target_plot
 
 ## Export
@@ -96,7 +96,7 @@ euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)
   geom_point(aes(shape=status, size=status)) +
   scale_color_manual(values=OkabeIto) + 
   scale_size_manual(values=c(3, 1, 3), guide='none') + scale_shape_manual(values=c(8, 16, 17)) +
-  theme_classic()
+  theme_manuscript()
 euclidian_plot
 
 fn = paste(sup_dir, 'S4b.png', sep='')
@@ -154,7 +154,7 @@ mid_plot = ggplot(refinement_subset, aes(x=intensity_used, y=umol, colour=LED)) 
   geom_point(aes(shape=status, size=status)) +
   scale_colour_manual(values=led_colours[6]) +
   scale_shape_manual(values=c(8, 16, 17)) + scale_size_manual(values=c(3, 01, 2), guide='none') +
-  theme_classic()
+  theme_manuscript()
 mid_plot
 
 fn = paste(sup_dir, 'S4e_620nm.png', sep='')
