@@ -44,7 +44,7 @@ spectrum_light = ggplot(data=calib[criteria,], aes(x=wavelength, y=umol, colour=
   geom_point(size=0.8) + scale_color_manual(values=led_colours) +
   geom_vline(xintercept = led_wls, colour='darkgrey') +
   labs(x = wl_lab, y=irr_umol_lab) +
-  theme_manuscript()
+  theme_manuscript(LED.guide = FALSE)
 spectrum_light
 
 fn = paste(sup_out, 'S1a', sep='')
@@ -78,7 +78,7 @@ criteria = (calib$peak==T) & (calib$LED != 5700) & (calib$middle_time==T)
 peak_line_light = ggplot(data=calib[criteria,], aes(x=intensity, y=umol, colour=LED)) +
   geom_smooth(se=F, linewidth=0.6) + geom_point() + 
   scale_colour_manual(values = led_colours) + labs(y=irr_umol_lab) +
-  theme_manuscript()
+  theme_manuscript(LED.guide=FALSE)
 peak_line_light
 
 fn = paste(fig3_out, '3A_line', sep='')
@@ -97,7 +97,7 @@ bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
 bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
   geom_tile() + labs(x='LED which is on', y=("wavelengths of other channels"), fill='irradiance') +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') + #060038 is a dark blue option
-  theme_manuscript(x.rotate=TRUE)
+  theme_manuscript(x.rotate=TRUE, LED.guide=FALSE)
 bleed_heatmap_light
 
 fn = paste(fig3_out, '3b_bleedthrough', sep='')
@@ -127,7 +127,7 @@ criteria = (calib$peak==TRUE) & (calib$LED != 5700) & (calib$intensity > 0) & co
 peak_wls_light = ggplot(data=calib[criteria,], aes(x=intensity, y=wavelength, colour=LED)) +
   geom_point() +
   geom_hline(yintercept = led_wls, linetype='dashed') +
-  scale_colour_manual(values=led_colours) + labs(y=wl_lab) + theme_manuscript()
+  scale_colour_manual(values=led_colours) + labs(y=wl_lab) + theme_manuscript(LED.guide=FALSE)
 peak_wls_light
 
 fn = paste(fig3_out, '3c_main', sep='')
