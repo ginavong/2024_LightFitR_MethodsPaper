@@ -19,8 +19,8 @@ led_colours_dark = c('mediumslateblue', 'navy', 'royalblue', 'skyblue', 'forestg
 # Labels -----
 
 irr_w_lab = expression('irradiance (W m'^-2 * nm^-1*')')
-irr_umol_lab = expression('irradiance (μmol m'^-2*nm^-1*')')
-irr_umol_peak_lab = expression('irradiance at LED peak (μmol m'^-2*nm^-1*')')
+irr_umol_lab = expression('irradiance (μmol m'^-2*nm^-1*s^-1*')')
+irr_umol_peak_lab = expression('irradiance at LED peak (μmol m'^-2*nm^-1*s^-1*')')
 
 wl_lab = "wavelength (nm)"
 
