@@ -49,7 +49,13 @@ theme_presentation = function() {
 
 # Manuscript theme
 
-theme_manuscript = function(x.rotate=FALSE, y.rotate=FALSE){
+theme_manuscript = function(LED.guide=TRUE, x.rotate=FALSE, y.rotate=FALSE){
+  
+  # Settings
+  if(LED.guide==TRUE){
+    LED.guide = c()
+  }
+  else{LED.guide = ggplot2::guides(colour='none')}
   
   if(x.rotate==TRUE){
     x.angle=90
@@ -63,12 +69,17 @@ theme_manuscript = function(x.rotate=FALSE, y.rotate=FALSE){
   
   bigText = 24
   smallText = 16
+
+  # ggplot object
   
-  ggplot2::theme_classic() + 
+  list(ggplot2::theme_classic(),
     ggplot2::theme(text=element_text(size=bigText),
                    axis.text = element_text(size=smallText),
                    legend.text = element_text(size=smallText),
                    
                    axis.text.x=element_text(angle=x.angle),
-                   axis.text.y = element_text(angle=y.angle))
+                   axis.text.y = element_text(angle=y.angle)),
+    LED.guide)
+    
 }
+
