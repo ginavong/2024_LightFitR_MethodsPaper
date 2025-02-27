@@ -54,7 +54,7 @@ rm(criteria, spectrum_light, fn)
 
 # Total irradiance line ----
 
-message("figS1c")
+message("figS1b")
 
 criteria = total$middle_time == T
 
@@ -64,7 +64,7 @@ total_line_light = ggplot(data=total[criteria,], aes(x=intensity, y=total_umol, 
   theme_manuscript()
 total_line_light
 
-fn = paste(sup_out, 'S1c', sep='')
+fn = paste(sup_out, 'S1b', sep='')
 save_fig(fn, total_line_light)
 
 rm(criteria, total_line_light, fn)
