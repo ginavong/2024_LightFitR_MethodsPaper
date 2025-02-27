@@ -42,13 +42,16 @@ str(mse_refinement)
 mse_refinement$treat = as.factor(mse_refinement$treat)
 refinement$treat = as.factor(refinement$treat)
 
+mse_refinement$start_MSE = factor(mse_refinement$start_MSE, levels=c('low', 'mid', 'high'))
+refinement$start_MSE = factor(refinement$start_MSE, levels=c('low', 'mid', 'high'))
+
 # 2. MSE plot ----
 
 message("fig5")
 
 mse_plot = ggplot(mse_refinement, aes(x=start_MSE, y=MSE, colour=start_MSE)) + 
   geom_violin(fill='transparent') + geom_quasirandom(aes(colour=start_MSE, shape=status, size=status)) +
-  scale_color_manual(values=OkabeIto) +
+  scale_color_manual(values=OkabeIto, guide='none') +
   shapes + scale_size_manual(values=c(4, 5, 2), guide='none') +
   labs(x='mean squared error of algorithm intensities', y='mean squared error', colour=col_lab) +
   theme_manuscript()
