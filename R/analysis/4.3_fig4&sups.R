@@ -136,7 +136,7 @@ rm(criteria, mse_subset, fn)
 predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=multi_ps) +
   facet_wrap(~stage) +
-  scale_colour_manual(values=algo_colours) +
+  scale_colour_manual(values=algo_colours, guide='none') +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
   theme_manuscript() + theme(legend.text=element_text(size=10))
@@ -184,7 +184,7 @@ led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
   facet_grid(algorithm_type ~ algorithm) +
   scale_colour_manual(values=led_colours) +
   labs(x='LED channel', y=resid_lab) +
-  theme_manuscript(x.rotate=TRUE)
+  theme_manuscript(x.rotate=TRUE, LED.guide = FALSE)
 led
 
 fn = paste(S3_dir, 'S3a_LEDs', sep='')
@@ -202,7 +202,7 @@ irradiances = ggplot(data=algo_subset, aes(x=target_irradiance, y=diff, colour=L
   geom_hline(yintercept=0) +
   scale_colour_manual(values=led_colours) +
   labs(x=target_irr_lab, y=resid_lab) +
-  theme_manuscript()
+  theme_manuscript(LED.guide = FALSE)
 irradiances
 
 fn = paste(S3_dir, 'S3b_residuals', sep='')
