@@ -80,8 +80,8 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   geom_point(data=baseline, size=3, shape=24, colour='black', aes(x=relative_event, y=umol, fill=LED)) +
   geom_hline(data=baseline, aes(yintercept=target, colour=LED)) +
   geom_point(aes(shape=status, size=status)) + 
-  scale_colour_manual(values=led_colours[leds_used]) + scale_fill_manual(values=led_colours[leds_used]) +
-  scale_size_manual(values=c(1, 4, 1), guide='none') + shapes +
+  scale_colour_manual(values=led_colours[leds_used], guide='none') + scale_fill_manual(values=led_colours[leds_used], guide='none') +
+  scale_size_manual(values=c(1, 4, 1), guide='none') + shapes + guides(shape='none') +
   labs(x='event', y=irr_umol_lab) +
   theme_manuscript() 
 refinement_target_plot
@@ -100,8 +100,8 @@ message("figS4b")
 euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)) + 
   geom_smooth(se=F, na.rm=T, method='lm', linewidth=0.6, aes(group=start_MSE)) +
   geom_point(aes(shape=status, size=status)) +
-  scale_color_manual(values=OkabeIto) + 
-  scale_size_manual(values=c(3, 3, 1), guide='none') + shapes +
+  scale_color_manual(values=OkabeIto, guide='none') + 
+  scale_size_manual(values=c(3, 3, 1), guide='none') + shapes + guides(shape='none') +
   labs(x='euclidian distance to best intensities', y='mean squared error', colour=col_lab) +
   theme_manuscript()
 euclidian_plot
