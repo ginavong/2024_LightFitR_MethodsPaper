@@ -37,7 +37,7 @@ twoPanel_ps = 0.8 #point size for 2 panel plots
 multi_ps = 0.5
 
 resid_lab = '(predicted intensity) - (true intensity)'
-target_irr_lab = expression('target irradiance (μ m'^-2 * nm^-1*')')
+target_irr_lab = expression('target irradiance (μmol m'^-2 * nm^-1* s^-1*')')
 
 # 4a MSE after all the steps of the algorithm ----
 
@@ -136,9 +136,8 @@ rm(criteria, mse_subset, fn)
 predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=multi_ps) +
   facet_wrap(~stage) +
-  scale_colour_manual(values=algo_colours, guide='none') +
+  scale_colour_manual(values=algo_colours, guide='none') + 
   labs(x='number of LED channels active', y='mean squared error') +
-  guides(colour=guide_legend(title='algorithm')) +
   theme_manuscript() + theme(legend.text=element_text(size=10))
 predicted
 
