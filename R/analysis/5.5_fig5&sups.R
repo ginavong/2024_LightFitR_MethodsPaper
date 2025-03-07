@@ -113,7 +113,7 @@ save_fig(fn, euclidian_plot)
 
 criteria = complete.cases(mse_refinement)
 mse_subset = mse_refinement[criteria,]
-treats = unique(mse_refinement$start_MSE)
+treats = as.character(unique(mse_refinement$start_MSE))
 
 test_results = t(sapply(treats, function(i){
   
