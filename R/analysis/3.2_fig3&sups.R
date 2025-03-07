@@ -95,7 +95,7 @@ bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
 
 ## Heatmap light
 bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
-  geom_tile() + labs(x='LED which is on', y=("wavelengths of other channels"), fill='irradiance') +
+  geom_tile() + labs(x='LED which is on', y=("wavelengths of other channels (nm)"), fill='irradiance') +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') + #060038 is a dark blue option
   theme_manuscript(x.rotate=TRUE, LED.guide=FALSE)
 bleed_heatmap_light
