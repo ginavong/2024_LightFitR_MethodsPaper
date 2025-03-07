@@ -60,7 +60,7 @@ criteria = total$middle_time == T
 
 total_line_light = ggplot(data=total[criteria,], aes(x=intensity, y=total_umol, colour=LED)) +
   geom_point() + geom_smooth(se=F, linewidth=0.5) +
-  scale_colour_manual(values = led_colours) + labs(y=expression('total irradiance (μmol m'^-2 * nm^-1*')')) +
+  scale_colour_manual(values = led_colours) + labs(y=expression('total irradiance (μmol m'^-2 * s^-1*')')) +
   theme_manuscript()
 total_line_light
 
