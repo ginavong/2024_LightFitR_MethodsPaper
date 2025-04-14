@@ -37,7 +37,7 @@ twoPanel_ps = 0.8 #point size for 2 panel plots
 multi_ps = 0.5
 
 resid_lab = '(predicted intensity) - (true intensity)'
-target_irr_lab = expression('target irradiance (μ m'^-2 * nm^-1*')')
+target_irr_lab = expression('target irradiance (μmol m'^-2 * nm^-1* s^-1*')')
 
 # 4a MSE after all the steps of the algorithm ----
 
@@ -61,7 +61,7 @@ fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=inter
   scale_colour_manual(values=algo_colours[-1]) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
-  theme_classic()
+  theme_manuscript() + theme(legend.text = element_text(size=10))
 fig4a
 
 ## Stats - Kruskal test with Dunn correction
@@ -122,7 +122,7 @@ S2a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interac
   scale_colour_manual(values=algo_colours) +
   labs(x='number of LED channels active', y='mean squared error') +
   guides(colour=guide_legend(title='algorithm')) +
-  theme_classic()
+  theme_manuscript() + theme(legend.text=element_text(size=10))
 S2a
 
 fn = paste(S2_dir, 'S2a_inclClosest', sep='')
@@ -136,10 +136,9 @@ rm(criteria, mse_subset, fn)
 predicted = ggplot(data=mse_event, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
   geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=multi_ps) +
   facet_wrap(~stage) +
-  scale_colour_manual(values=algo_colours) +
+  scale_colour_manual(values=algo_colours, guide='none') + 
   labs(x='number of LED channels active', y='mean squared error') +
-  guides(colour=guide_legend(title='algorithm')) +
-  theme_classic()
+  theme_manuscript() + theme(legend.text=element_text(size=10))
 predicted
 
 fn = paste(S2_dir, 'S2b_stage', sep='')
@@ -155,10 +154,11 @@ algo_subset = algo_test_results[criteria,]
 fig4b = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
   geom_violin(colour='black') + geom_quasirandom(size=twoPanel_ps, dodge.width=1) +
   stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
+  geom_hline(yintercept = 0) +
   facet_wrap(~interaction(algorithm_type, algorithm)) +
   scale_colour_manual(values=led_colours) +
   labs(x='LED channel', y=resid_lab) +
-  theme_classic()
+  theme_manuscript(x.rotate = TRUE)
 fig4b
 
 fn = paste(fig4_dir, '4b_LEDs', sep='')
@@ -179,10 +179,11 @@ algo_subset = algo_test_results[criteria,]
 led = ggplot(data=algo_subset, aes(x=as.factor(LED), y=diff, colour=LED)) +
   geom_violin(colour='black') + geom_quasirandom(size=multi_ps, dodge.width=1) +
   stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='black') +
-  facet_wrap(~interaction(algorithm_type, algorithm)) +
+  geom_hline(yintercept=0) +
+  facet_grid(algorithm_type ~ algorithm) +
   scale_colour_manual(values=led_colours) +
   labs(x='LED channel', y=resid_lab) +
-  theme_classic()
+  theme_manuscript(x.rotate=TRUE, LED.guide = FALSE)
 led
 
 fn = paste(S3_dir, 'S3a_LEDs', sep='')
@@ -196,11 +197,11 @@ criteria = (algo_test_results$stage=='tidied')
 algo_subset = algo_test_results[criteria,]
 
 irradiances = ggplot(data=algo_subset, aes(x=target_irradiance, y=diff, colour=LED)) +
-  geom_point(size=multi_ps) + facet_wrap(~interaction(algorithm_type, algorithm)) +
+  geom_point(size=multi_ps) + facet_grid(algorithm_type ~ algorithm) +
   geom_hline(yintercept=0) +
   scale_colour_manual(values=led_colours) +
   labs(x=target_irr_lab, y=resid_lab) +
-  theme_classic()
+  theme_manuscript(LED.guide = FALSE)
 irradiances
 
 fn = paste(S3_dir, 'S3b_residuals', sep='')
@@ -208,31 +209,3 @@ save_fig(fn, irradiances)
 
 rm(criteria, algo_subset, fn)
 
-
-# CombinatioNs of LEDs [Work in progress] ----
-
-message("Combination of LEDs")
-
-## Heatmaps
-
-criteria = mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
-combs_subset = mse_combinations[criteria,]
-#combs_subset[combs_subset$same==T, 'MSE'] = NA
-
-ggplot(data=combs_subset, aes(x=LED1, y=LED2, fill=MSE)) +
-  geom_tile() +
-  facet_wrap(~interaction(algorithm_type, algorithm)) +
-  scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') +
-  theme_classic()
-
-
-## Correlation with bleedthrough
-
-criteria = complete.cases(mse_combinations) & mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
-combs_subset = mse_combinations[criteria,]
-
-ggplot(data=combs_subset, aes(x=bleedthrough_irradiance, y=MSE, colour=interaction(algorithm_type, algorithm), shape=algorithm_type)) + 
-  geom_point() +
-  geom_smooth(se=F)
-
-#It's clear here that I haven't define mse_combination very well. Most of the high MSE is just driven bY the problematic LEDs. Need to define as "when LEDx is on, the error of LEDy is this".

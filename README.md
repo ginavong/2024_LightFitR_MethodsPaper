@@ -6,18 +6,18 @@ Find the package here: https://github.com/ginavong/LightFitR
 
 # File structure
 
-- data
+- data: Processed `.Rda` files only (github filesize limits). `x` for raw data,
     - algorithm_testing: Data from testing the programming algorithms. Subfolders named by corresponding figures
     - heliospectra_measurements: Measurements from the Heliospectra light units
         - calibration: Data from calibrating the lights
         - Other folders named by the corresponding figures
     - regimes: Regimes to feed into Heliospectra units in 3 formats to accommodate different firmware versions
-- figures: Figures for the paper. Each folder corresponds to a figure in the paper
+- results: Figures and statistical results for the paper. Each folder corresponds to a figure in the paper
 - R
     - functions: Functions which are used frequently across scripts
-    - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data`. These scripts take a while to run.
-    - analysis: Scripts for analysing data and generating figures. Outputs to `figures`
-    - regime_design: Scripts which design light regimes. Outputs to `data/regimes`.
+    - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data/`. These scripts take a while to run.
+    - analysis: Scripts for analysing data and generating figures. Outputs to `results/`
+    - regime_design: Scripts which design light regimes. Outputs to `data/regimes/`.
     - `scripts_order.R`: All the scripts to produce analysis and figs for the paper, in the correct order.
 - renv: files for the `renv` package to run
 
@@ -66,8 +66,8 @@ The raw ascii / txt files should be processed into a dataframe with at least all
 | peak | boolean | does this wavelength represent the peak of the LED (at the given intensity)? |
 | irradiance | numeric | irradiance measured by spectrometer, in  μW cm^-2 nm^-1 |
 | watts | numeric | converted to W m^-2 nm^-1 |
-| mol | numeric | irradiance converted to mol m^-2 nm^-1 |
-| umol | numeric | irradiance converted to μmol m^-2 nm^-1 (**not same as PAR**) |
+| mol | numeric | irradiance converted to mol s-1 m^-2 nm^-1 (via photobiology::as_quantum_mol|
+| umol | numeric | irradiance converted to μmol s-1 m^-2 nm^-1 (**not same as PAR**) |
 | Additonal | columns | specific to the dataset |
 
 ## Calibration data

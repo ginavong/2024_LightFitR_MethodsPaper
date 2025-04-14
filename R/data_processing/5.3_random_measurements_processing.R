@@ -3,8 +3,8 @@
 rm(list=ls())
 
 ## Set file directories
-out_dir = 'data/heliospectra_measurements/fig5/5.1_RandomSearch_20250127/'
-date_measured = 20250127
+out_dir = 'data/heliospectra_measurements/fig5/RandomSearch_20250218/'
+date_measured = 20250218
 
 wd = getwd()
 
@@ -28,12 +28,12 @@ load('data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_ca
 peaks = df
 rm(df)
 
-load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250213.Rda')
+load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250215.Rda')
 
 # 1. Import raw measurements ----
 message("5.3.1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5/5.1_RandomSearch_20250127/raw/')
+measurements = read_many.OceanView('data/heliospectra_measurements/fig5/RandomSearch_20250218/raw/')
 
 raw = measurements
 
@@ -80,8 +80,6 @@ measurements$umol = moles_to_umol(measurements$mol)
 ## Peaks
 measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
-## Assign treatments
-
 # 4. Format & Export ----
 
 message("5.3.4. Export annotated")
@@ -94,7 +92,7 @@ measurements = data.frame(filename = measurements$filename,
                           irradiance=measurements$irradiance, watts=measurements$watts,
                           mol=measurements$mol, umol = measurements$umol)
 
-## ExpoRt
+## Export
 
 fn = paste(out_dir, '5a_annotated_', date_measured, sep='')
 save_data(measurements, fn)
@@ -157,9 +155,10 @@ relative_event = sapply(1:nrow(measurements2), function(i){
   treat = measurements2[i, 'treat']
   
   rel_event = switch(as.character(treat),
-                          '43' = measurements2[i, 'event'],
-                          '51' = measurements2[i, 'event'] -50,
-                          '58' = measurements2[i, 'event'] - 100)
+                          '56' = measurements2[i, 'event'],
+                          '57' = measurements2[i, 'event'] -50,
+                          '60' = measurements2[i, 'event'] - 100,
+                          NA)
   
   rel_event
 })
@@ -175,21 +174,6 @@ measurements2$LED = sapply(measurements2$wavelength, function(wl){
   peaks[peaks$median_peak_wl==wl, 'LED_name']
 })
 
-
-## Format measurements2 df
-
-colnames(measurements2)
-
-measurements2 = data.frame(calibration_processing = measurements2$calibration_processing,
-                           stage = measurements2$stage, 
-                           treat = measurements2$treat, event=measurements2$event,
-                           relative_event = measurements2$relative_event,
-                           LED = measurements2$LED, wavelength = measurements2$wavelength,
-                           on = measurements2$on,
-                           intensity_used = measurements2$intensity_used,
-                           target=measurements2$target, 
-                           irradiance=measurements2$irradiance, watts=measurements2$watts,
-                           mol=measurements2$mol, umol=measurements2$umol)
 
 # 6. Calculate diff ----
 
@@ -207,7 +191,7 @@ mse_refinement = sapply(events, function(i){
   
   data_subset = measurements2[measurements2$event==i,]
   
-  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
+  discard_cols = which(colnames(data_subset) %in% c('LED', 'wavelength', 'peak', 'target', 'intensity_used', 'irradiance', 'watts', 'mol', 'umol', 'diff', 'diff_squared', 'on'))
   
   # Calculate mse
   
@@ -225,15 +209,21 @@ mse_refinement = sapply(events, function(i){
 ## Formatting
 mse_refinement = as.data.frame(t(mse_refinement))
 
-colnames(mse_refinement)
 str(mse_refinement)
+colnames(mse_refinement)
+
+mse_refinement$filename = c(as.character(mse_refinement$filename))
+mse_refinement$time = c(as.character(mse_refinement$time))
+mse_refinement$middle_time = c(as.logical(mse_refinement$middle_time))
 mse_refinement$calibration_processing = c(as.character(mse_refinement$calibration_processing))
 mse_refinement$stage = c(as.character(mse_refinement$stage))
 mse_refinement$treat = c(as.numeric(mse_refinement$treat))
 mse_refinement$event = c(as.numeric(mse_refinement$event))
 mse_refinement$relative_event = c(as.numeric(mse_refinement$relative_event))
-mse_refinement$MSE = c(as.numeric(mse_refinement$V6))
-mse_refinement = mse_refinement[,-6]
+
+mse_col = ncol(mse_refinement)
+mse_refinement$MSE = c(as.numeric(mse_refinement[, ncol(mse_refinement)]))
+mse_refinement = mse_refinement[, -mse_col]
 str(mse_refinement)
 
 # 8. Lowest MSEs ----
@@ -253,11 +243,11 @@ colnames(lowest) = c('treat', 'lowest_event')
 
 ## Label dfs with this info
 
-mse_refinement$status = 'none'
+mse_refinement$status = 'random.search'
 lowest_index = which(mse_refinement$event %in% lowest$lowest_event)
 mse_refinement[lowest_index, 'status'] = 'best'
 
-measurements2$status = 'none'
+measurements2$status = 'random.search'
 lowest_index = which(measurements2$event %in% lowest$lowest_event)
 measurements2[lowest_index, 'status'] = 'best'
 
@@ -304,8 +294,27 @@ rm(euc_dist)
 
 message("5.3.10. Export")
 
+## Formatting
+
+colnames(measurements2)
+measurements2 = measurements2 |> select(filename, time, middle_time, 
+                                        calibration_processing, stage, 
+                                        treat, event, relative_event, status,
+                                        LED, on, wavelength, peak,
+                                        intensity_used, target,
+                                        irradiance, watts, mol, umol,
+                                        diff, diff_squared, dist, dist_squared)
+
+colnames(mse_refinement)
+mse_refinement = mse_refinement |> select(filename, time, middle_time, 
+                                          calibration_processing, stage, 
+                                          treat, event, relative_event, status,
+                                          MSE, euc_dist)
+
 refinement_random = measurements2
 mse_refinement_random = mse_refinement
+
+## Export
 
 out_dir = 'data/algorithm_testing/fig5_refinement/'
 setwd(out_dir)
