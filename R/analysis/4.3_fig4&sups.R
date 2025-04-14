@@ -209,32 +209,3 @@ save_fig(fn, irradiances)
 
 rm(criteria, algo_subset, fn)
 
-
-# CombinatioNs of LEDs [Work in progress] ----
-
-message("Combination of LEDs")
-
-## Heatmaps!
-
-criteria = mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
-combs_subset = mse_combinations[criteria,]
-#combs_subset[combs_subset$same==T, 'MSE'] = NA
-
-ggplot(data=combs_subset, aes(x=LED1, y=LED2, fill=MSE)) +
-  geom_tile() +
-  facet_wrap(~interaction(algorithm_type, algorithm)) +
-  scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') +
-  theme_manuscript()
-
-
-## Correlation with bleedthrough
-
-criteria = complete.cases(mse_combinations) & mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
-combs_subset = mse_combinations[criteria,]
-
-ggplot(data=combs_subset, aes(x=bleedthrough_irradiance, y=MSE, colour=interaction(algorithm_type, algorithm), shape=algorithm_type)) + 
-  geom_point() +
-  geom_smooth(se=F) +
-  theme_manuscript()
-
-#It's clear here that I haven't define mse_combination very well. Most of the high MSE is just driven bY the problematic LEDs. Need to define as "when LEDx is on, the error of LEDy is this".
