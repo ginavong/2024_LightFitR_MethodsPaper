@@ -12,7 +12,7 @@ Find the package here: https://github.com/ginavong/LightFitR
         - calibration: Data from calibrating the lights
         - Other folders named by the corresponding figures
     - regimes: Regimes to feed into Heliospectra units in 3 formats to accommodate different firmware versions
-- figures: Figures for the paper. Each folder corresponds to a figure in the paper
+- results: Figures and statistical results for the paper. Each folder corresponds to a figure in the paper
 - R
     - functions: Functions which are used frequently across scripts
     - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data`. These scripts take a while to run.
