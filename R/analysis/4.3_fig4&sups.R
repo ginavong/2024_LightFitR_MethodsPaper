@@ -214,7 +214,7 @@ rm(criteria, algo_subset, fn)
 
 message("Combination of LEDs")
 
-## Heatmaps
+## Heatmaps!
 
 criteria = mse_combinations$stage=='tidied' & mse_combinations$calibration_processing=='none'
 combs_subset = mse_combinations[criteria,]
