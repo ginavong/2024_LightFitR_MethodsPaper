@@ -6,7 +6,7 @@ Find the package here: https://github.com/ginavong/LightFitR
 
 # File structure
 
-- data
+- data: Processed `.Rda` files only (github filesize limits). `x` for raw data,
     - algorithm_testing: Data from testing the programming algorithms. Subfolders named by corresponding figures
     - heliospectra_measurements: Measurements from the Heliospectra light units
         - calibration: Data from calibrating the lights
@@ -15,9 +15,9 @@ Find the package here: https://github.com/ginavong/LightFitR
 - results: Figures and statistical results for the paper. Each folder corresponds to a figure in the paper
 - R
     - functions: Functions which are used frequently across scripts
-    - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data`. These scripts take a while to run.
-    - analysis: Scripts for analysing data and generating figures. Outputs to `figures`
-    - regime_design: Scripts which design light regimes. Outputs to `data/regimes`.
+    - data_processing: Processing raw data and feature engineering to allow later analysis. Outputs .csv and .Rda to `data/`. These scripts take a while to run.
+    - analysis: Scripts for analysing data and generating figures. Outputs to `results/`
+    - regime_design: Scripts which design light regimes. Outputs to `data/regimes/`.
     - `scripts_order.R`: All the scripts to produce analysis and figs for the paper, in the correct order.
 - renv: files for the `renv` package to run
 
