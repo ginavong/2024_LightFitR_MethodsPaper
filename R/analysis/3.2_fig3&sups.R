@@ -11,8 +11,8 @@ source("R/functions/ggplot_functions.R")
 
 ## Directories
 wd = getwd()
-fig3_out = "figures/fig3/"
-sup_out = "figures/S1/"
+fig3_out = "results/fig3/"
+sup_out = "results/S1/"
 data_in = "data/heliospectra_measurements/calibration/Apollo_Calib_20240827/"
 
 ## Import data
@@ -122,7 +122,7 @@ rm(bleed_heatmap_dark, fn, bleedthrough)
 message("fig3c&d")
 
 ## Main panel
-criteria = (calib$peak==TRUE) & (calib$LED != 5700) & (calib$intensity > 0) & complete.cases(calib)
+criteria = (calib$peak==TRUE) & (calib$LED != 5700) & (calib$intensity > 0) & (calib$middle_time==TRUE) & complete.cases(calib)
 
 peak_wls_light = ggplot(data=calib[criteria,], aes(x=intensity, y=wavelength, colour=LED)) +
   geom_point() +
