@@ -77,7 +77,7 @@ criteria = (calib$peak==T) & (calib$LED != 5700) & (calib$middle_time==T)
 
 peak_line_light = ggplot(data=calib[criteria,], aes(x=intensity, y=umol, colour=LED)) +
   geom_smooth(se=F, linewidth=0.6) + geom_point() + 
-  scale_colour_manual(values = led_colours) + labs(y=irr_umol_lab) +
+  scale_colour_manual(values = led_colours) + labs(y=irr_umol_peak_lab) +
   theme_manuscript(LED.guide=FALSE)
 peak_line_light
 
@@ -95,7 +95,7 @@ bleedthrough$wavelength = as.factor(bleedthrough$wavelength)
 
 ## Heatmap light
 bleed_heatmap_light = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
-  geom_tile() + labs(x='LED which is on', y=("wavelengths of other channels (nm)"), fill='irradiance') +
+  geom_tile() + labs(x='LED which is on', y=("wavelengths of other channels (nm)"), fill='bleedthrogh') +
   scale_fill_gradient(low='white', high='#060038', na.value='#fa9900') + #060038 is a dark blue option
   theme_manuscript(x.rotate=TRUE, LED.guide=FALSE)
 bleed_heatmap_light
