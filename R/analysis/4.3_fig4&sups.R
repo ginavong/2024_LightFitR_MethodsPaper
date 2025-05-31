@@ -64,6 +64,15 @@ fig4a = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=inter
   theme_manuscript() + theme(legend.text = element_text(size=10))
 fig4a
 
+fig4a_dark = ggplot(data=mse_subset, aes(x=as.factor(complexity), y=MSE, colour=interaction(algorithm_type, algorithm))) +
+  geom_violin(fill='transparent') + geom_quasirandom(dodge.width=pd, size=ps) +
+  stat_summary(geom='point', fun.y='mean', shape=17, size=2, col='white', position=position_dodge(width=pd), aes(group = interaction(algorithm_type, algorithm))) +
+  scale_colour_manual(values=algo_colours[-1]) +
+  labs(x='number of LED channels active', y='mean squared error') +
+  guides(colour=guide_legend(title='algorithm')) +
+  theme_presentation() + theme(legend.text = element_text(size=10))
+fig4a_dark
+
 ## Stats - Kruskal test with Dunn correction
 
 complexity = unique(mse_subset$complexity)
