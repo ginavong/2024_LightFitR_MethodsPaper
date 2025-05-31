@@ -4,9 +4,9 @@ rm(list=ls())
 ## Directories
 wd = getwd()
 fun_dir = 'R/functions/'
-fig4_dir = 'figures/fig4/'
-S2_dir = 'figures/S2/'
-S3_dir = 'figures/S3/'
+fig4_dir = 'results/fig4/'
+S2_dir = 'results/S2/'
+S3_dir = 'results/S3/'
 
 
 ## Libraries & functions
@@ -105,6 +105,9 @@ stats_test$signif = symnum(stats_test$P.adj,
 
 fn = paste(fig4_dir, '4a_algorithmMSE', sep='')
 save_fig(fn, fig4a)
+
+fn =paste0(fig4_dir, '4a_dark_algorithm')
+save_fig(fn, fig4a_dark)
 
 fn = paste(fig4_dir, '4a_statsTests.csv', sep='')
 write.csv(stats_test, file=fn)
