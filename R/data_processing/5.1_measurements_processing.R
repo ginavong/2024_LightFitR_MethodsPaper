@@ -34,13 +34,13 @@ load('data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250215.
 # 1. Import raw measurements ----
 message("5.1.1. Import raw data")
 
-measurements = read_many.OceanView('data/heliospectra_measurements/fig5/baseline_20250218/raw/')
+measurements = read_many.OceanView('data_raw/fig5_baseline_20250218_raw/')
 
 raw = measurements
 
 ## Export raw data
 
-fn = paste(out_dir, 'raw/', '5_baseline_raw_', date_measured, sep='')
+fn = paste(out_dir, '5_baseline_raw_', date_measured, sep='')
 save_data(measurements, fn)
 
 rm(fn)
