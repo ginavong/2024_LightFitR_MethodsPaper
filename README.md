@@ -6,12 +6,13 @@ Find the package here: https://github.com/ginavong/LightFitR
 
 # File structure
 
-- data: Processed `.Rda` files only (github filesize limits). `x` for raw data,
+- data: Processed `.Rda` files only (github filesize limits).
     - algorithm_testing: Data from testing the programming algorithms. Subfolders named by corresponding figures
     - heliospectra_measurements: Measurements from the Heliospectra light units
         - calibration: Data from calibrating the lights
         - Other folders named by the corresponding figures
     - regimes: Regimes to feed into Heliospectra units in 3 formats to accommodate different firmware versions
+- data_raw: Raw data used in this paper. Not included in this repository due to github filesize limits. Download from: 10.5281/zenodo.15584172
 - results: Figures and statistical results for the paper. Each folder corresponds to a figure in the paper
 - R
     - functions: Functions which are used frequently across scripts
@@ -66,7 +67,7 @@ The raw ascii / txt files should be processed into a dataframe with at least all
 | peak | boolean | does this wavelength represent the peak of the LED (at the given intensity)? |
 | irradiance | numeric | irradiance measured by spectrometer, in  μW cm^-2 nm^-1 |
 | watts | numeric | converted to W m^-2 nm^-1 |
-| mol | numeric | irradiance converted to mol s-1 m^-2 nm^-1 (via photobiology::as_quantum_mol|
+| mol | numeric | irradiance converted to mol s-1 m^-2 nm^-1 (via photobiology::as_quantum_mol)|
 | umol | numeric | irradiance converted to μmol s-1 m^-2 nm^-1 (**not same as PAR**) |
 | Additonal | columns | specific to the dataset |
 
