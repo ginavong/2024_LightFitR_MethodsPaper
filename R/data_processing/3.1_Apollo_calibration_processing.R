@@ -4,7 +4,7 @@ rm(list=ls())
 
 ## Directories
 fun_dir = "R/functions/"
-raw_dir = "data/heliospectra_measurements/calibration/Apollo_calib_20240827/raw"
+raw_dir = "data_raw/Apollo_calib_20240827_raw/"
 calib_regime_dir = "data/regimes/calibration/calibration_intensities.csv"
 out_dir = "data/heliospectra_measurements/calibration/Apollo_Calib_20240827/"
 

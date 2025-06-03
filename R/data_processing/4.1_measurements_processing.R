@@ -6,7 +6,7 @@ rm(list=ls())
 wd = getwd()
 out_dir = "data/algorithm_testing/fig4_algorithm_comparisons/"
 
-raw_dir = "data/heliospectra_measurements/fig4_20240905/raw"
+raw_dir = "data_raw/fig4_20240905_raw/"
 measurements_dir = "data/heliospectra_measurements/fig4_20240905/"
 regime_dir = "data/regimes/fig4_ComplexityTest/4_ComplexityTest_intensities.csv"
 peaks_dir = 'data/heliospectra_measurements/calibration/Apollo_Calib_20240827/Apollo_calibration_medianPeaks_20240827.Rda'

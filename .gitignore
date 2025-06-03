@@ -15,5 +15,4 @@ data/algorithm_testing/fig4_algorithm_comparisons/*.csv
 
 # Raw spectrometry files
 data/heliospectra_measurements/**/*.txt
-data/heliospectra_measurements/calibration/Apollo_Calib_20240827/raw/
-data/heliospectra_measurements/fig4_20240905/raw/
+data_raw/**/*
