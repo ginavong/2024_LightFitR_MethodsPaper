@@ -15,3 +15,4 @@ data/algorithm_testing/fig4_algorithm_comparisons/*.csv
 
 # Raw spectrometry files
 data/heliospectra_measurements/**/*.txt
+data_raw/**/*
