@@ -1,6 +1,6 @@
 # Intro
 
-Repo for the analysis done on the LightFitR methods paper.
+Repo for the analysis done on the LightFitR methods paper: https://doi.org/10.1101/2025.06.06.658293 
 
 Find the package here: https://github.com/ginavong/LightFitR
 
