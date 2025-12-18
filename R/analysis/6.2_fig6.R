@@ -37,3 +37,8 @@ fig6_ratios_plot = ggplot(data=fig6_RFR_ratio, aes(x=event, y=measured_RFR)) +
   theme_manuscript()
 fig6_ratios_plot
 
+fn = paste0(out_path, 'fig6_ratios')
+save_fig(fn, fig6_ratios_plot)
+
+# 2. Plot measurements ====
+
