@@ -26,7 +26,8 @@ load(data_path)
 fig6_ratios_plot = ggplot(data=fig6_RFR_ratio, aes(x=event, y=measured_RFR)) +
   #Add measured points
   geom_line() + geom_point() +
-  
+  # Add target points
+  geom_point(colour='red', shape=3, aes(y=target_R_FR)) +
   #Make pretty
   scale_x_continuous(breaks=fig6_RFR_ratio$event,
     #Add second x axis to translate back to the original paper                 
@@ -41,4 +42,17 @@ fn = paste0(out_path, 'fig6_ratios')
 save_fig(fn, fig6_ratios_plot)
 
 # 2. Plot measurements ====
+time_dict = fig6_RFR_ratio |> select(time_approx, event) |> distinct() |>
+  mutate(time=hm(time_approx))
 
+plot_measurements = ggplot(measurements_summary, aes(x=time, y=umol, colour=colour, shape=type, linetype=type)) +
+  geom_line() +
+  scale_x_time(sec.axis=dup_axis(breaks=as.integer(time_dict$time),
+                                 labels=time_dict$event,
+                                 name='event')) +
+  scale_colour_manual(values=led_colours[7:8]) +
+  theme_manuscript()
+plot_measurements
+
+fn = paste0(out_path, 'fig6_measurements')
+save_fig(fn, plot_measurements)
