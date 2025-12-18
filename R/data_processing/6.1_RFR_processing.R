@@ -91,7 +91,7 @@ measurements$umol = moles_to_umol(measurements$mol)
 ## Peaks
 measurements$peak = is.peak(measurements$wavelength, peaks$median_peak_wl)
 
-# 4. Calculate R:FR ratio
+# 4. Calculate R:FR ratio ====
 
 message("6.1.4 Calculate R:FR ratio")
 
@@ -122,9 +122,49 @@ fig6_RFR_ratio = target |>
 
 fig6_RFR_ratio$measured_RFR = fig6_RFR_ratio$measured_R / fig6_RFR_ratio$measured_FR
 
-# 4. Format & Export ====
+# 5. Make measurements df ====
 
-message("6.1.4 Format & export")
+message("6.1.5 Make measurements df")
+
+cols_interest = c('filename', 
+                  'event', 'time_char', 'middle_time', 'time', 'solar_elevation_angle',
+                  'type', 
+                  'colour', 'wavelength', 'umol')
+
+## Filter & format spectrum data
+wls_interest = peaks[c(7,8), 'median_peak_wl']
+colour_dict = data.frame(wavelength=wls_interest, colour=c('red', 'far-red'))
+
+measurements_filtered = measurements |> filter(wavelength %in% wls_interest) |> #Filter for red / far-red only
+  full_join(select(target, event, solar_elevation_angle), by='event') |> # Add necesSary columns from target
+  full_join(colour_dict, by='wavelength', relationship='many-to-one') |> #Add colour column
+  mutate(type='measured', time_char = time, time=lubridate::hms(time)) |> # Add other missing columns
+  select(all_of(cols_interest)) #Re-arrange columns in right order
+
+## Format target df
+R_FR_dict = data.frame(target=c('target_R_peak', 'target_FR_peak'), type=c('target', 'target'), 
+                       wavelength=peaks[c(7,8), 'median_peak_wl'], colour=c('red', 'far-red'))
+
+target_long = target |> pivot_longer(cols=starts_with('target'), names_to='target', values_to='umol') |>
+  filter(target != 'target_R_FR') |> #Remove rows with 'target_R_FR' that got included with the starts_with
+  #Add columns: type and wavelength
+  full_join(R_FR_dict, by='target', relationship='many-to-one') |>
+  #Add relevant columns from measurements
+  full_join(select(measurements_filtered, event, time_char, middle_time, time, wavelength), 
+            by=join_by(event, wavelength), relationship='one-to-many') |>
+  mutate(filename='6_targets.csv') |> #Add missing columns
+  #Re-arrange columns in right order
+  select(all_of(cols_interest))
+
+# Rbind
+measurements_summary = rbind(measurements_filtered, target_long)
+  
+
+rm(cols_interest, wls_interest, colour_dict, measurements_filtered, R_FR_dict, target_long)
+
+# 6. Format & Export ====
+
+message("6.1.6 Format & export")
 
 ## Arrange columns sensibly
 
@@ -144,4 +184,4 @@ fig6_RFR_ratio = fig6_RFR_ratio |> select(event, solar_elevation_angle, time_app
 ## Export
 
 fn = paste0(out_path, 'fig6_data_', date_measured, '.Rda')
-save(fig6_spectrum, fig6_RFR_ratio, file=fn)
+save(fig6_spectrum, fig6_RFR_ratio, measurements_summary, file=fn)
