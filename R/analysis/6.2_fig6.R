@@ -7,7 +7,7 @@ wd = getwd()
 
 data_path = './data/heliospectra_measurements/fig6/fig6_data_20251215.Rda'
 fig6_path = './results/fig6/'
-S5_path = './results/S5/'
+S5_path = './results/S6/'
 
 functions_path = './R/functions/'
 
