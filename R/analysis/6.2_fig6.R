@@ -6,7 +6,8 @@ rm(list=ls())
 wd = getwd()
 
 data_path = './data/heliospectra_measurements/fig6/fig6_data_20251215.Rda'
-out_path = './results/fig6/'
+fig6_path = './results/fig6/'
+S5_path = './results/S5/'
 
 functions_path = './R/functions/'
 
@@ -41,7 +42,7 @@ fig6_ratios_plot = ggplot(data=fig6_RFR_ratio, aes(x=event, y=measured_RFR)) +
   theme_manuscript()
 fig6_ratios_plot
 
-fn = paste0(out_path, 'fig6_ratios')
+fn = paste0(fig6_path, 'fig6_ratios')
 save_fig(fn, fig6_ratios_plot)
 
 # Solar elevation on bottom
@@ -59,7 +60,7 @@ fig6_ratios_plotb = ggplot(data=fig6_RFR_ratio, aes(x=solar_elevation_angle, y=m
   labs(y='R:FR', x='solar elevation angle') +
   theme_manuscript()
 
-fn = paste0(out_path, 'fig6_ratios_b')
+fn = paste0(fig6_path, 'fig6_ratios_b')
 save_fig(fn, fig6_ratios_plotb)
 
 # 2. Plot measurements ====
@@ -83,5 +84,5 @@ plot_measurements = measurements_summary |> filter(middle_time==TRUE) |>
   theme_manuscript()
 plot_measurements
 
-fn = paste0(out_path, 'fig6_measurements')
+fn = paste0(S5_path, 'S5_measurements')
 save_fig(fn, plot_measurements)
