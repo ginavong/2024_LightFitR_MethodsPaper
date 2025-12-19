@@ -9,8 +9,8 @@ wd = getwd()
 fun_dir = 'R/functions/'
 
 data_dir = 'data/algorithm_testing/fig5_refinement/'
-main_dir = 'figures/fig5/'
-sup_dir = 'figures/S4/'
+main_dir = 'results/fig5/'
+sup_dir = 'results/S5/'
 
 ## Functions / Libraries
 
@@ -62,7 +62,7 @@ save_fig(fn, mse_plot)
 
 # 3. Refinement plot ----
 
-message("figS4a")
+message("figS5a")
 
 ### Subset df
 
@@ -88,12 +88,12 @@ refinement_target_plot
 
 ## Export
 
-fn = paste(sup_dir, 'S4a', sep='')
+fn = paste(sup_dir, 'S5a', sep='')
 save_fig(fn, refinement_target_plot)
 
 # 4. Euclidian distance plot ----
 
-message("figS4b")
+message("figS5b")
 
 ## Plot
 
@@ -106,7 +106,7 @@ euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)
   theme_manuscript()
 euclidian_plot
 
-fn = paste(sup_dir, 'S4b', sep='')
+fn = paste(sup_dir, 'S5b', sep='')
 save_fig(fn, euclidian_plot)
 
 ## Stats
@@ -129,7 +129,7 @@ test_results = t(sapply(treats, function(i){
 }))
 colnames(test_results) = c('start_MSE', 'rho', 'S', 'p.value')
 
-fn = paste(sup_dir, 'S4b_SpearmanRank.csv', sep='')
+fn = paste(sup_dir, 'S5b_SpearmanRank.csv', sep='')
 write.csv(test_results, file=fn)
 
 rm(fn, criteria, mse_subset, treats)
