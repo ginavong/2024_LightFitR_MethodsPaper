@@ -18,7 +18,7 @@ source('R/analysis/S4_spectrum.R') #ran this, no changes
 # Figure 5 and Supplements
 
 source('R/regime_design/5.0_Baseline.R') #Ran, no changes
-source('R/data_processing/5.1_measurements_processing.R') #Ran, no changes
+source('R/data_processing/5.1_measurements_processing.R') #Reran, no changes
 source('R/regime_design/5.2_RandomSearch_regime.R') 
 source('R/data_processing/5.3_random_measurements_processing.R')
 source('R/data_processing/5.4_RefinementProcessing.R')
