@@ -66,15 +66,20 @@ save_fig(fn, fig6_ratios_plotb)
 
 message('6.2.2 Plot measurements')
 
-time_dict = fig6_RFR_ratio |> select(time_approx, event) |> distinct() |>
+time_dict = fig6_RFR_ratio |> select(time_approx, event, solar_elevation_angle) |> distinct() |>
   mutate(time=hm(time_approx))
 
-plot_measurements = ggplot(measurements_summary, aes(x=time, y=umol, colour=colour, shape=type, linetype=type)) +
-  geom_line() +
-  scale_x_time(sec.axis=dup_axis(breaks=as.integer(time_dict$time),
+plot_measurements = measurements_summary |> filter(middle_time==TRUE) |>
+  ggplot(aes(x=solar_elevation_angle, y=umol, colour=colour, shape=type, linetype=type)) +
+  geom_line() + geom_point()+
+  # Make x axis go large -> small and add second event axis on top
+  scale_x_reverse(sec.axis=dup_axis(breaks=time_dict$solar_elevation_angle,
                                  labels=time_dict$event,
                                  name='event')) +
-  scale_colour_manual(values=led_colours[7:8]) +
+  # Make pretty
+  scale_colour_manual(values=led_colours[c(8,7)]) + 
+  scale_shape_manual(values=c(16, 3)) +
+  labs(x='solar elevation angle', y=irr_umol_peak_lab) +
   theme_manuscript()
 plot_measurements
 
