@@ -13,7 +13,7 @@ source('R/regime_design/4.0_ComplexityTest_regime.R')
 source('R/data_processing/4.1_measurements_processing.R')
 source('R/data_processing/4.2_algorithmTests.R')
 source('R/analysis/4.3_fig4&sups.R')
-source('R/analysis/S4_spectrum.R')
+source('R/analysis/S4_spectrum.R') #ran this, no changes
 
 # Figure 5 and Supplements
 
