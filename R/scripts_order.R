@@ -13,6 +13,7 @@ source('R/regime_design/4.0_ComplexityTest_regime.R')
 source('R/data_processing/4.1_measurements_processing.R')
 source('R/data_processing/4.2_algorithmTests.R')
 source('R/analysis/4.3_fig4&sups.R')
+source('R/analysis/S4_spectrum.R')
 
 # Figure 5 and Supplements
 
@@ -22,6 +23,12 @@ source('R/regime_design/5.2_RandomSearch_regime.R')
 source('R/data_processing/5.3_random_measurements_processing.R')
 source('R/data_processing/5.4_RefinementProcessing.R')
 source('R/analysis/5.5_fig5&sups.R')
+
+# Figure 6 and Supplements
+
+source('R/regime_design/6.0_RFR_regime.R')
+source('R/data_processing/6.1_RFR_processing.R')
+source('R/analysis/6.2_fig6.R')
 
 # Reset
 
