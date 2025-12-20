@@ -108,7 +108,7 @@ rm(bleed_heatmap_light, fn)
 ## Heatmap dark
 
 bleed_heatmap_dark = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
-  geom_tile() + labs(x='LED which is on', y="wavelengths of other channels", fill='irradiance') +
+  geom_tile() + labs(x='LED which is on', y="wavelengths of other channels", fill='bleedthrough') +
   scale_fill_gradient(low='#060038', high='white', na.value='#fa9900') + 
   theme_presentation()
 bleed_heatmap_dark
