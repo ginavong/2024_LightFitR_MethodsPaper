@@ -82,7 +82,7 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used], guide='none') + scale_fill_manual(values=led_colours[leds_used], guide='none') +
   scale_size_manual(values=c(1, 4, 1), guide='none') + shapes + guides(shape='none') +
-  labs(x='event', y=irr_umol_lab) +
+  labs(x='event', y=irr_umol_peak_lab) +
   theme_manuscript() 
 refinement_target_plot
 
