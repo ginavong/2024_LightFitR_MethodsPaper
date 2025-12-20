@@ -16,6 +16,7 @@ functions_path = './R/functions/'
 library(ggplot2)
 library(ggspectra)
 library(dplyr)
+library(lubridate)
 
 source(paste0(functions_path, 'ggplot_functions.R'))
 
