@@ -6,6 +6,8 @@ rm(list=ls())
 library(ggplot2)
 library(ggbeeswarm)
 library(ggspectra)
+library(dplyr)  
+library(tidyr)
 
 source("R/functions/ggplot_functions.R")
 
@@ -174,3 +176,13 @@ fn = paste(fig3_out, '3c_sub_dark', sep='')
 save_fig(fn, diff_plot_dark, c(24,36))
 
 rm(calib_subset, diff_plot_dark, fn)
+
+# Supplementary table 1 ====
+
+cols_keep = c('filename', 'event', 'LED', 'intensity', 'wavelength', 'umol')
+
+calib_supplement = calib |> filter(middle_time==TRUE) |>
+  select(all_of(cols_keep))
+
+fn = paste0(sup_out, 'tableS1.csv')
+write.csv(calib_supplement, fn)
