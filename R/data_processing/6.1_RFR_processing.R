@@ -6,7 +6,7 @@ rm(list=ls())
 
 wd = getwd()
 
-raw_path = './data_raw/fig6_RFR_raw/'
+raw_path = './data_raw/20260105_fig6_raw/'
 out_path = './data/heliospectra_measurements/fig6/'
 
 regime_dir = "data/regimes/fig6_R_FR_demo/6_RFR_intensities.csv"
