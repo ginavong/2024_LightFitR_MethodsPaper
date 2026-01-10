@@ -24,11 +24,11 @@ source('R/data_processing/5.3_random_measurements_processing.R')
 source('R/data_processing/5.4_RefinementProcessing.R')
 source('R/analysis/5.5_fig5&sups.R')
 
-# Figure 6 and Supplements
+# Figure 5b
 
-source('R/regime_design/6.0_RFR_regime.R')
-source('R/data_processing/6.1_RFR_processing.R')
-source('R/analysis/6.2_fig6.R')
+source('R/regime_design/5.6_RFR_regime.R')
+source('R/data_processing/5.7_RFR_processing.R')
+source('R/analysis/5.8_fig6.R')
 
 # Reset
 
