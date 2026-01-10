@@ -10,7 +10,7 @@ fun_dir = 'R/functions/'
 
 data_dir = 'data/algorithm_testing/fig5_refinement/'
 main_dir = 'results/fig5/'
-sup_dir = 'results/S5/'
+sup_dir = 'results/S4/'
 
 ## Functions / Libraries
 
@@ -62,7 +62,7 @@ save_fig(fn, mse_plot)
 
 # 3. Refinement plot ----
 
-message("figS5a")
+message("figS4a")
 
 ### Subset df
 
@@ -88,12 +88,12 @@ refinement_target_plot
 
 ## Export
 
-fn = paste(sup_dir, 'S5a', sep='')
+fn = paste(sup_dir, 'S4a', sep='')
 save_fig(fn, refinement_target_plot)
 
 # 4. Euclidian distance plot ----
 
-message("figS5b")
+message("figS4b")
 
 ## Plot
 
@@ -106,7 +106,7 @@ euclidian_plot = ggplot(mse_refinement, aes(x=euc_dist, y=MSE, colour=start_MSE)
   theme_manuscript()
 euclidian_plot
 
-fn = paste(sup_dir, 'S5b', sep='')
+fn = paste(sup_dir, 'S4b', sep='')
 save_fig(fn, euclidian_plot)
 
 ## Stats

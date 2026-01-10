@@ -6,7 +6,7 @@ rm(list=ls())
 
 wd = getwd()
 
-out_path = './results/S4/'
+out_path = './results/S5/'
 data_path = './data/heliospectra_measurements/fig4_20240905/4_annotated_20240905.Rda'
 
 functions_path = './R/functions/'
