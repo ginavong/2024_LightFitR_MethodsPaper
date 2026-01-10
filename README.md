@@ -6,9 +6,9 @@ Find the package here: https://github.com/ginavong/LightFitR
 
 # How to run
 
-1. Download the repository.
-2. Download the raw data (from https://doi.org/10.5281/zenodo.15584173) and place it in the project as `data_raw`
-3. Launch the `2024_LightFitR_MethodsPaper.Rproj` file to open the project.
+1. Download this repository.
+2. Download the raw data (from https://doi.org/10.5281/zenodo.15584172), unzip and place it in the project as the `data_raw` folder
+3. Launch the `2024_LightFitR_MethodsPaper.Rproj` file to open the project in RStudio.
 4. Open `renv.lock` and check you are using the correct R version (install and switch if needed).
 5. Install the `renv` package if needed.
 6. Run `renv::restore()` - this installs the correct version of every package I used, it may take a while.
