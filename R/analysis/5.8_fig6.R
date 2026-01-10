@@ -5,7 +5,7 @@ rm(list=ls())
 ## Paths
 wd = getwd()
 
-data_path = './data/heliospectra_measurements/fig5b/fig5b_data_20251215.Rda'
+data_path = './data/heliospectra_measurements/fig5b/fig5b_data_20260105.Rda'
 fig5_path = './results/fig5/'
 
 functions_path = './R/functions/'

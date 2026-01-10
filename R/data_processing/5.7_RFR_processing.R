@@ -16,7 +16,7 @@ target_dir = './data/algorithm_testing/fig5b_R_FR_demo/5b_targets.csv'
 functions_path = './R/functions/'
 
 ## Variables
-date_measured = '20251215'
+date_measured = '20260105'
 
 ## Functions
 
