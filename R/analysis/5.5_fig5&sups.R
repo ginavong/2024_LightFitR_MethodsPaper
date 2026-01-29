@@ -9,8 +9,8 @@ wd = getwd()
 fun_dir = 'R/functions/'
 
 data_dir = 'data/algorithm_testing/fig5_refinement/'
-main_dir = 'figures/fig5/'
-sup_dir = 'figures/S4/'
+main_dir = 'results/fig5/'
+sup_dir = 'results/S4/'
 
 ## Functions / Libraries
 
@@ -82,7 +82,7 @@ refinement_target_plot = ggplot(refinement_subset, aes(x=relative_event, y=umol,
   geom_point(aes(shape=status, size=status)) + 
   scale_colour_manual(values=led_colours[leds_used], guide='none') + scale_fill_manual(values=led_colours[leds_used], guide='none') +
   scale_size_manual(values=c(1, 4, 1), guide='none') + shapes + guides(shape='none') +
-  labs(x='event', y=irr_umol_lab) +
+  labs(x='event', y=irr_umol_peak_lab) +
   theme_manuscript() 
 refinement_target_plot
 
@@ -129,7 +129,7 @@ test_results = t(sapply(treats, function(i){
 }))
 colnames(test_results) = c('start_MSE', 'rho', 'S', 'p.value')
 
-fn = paste(sup_dir, 'S4b_SpearmanRank.csv', sep='')
+fn = paste(sup_dir, 'S5b_SpearmanRank.csv', sep='')
 write.csv(test_results, file=fn)
 
 rm(fn, criteria, mse_subset, treats)

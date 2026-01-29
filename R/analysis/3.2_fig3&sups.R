@@ -6,6 +6,8 @@ rm(list=ls())
 library(ggplot2)
 library(ggbeeswarm)
 library(ggspectra)
+library(dplyr)  
+library(tidyr)
 
 source("R/functions/ggplot_functions.R")
 
@@ -60,7 +62,7 @@ criteria = total$middle_time == T
 
 total_line_light = ggplot(data=total[criteria,], aes(x=intensity, y=total_umol, colour=LED)) +
   geom_point() + geom_smooth(se=F, linewidth=0.5) +
-  scale_colour_manual(values = led_colours) + labs(y=expression('total irradiance (μmol m'^-2 * s^-1*')')) +
+  scale_colour_manual(values = led_colours) + labs(y=expression('total PFD (μmol m'^-2 * s^-1*')')) +
   theme_manuscript()
 total_line_light
 
@@ -108,7 +110,7 @@ rm(bleed_heatmap_light, fn)
 ## Heatmap dark
 
 bleed_heatmap_dark = ggplot(bleedthrough, aes(x=LED1, y=wavelength, fill=umol)) +
-  geom_tile() + labs(x='LED which is on', y="wavelengths of other channels", fill='irradiance') +
+  geom_tile() + labs(x='LED which is on', y="wavelengths of other channels", fill='bleedthrough') +
   scale_fill_gradient(low='#060038', high='white', na.value='#fa9900') + 
   theme_presentation()
 bleed_heatmap_dark
@@ -174,3 +176,13 @@ fn = paste(fig3_out, '3c_sub_dark', sep='')
 save_fig(fn, diff_plot_dark, c(24,36))
 
 rm(calib_subset, diff_plot_dark, fn)
+
+# Supplementary table 1 ====
+
+cols_keep = c('filename', 'event', 'LED', 'intensity', 'wavelength', 'umol')
+
+calib_supplement = calib |> filter(middle_time==TRUE) |>
+  select(all_of(cols_keep))
+
+fn = paste0(sup_out, 'tableS1.csv')
+write.csv(calib_supplement, fn)

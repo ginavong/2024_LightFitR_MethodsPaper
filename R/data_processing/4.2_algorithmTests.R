@@ -75,13 +75,13 @@ closest_mat_calib = LightFitR::internal.closestIntensities(target, calib, peaks=
 
 ## multidim NNLS with calib
 
-nnls_multidim_calib= LightFitR::nnls_intensities(target, closest_mat_calib, calib$led, calib$wavelength, calib$intensity, calib$irradiance, peaks=peaks$median_peak_wl)
+nnls_multidim_calib= LightFitR::nnls_intensities(target, closest_mat_calib, calib$led, calib$wavelength, calib$intensity, calib$irradiance, peaks=peaks$median_peak_wl)[-9,] #remove white channel
 
 tidied_nnls_multidim_calib= LightFitR::internal.tidyIntensities(nnls_multidim_calib, calib$intensity) #Turns everything into an integer and caps intensities to 1000
 
 ## multidim SLE with calib
 
-sle_multidim_calib = LightFitR::sle_intensities(target, closest_mat_calib, calib$led, calib$wavelength, calib$intensity, calib$irradiance, peaks=peaks$median_peak_wl)
+sle_multidim_calib = LightFitR::sle_intensities(target, closest_mat_calib, calib$led, calib$wavelength, calib$intensity, calib$irradiance, peaks=peaks$median_peak_wl)[-9,]
 
 tidied_sle_multidim_calib = LightFitR::internal.tidyIntensities(sle_multidim_calib, calib$intensity)
 
@@ -182,7 +182,7 @@ format_df = function(calib_processing, algorithm_type, algorithm, peaks, target,
 
 ## Format dfs
 
-df_closest_mat_calib = format_df('none', 'individual', 'closest', peaks, target_mat, regime, closest_mat_calib, closest_mat_calib)
+df_closest_mat_calib = format_df('none', 'individual', 'closest', peaks, target_mat, regime, closest_mat_calib[-9,], closest_mat_calib[-9,])
 
 df_lm_calib = format_df('none', 'individual', 'lm', peaks, target_mat, regime, lm_calib, tidied_lm_calib)
 

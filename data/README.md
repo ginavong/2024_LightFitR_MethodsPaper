@@ -1,4 +1,5 @@
-Raw data available at: 
+Raw data available at: https://doi.org/10.5281/zenodo.15584172
+
 OceanView .txt files cannot be stored on GitHub because of file sizes.
 
 # Fig 3
@@ -57,3 +58,21 @@ Data for analysis of fig 5 refinement process. All dataframes in this folder are
 - 5_baseline_mse.Rda: Dataframes with residuals and MSE for the baseline / algorithm intensities. Derived from `data/algorithm_testing/fig5_refinement/5.0_BaselineForRefinement_20250201.Rda` and `data/heliospectra_measurements/fig5/baseline_20250218/5_baseline_annotated_20250218.Rda`
 - 5_RandomRefinement.Rda: Dataframes with residuals and MSE for random search. Derived from `data/heliospectra_measurements/fig5/RandomSearch_20250218/5a_annotated_20250218.Rda`
 - 5_refinementCollated.Rda: Dataframes with residuals and MSE for the entire refinement process. Collated from `5_baseline_mse.Rda` and `5_RandomRefinement.Rda`
+
+# Fig 5b
+
+## `data/algorithm_testing/fig5b_R_FR_demo`
+
+Target data for figure 5b which uses Heliospectra lights to immitate the real-life R:FR observed in: https://doi.org/10.1016/j.agrformet.2020.108041
+
+## `data/regimes/fig5b_R_FR_demo`
+
+Regimes used on the Heliospectra lights.
+
+## `data/heliospectra_measurements/fig5b`
+
+Data of the spectrometer measurements from running the regime on the lights.
+
+- 5b_raw_20260105.Rda: Raw spectrum data collected on 2026 January 05.
+- fig5b_data_20260105.Rda: Processed spectrum data
+
