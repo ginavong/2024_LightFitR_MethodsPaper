@@ -108,6 +108,8 @@ save_fig(fn, fig4a)
 
 fn =paste0(fig4_dir, '4a_dark_algorithm')
 save_fig(fn, fig4a_dark)
+ggsave(fig4a_dark, file=paste0(fig4_dir, '4a_dark_algorithm_wide.png'),
+       width=16, height=9, bg='transparent', dpi=600)
 
 fn = paste(fig4_dir, '4a_statsTests.csv', sep='')
 write.csv(stats_test, file=fn)

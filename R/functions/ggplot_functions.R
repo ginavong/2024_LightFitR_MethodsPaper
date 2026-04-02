@@ -36,6 +36,9 @@ theme_presentation = function() {
     axis.ticks=element_line(color="#ffffff"),
     strip.text = element_text(colour = '#ffffff'),
     
+    # Facets
+    panel.boarder = element_rect(fill='transparent', colour='grey'),
+    
     #Transparent background
     legend.background=element_rect(fill = "transparent",colour = NA),
     legend.key = element_rect(colour = NA, fill = NA),
